@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FsiExt.fs" />
-    <Compile Include="WatchNodeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchForm.fs" />
     <None Include="Install.fsx" />
