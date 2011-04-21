@@ -83,14 +83,15 @@ type WatchTreeView() as this =
 
             tn.Nodes.AddRange(modelNodes)
     do
-        //when expanding a node, add all immediate children to each child
-        this.AfterExpand.Add (fun args -> for node in args.Node.Nodes do updateNodeChildren node)
+        //when expanding a node, add all immediate children to each child if not already populated
+        this.AfterExpand.Add (fun args -> for node in args.Node.Nodes do if node.Nodes.Count = 0 then updateNodeChildren node)
     with
         member this.UpdateWatch(tn:TreeNode, tag) =
             this.BeginUpdate()
             (
                 updateNode tn tn.Name tag (getRootNodeText tn.Name tag)
                 updateNodeChildren tn
+                tn.Collapse()
             )
             this.EndUpdate()
             ()
