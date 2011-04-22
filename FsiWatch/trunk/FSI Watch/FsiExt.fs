@@ -1,5 +1,5 @@
 ﻿[<AutoOpen>]
-module Swensen.Watch.FsiExt
+module Swensen.FsiWatch.FsiExt
 
 open Microsoft.FSharp.Compiler.Interactive
 open System.Reflection
@@ -15,12 +15,12 @@ let private getFsiVariables() =
                         yield m.Name, lazy m.GetValue(null, Array.empty)}
 
 type InteractiveSession with
-    member this.getVariables() = 
+    member this.GetVariables() = 
         getFsiVariables() 
         |> Seq.map (fun (name, lval) -> name, lval.Value)
         |> dict
 
-    member this.getNamedVariables() = 
+    member this.GetNamedVariables() = 
         getFsiVariables() 
         |> Seq.filter (fun (name, _) -> not (name = "it"|| name.Contains("@")))
         |> Seq.map (fun (name, lval) -> name, lval.Value)

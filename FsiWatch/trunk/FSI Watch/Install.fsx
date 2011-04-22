@@ -2,8 +2,10 @@
 module Watch
 
 #load "FsiExt.fs"
+#load "WatchNodeModel.fs"
 #load "WatchTreeView.fs"
 #load "WatchForm.fs"
+open Swensen.FsiWatch
 open Swensen.FsiWatch.Forms
 
 //implement as a ref, since we want to go ahead and show it in the watch (perhaps make configurable),
@@ -22,7 +24,7 @@ fsi.AddPrintTransformer(
                 watch.contents.Show()
                 watch.contents.Activate()
 
-            for KeyValue(key,value) in fsi.getNamedVariables() do
+            for KeyValue(key,value) in fsi.GetNamedVariables() do
                 watch.contents.AddOrUpdateWatch(key, value)
 
             null
