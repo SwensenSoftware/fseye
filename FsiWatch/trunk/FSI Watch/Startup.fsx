@@ -1,4 +1,11 @@
-﻿#load "Install.fsx"
+﻿#load "InteractiveSessionExt.fs"
+#load "MemberModel.fs"
+#load "WatchTreeView.fs"
+open Swensen.Watch.Forms
+#load "WatchForm.fs"
+open Swensen.Watch.Forms
+open Swensen.Watch.Fsi
+#load "FsiWatch.fs"
 
 //----testing todo, need to refactor out to model view
 //lazy load children

@@ -42,11 +42,11 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FsiExt.fs" />
-    <Compile Include="WatchNodeModel.fs" />
+    <Compile Include="InteractiveSessionExt.fs" />
+    <Compile Include="MemberModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchForm.fs" />
-    <None Include="Install.fsx" />
+    <Compile Include="FsiWatch.fs" />
     <None Include="Startup.fsx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

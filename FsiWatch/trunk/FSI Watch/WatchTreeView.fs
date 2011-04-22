@@ -1,4 +1,4 @@
-﻿namespace Swensen.FsiWatch.Forms
+﻿namespace Swensen.Watch.Forms
 open System.Windows.Forms
 open System.Reflection
 open Swensen.Watch.Model
@@ -24,14 +24,14 @@ type WatchTreeView() as this =
         if tn.Tag <> null then
             tn.Nodes.Clear()
             let createNodeFromModel model = 
-                createNode model.Name model.LazyValue.Value model.Text
+                createNode model.Name model.Value model.Text
 
             //might want to move this to model area
             let nonPublicModels, publicModels = 
-                WatchModel.GetFieldsAndProperties(tn.Tag)
+                MemberModel.GetFieldsAndProperties(tn.Tag)
                 |> Seq.sortBy (fun x -> x.Name)
                 |> Seq.toArray
-                |> Array.partition (fun x -> x.Protection = WatchProtection.NonPublic)
+                |> Array.partition (fun x -> x.Protection = MemberModelProtection.NonPublic)
 
             if nonPublicModels.Length > 0 then
                 let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"

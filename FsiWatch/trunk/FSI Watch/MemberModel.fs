@@ -1,23 +1,23 @@
 ﻿namespace Swensen.Watch.Model
 open System.Reflection
 
-type WatchKind = 
+type MemberModelKind = 
     | Field
     | Property
 
-type WatchProtection =
+type MemberModelProtection =
     | NonPublic
     | Public
 
-type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protection: WatchProtection; Type: System.Type }
+type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection: MemberModelProtection; MemberType: System.Type }
     with
         member this.Text =
             sprintf "%s (%s %s %s): %s" 
                 (this.Name)
                 (this.Protection |> function | Public -> "public" | NonPublic -> "private") //put all privates under one node
                 (this.Kind |> function | Field -> "field" | Property -> "property") //use icons
-                (this.Type.Name)
-                (if obj.ReferenceEquals(this.LazyValue.Value, null) then "null" else this.LazyValue.Value.ToString())
+                (this.MemberType.Name)
+                (if obj.ReferenceEquals(this.Value, null) then "null" else this.Value.ToString())
         
         static member GetProperties(value:obj) =
             if obj.ReferenceEquals(value, null) then Seq.empty
@@ -29,13 +29,12 @@ type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protecti
                     for p in props do
                         if p.GetIndexParameters() = Array.empty then //non-indexed property
                             let isPublic  = p.GetGetMethod(true).IsPublic
-                            let propValue = lazy (
+                            let propValue = //maybe make lazy for timeouts and async
                                 try
                                     p.GetValue(value, Array.empty)
                                 with e ->
                                     e :> obj
-                            )
-                            yield {Name = p.Name; LazyValue = propValue; Kind = Property; Protection = (if isPublic then Public else NonPublic); Type = p.PropertyType}
+                            yield {Name = p.Name; Value = propValue; Kind = Property; Protection = (if isPublic then Public else NonPublic); MemberType = p.PropertyType}
                 }
         
         static member GetFields(value:obj) =
@@ -47,14 +46,13 @@ type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protecti
 
                     for f in fields do
                         let isPublic  = f.IsPublic
-                        let fieldValue = lazy ( //making lazy cause may want to consider timeouts and async loading
+                        let fieldValue = //maybe make lazy for timeouts and async
                             try 
                                 f.GetValue(value)
                             with e ->
                                 e :> obj
-                        )
-                        yield {Name = f.Name; LazyValue = fieldValue; Kind = Field; Protection = (if isPublic then Public else NonPublic); Type = f.FieldType}
+                        yield {Name = f.Name; Value = fieldValue; Kind = Field; Protection = (if isPublic then Public else NonPublic); MemberType = f.FieldType}
                 }
 
         static member GetFieldsAndProperties(value:obj) =
-            seq { yield! WatchModel.GetFields(value) ; yield! WatchModel.GetProperties(value) }
+            seq { yield! MemberModel.GetFields(value) ; yield! MemberModel.GetProperties(value) }

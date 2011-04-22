@@ -1,4 +1,4 @@
-﻿namespace Swensen.FsiWatch.Forms
+﻿namespace Swensen.Watch.Forms
 open System.Windows.Forms
 open System.Reflection
 
