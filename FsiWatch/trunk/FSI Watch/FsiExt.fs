@@ -1,5 +1,5 @@
 ﻿[<AutoOpen>]
-module FsiExt
+module Swensen.Watch.FsiExt
 
 open Microsoft.FSharp.Compiler.Interactive
 open System.Reflection

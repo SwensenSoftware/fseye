@@ -1,18 +1,7 @@
 ﻿namespace Swensen.FsiWatch.Forms
 open System.Windows.Forms
 open System.Reflection
-
-type ModelKind = 
-    | Field
-    | Property
-//    | Enumerable
-//    | Type
-
-type ModelProtection =
-    | Private
-    | Public
-
-type Model = { Name:string; LazyValue: Lazy<obj>; Kind: ModelKind; Protection: ModelProtection; Type: System.Type }
+open Swensen.Watch.Model
 
 type WatchTreeView() as this =
     inherit TreeView()
@@ -30,55 +19,14 @@ type WatchTreeView() as this =
         updateNode tn name tag text
         tn
 
+    ///if tag is null, do nothing, this is a special node
     let updateNodeChildren (tn:TreeNode) =
-        tn.Nodes.Clear()
         if tn.Tag <> null then
-            let propertyModels = seq {
-                let props = 
-                    tn.Tag.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
-
-                for p in props do
-                    if p.GetIndexParameters() = Array.empty then //non-indexed property
-                        let isPublic  = p.GetGetMethod(true).IsPublic
-                        let propValue = lazy (
-                            try
-                                p.GetValue(tn.Tag, Array.empty)
-                            with e ->
-                                e :> obj
-                        )
-                        yield {Name = p.Name; LazyValue = propValue; Kind = Property; Protection = (if isPublic then Public else Private); Type = p.PropertyType}
-            }
-
-            let fieldModels = seq {
-                let fields = 
-                    tn.Tag.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
-
-                for f in fields do
-                    let isPublic  = f.IsPublic
-                    let fieldValue = lazy (
-                        try 
-                            f.GetValue(tn.Tag)
-                        with e ->
-                            e :> obj
-                    )
-                    yield {Name = f.Name; LazyValue = fieldValue; Kind = Field; Protection = (if isPublic then Public else Private); Type = f.FieldType}
-            }
-
-            let models = seq {yield! propertyModels; yield! fieldModels}
-            let modelNodes =
-                models
-                |> Seq.map
-                    (fun m ->
-                        createNode 
-                            m.Name  
-                            m.LazyValue.Value
-                            (sprintf "%s (%s %s %s): %s" 
-                                (m.Name)
-                                (m.Protection |> function | Public -> "public" | Private -> "private") 
-                                (m.Kind |> function | Field -> "field" | Property -> "property")
-                                (m.Type.Name)
-                                (if obj.ReferenceEquals(m.LazyValue.Value, null) then "null" else m.LazyValue.Value.ToString())))
-                |> Seq.sortBy (fun n -> n.Name.ToLower())
+            tn.Nodes.Clear()
+            let modelNodes = 
+                WatchModel.GetFieldsAndProperties(tn.Tag)
+                |> Seq.sortBy (fun x -> x.Name)
+                |> Seq.map (fun x -> createNode x.Name x.LazyValue.Value x.Text)
                 |> Seq.toArray
 
             tn.Nodes.AddRange(modelNodes)
