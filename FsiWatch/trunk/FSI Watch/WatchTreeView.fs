@@ -26,24 +26,49 @@ type WatchTreeView() as this =
             let createNodeFromModel model = 
                 createNode model.Name model.LazyValue.Value model.Text
 
+            //might want to move this to model area
             let nonPublicModels, publicModels = 
                 WatchModel.GetFieldsAndProperties(tn.Tag)
-                |> Seq.toArray
                 |> Seq.sortBy (fun x -> x.Name)
                 |> Seq.toArray
                 |> Array.partition (fun x -> x.Protection = WatchProtection.NonPublic)
 
             if nonPublicModels.Length > 0 then
                 let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
-                nonPublicRootNode.Nodes.AddRange(nonPublicModels |> Array.map createNodeFromModel)
-                tn.Nodes.Add(nonPublicRootNode) |> ignore
+                
+                nonPublicModels 
+                |> Array.map createNodeFromModel 
+                |> nonPublicRootNode.Nodes.AddRange
+                
+                nonPublicRootNode 
+                |> tn.Nodes.Add 
+                |> ignore
 
-            tn.Nodes.AddRange(publicModels |> Array.map createNodeFromModel)
+            publicModels 
+            |> Array.map createNodeFromModel 
+            |> tn.Nodes.AddRange
+
+            //call "Results" because that's what VS Watch window does
+            match tn.Tag with
+            | :? System.Collections.IEnumerable as results -> //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
+                let resultsRootNode = createNode (tn.Name + "@Results") null "Results"
+                results
+                |> Seq.cast<obj>
+                |> Seq.truncate 100
+                |> Seq.mapi (fun i x -> createNode (sprintf "%s@Results[%i]" tn.Name i) x (sprintf "[%i]" i))
+                |> Seq.toArray
+                |> resultsRootNode.Nodes.AddRange
+
+                
+                resultsRootNode
+                |> tn.Nodes.Add
+                |> ignore
+            | _ -> ()
     do
         //when expanding a node, add all immediate children to each child if not already populated
         this.AfterExpand.Add (fun args -> for node in args.Node.Nodes do if node.Nodes.Count = 0 then updateNodeChildren node)
     with
-        member this.UpdateWatch(tn:TreeNode, tag) =
+        member private this.UpdateWatch(tn:TreeNode, tag) =
             this.BeginUpdate()
             (
                 updateNode tn tn.Name tag (getRootNodeText tn.Name tag)
@@ -51,8 +76,7 @@ type WatchTreeView() as this =
                 tn.Collapse()
             )
             this.EndUpdate()
-            ()
-        member this.AddWatch(name, tag) =
+        member private this.AddWatch(name, tag) =
             this.BeginUpdate()
             (
                 //create new node and add all it's immediate children
@@ -61,7 +85,6 @@ type WatchTreeView() as this =
                 this.Nodes.Add(node) |> ignore
             )
             this.EndUpdate()
-            ()
         member this.AddOrUpdateWatch(name: string, tag:obj) =
             let objNode =
                 this.Nodes
