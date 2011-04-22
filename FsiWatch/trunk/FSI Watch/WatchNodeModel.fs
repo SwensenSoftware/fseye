@@ -6,7 +6,7 @@ type WatchKind =
     | Property
 
 type WatchProtection =
-    | Private
+    | NonPublic
     | Public
 
 type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protection: WatchProtection; Type: System.Type }
@@ -14,7 +14,7 @@ type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protecti
         member this.Text =
             sprintf "%s (%s %s %s): %s" 
                 (this.Name)
-                (this.Protection |> function | Public -> "public" | Private -> "private") //put all privates under one node
+                (this.Protection |> function | Public -> "public" | NonPublic -> "private") //put all privates under one node
                 (this.Kind |> function | Field -> "field" | Property -> "property") //use icons
                 (this.Type.Name)
                 (if obj.ReferenceEquals(this.LazyValue.Value, null) then "null" else this.LazyValue.Value.ToString())
@@ -35,7 +35,7 @@ type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protecti
                                 with e ->
                                     e :> obj
                             )
-                            yield {Name = p.Name; LazyValue = propValue; Kind = Property; Protection = (if isPublic then Public else Private); Type = p.PropertyType}
+                            yield {Name = p.Name; LazyValue = propValue; Kind = Property; Protection = (if isPublic then Public else NonPublic); Type = p.PropertyType}
                 }
         
         static member GetFields(value:obj) =
@@ -53,7 +53,7 @@ type WatchModel = { Name:string; LazyValue: Lazy<obj>; Kind: WatchKind; Protecti
                             with e ->
                                 e :> obj
                         )
-                        yield {Name = f.Name; LazyValue = fieldValue; Kind = Field; Protection = (if isPublic then Public else Private); Type = f.FieldType}
+                        yield {Name = f.Name; LazyValue = fieldValue; Kind = Field; Protection = (if isPublic then Public else NonPublic); Type = f.FieldType}
                 }
 
         static member GetFieldsAndProperties(value:obj) =

@@ -23,13 +23,22 @@ type WatchTreeView() as this =
     let updateNodeChildren (tn:TreeNode) =
         if tn.Tag <> null then
             tn.Nodes.Clear()
-            let modelNodes = 
-                WatchModel.GetFieldsAndProperties(tn.Tag)
-                |> Seq.sortBy (fun x -> x.Name)
-                |> Seq.map (fun x -> createNode x.Name x.LazyValue.Value x.Text)
-                |> Seq.toArray
+            let createNodeFromModel model = 
+                createNode model.Name model.LazyValue.Value model.Text
 
-            tn.Nodes.AddRange(modelNodes)
+            let nonPublicModels, publicModels = 
+                WatchModel.GetFieldsAndProperties(tn.Tag)
+                |> Seq.toArray
+                |> Seq.sortBy (fun x -> x.Name)
+                |> Seq.toArray
+                |> Array.partition (fun x -> x.Protection = WatchProtection.NonPublic)
+
+            if nonPublicModels.Length > 0 then
+                let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
+                nonPublicRootNode.Nodes.AddRange(nonPublicModels |> Array.map createNodeFromModel)
+                tn.Nodes.Add(nonPublicRootNode) |> ignore
+
+            tn.Nodes.AddRange(publicModels |> Array.map createNodeFromModel)
     do
         //when expanding a node, add all immediate children to each child if not already populated
         this.AfterExpand.Add (fun args -> for node in args.Node.Nodes do if node.Nodes.Count = 0 then updateNodeChildren node)
@@ -49,7 +58,7 @@ type WatchTreeView() as this =
                 //create new node and add all it's immediate children
                 let node = createNode name tag (getRootNodeText name tag)
                 updateNodeChildren node
-                ignore <| this.Nodes.Add(node)
+                this.Nodes.Add(node) |> ignore
             )
             this.EndUpdate()
             ()
