@@ -48,12 +48,12 @@ type WatchTreeView() as this =
             //call it "Results" because that's what VS Watch window does
             match tn.Tag with
             | :? System.Collections.IEnumerable as results -> //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
-                let results = ResultModel.GetResults(tn.Name, results)
+                let results = ResultModel.GetResults(tn.Name, results) //results are truncated
                 let resultsRootNode = 
                     createNode 
                         (tn.Name + "@Results") 
                         null 
-                        "Results"
+                        (sprintf "Results: %A" (results |> Seq.map (fun x -> x.Value)))
 
                 results
                 |> Seq.map (fun x -> createNode x.Name x.Value x.Text)

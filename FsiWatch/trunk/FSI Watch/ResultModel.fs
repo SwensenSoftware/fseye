@@ -10,7 +10,7 @@ type ResultModel = { OwnerName:string; Index:int; Value:obj }
                 (if obj.ReferenceEquals(this.Value,null) then "type unknown" else this.Value.GetType().ToString()) 
                 this.Value
         
-        ///Get all the Results for the given IEnumerable value (i.e. each element).
+        ///Get the first 100 or less Results for the given IEnumerable value (i.e. each element).
         static member GetResults(ownerName: string, value:System.Collections.IEnumerable) =
             let results =
                 value
