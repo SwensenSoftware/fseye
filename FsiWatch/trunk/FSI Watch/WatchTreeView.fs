@@ -24,28 +24,6 @@ type WatchTreeView() as this =
     let updateNodeChildren (tn:TreeNode) =
         if tn.Tag <> null then
             tn.Nodes.Clear()
-            let createNodeFromModel model = 
-                createNode model.Name model.Value model.Text
-
-            //might want to move this to model area
-            let nonPublicModels, publicModels = 
-                MemberModel.GetMembers(tn.Tag)
-
-            publicModels
-            |> Array.map createNodeFromModel 
-            |> tn.Nodes.AddRange
-
-            //add non public node if there are any non public members
-            if nonPublicModels.Length > 0 then
-                let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
-                
-                nonPublicModels 
-                |> Array.map createNodeFromModel 
-                |> nonPublicRootNode.Nodes.AddRange
-                
-                nonPublicRootNode 
-                |> tn.Nodes.Add 
-                |> ignore
 
             //add Results node if the given Tag value is of IEnumerable
             //call it "Results" because that's what VS Watch window does
@@ -67,6 +45,29 @@ type WatchTreeView() as this =
                 |> tn.Nodes.Add
                 |> ignore
             | _ -> ()
+
+            let createNodeFromModel model = 
+                createNode model.Name model.Value model.Text
+
+            //might want to move this to model area
+            let nonPublicModels, publicModels = 
+                MemberModel.GetMembers(tn.Tag)
+
+            //add non public node if there are any non public members
+            if nonPublicModels.Length > 0 then
+                let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
+                
+                nonPublicModels 
+                |> Array.map createNodeFromModel 
+                |> nonPublicRootNode.Nodes.AddRange
+                
+                nonPublicRootNode 
+                |> tn.Nodes.Add 
+                |> ignore
+
+            publicModels
+            |> Array.map createNodeFromModel 
+            |> tn.Nodes.AddRange
     do
         //when expanding a node, add all immediate children to each child if not already populated
         this.AfterExpand.Add (fun args -> for node in args.Node.Nodes do if node.Nodes.Count = 0 then updateNodeChildren node)
