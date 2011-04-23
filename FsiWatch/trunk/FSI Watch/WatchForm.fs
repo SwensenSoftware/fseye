@@ -15,5 +15,10 @@ type WatchForm() as this =
         treeView.Dock <- DockStyle.Fill
         this.Controls.Add treeView
     with
-        member this.AddOrUpdateWatch(name: string, tag:obj) =
-            treeView.AddOrUpdateWatch(name, tag)
+        ///Add or update a watch with the given name.
+        member this.Watch(name: string, tag:obj) =
+            treeView.Watch(name, tag)
+
+        ///Add or update all the elements in the sequence by name.
+        member this.Watch(watchList: seq<string * obj>) =
+            treeView.Watch watchList

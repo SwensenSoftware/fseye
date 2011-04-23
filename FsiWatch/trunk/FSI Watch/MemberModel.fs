@@ -9,8 +9,10 @@ type MemberModelProtection =
     | NonPublic
     | Public
 
+///Represents a field or property member of a Value.
 type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection: MemberModelProtection; MemberType: System.Type }
     with
+        ///The text representation of this model
         member this.Text =
             sprintf "%s (%s %s %s): %s" 
                 (this.Name)
@@ -19,6 +21,7 @@ type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection:
                 (this.MemberType.Name)
                 (if obj.ReferenceEquals(this.Value, null) then "null" else this.Value.ToString())
         
+        ///Get all the properties of value. If value is null returns Seq.empty.
         static member GetProperties(value:obj) =
             if obj.ReferenceEquals(value, null) then Seq.empty
             else
@@ -37,6 +40,7 @@ type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection:
                             yield {Name = p.Name; Value = propValue; Kind = Property; Protection = (if isPublic then Public else NonPublic); MemberType = p.PropertyType}
                 }
         
+        ///Get all the fields of value. If value is null returns Seq.empty.
         static member GetFields(value:obj) =
             if obj.ReferenceEquals(value, null) then Seq.empty
             else
@@ -56,3 +60,10 @@ type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection:
 
         static member GetFieldsAndProperties(value:obj) =
             seq { yield! MemberModel.GetFields(value) ; yield! MemberModel.GetProperties(value) }
+
+        ///Get field and property members sorted by name and partitioned by kind. If value is null returns Seq.empty.
+        static member GetMembers(value:obj) =
+            MemberModel.GetFieldsAndProperties(value)
+                |> Seq.sortBy (fun x -> x.Name)
+                |> Seq.toArray
+                |> Array.partition (fun x -> x.Protection = MemberModelProtection.NonPublic)

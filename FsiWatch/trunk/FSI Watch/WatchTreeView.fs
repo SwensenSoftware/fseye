@@ -28,10 +28,7 @@ type WatchTreeView() as this =
 
             //might want to move this to model area
             let nonPublicModels, publicModels = 
-                MemberModel.GetFieldsAndProperties(tn.Tag)
-                |> Seq.sortBy (fun x -> x.Name)
-                |> Seq.toArray
-                |> Array.partition (fun x -> x.Protection = MemberModelProtection.NonPublic)
+                MemberModel.GetMembers(tn.Tag)
 
             if nonPublicModels.Length > 0 then
                 let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
@@ -44,7 +41,7 @@ type WatchTreeView() as this =
                 |> tn.Nodes.Add 
                 |> ignore
 
-            publicModels 
+            publicModels
             |> Array.map createNodeFromModel 
             |> tn.Nodes.AddRange
 
@@ -52,14 +49,11 @@ type WatchTreeView() as this =
             match tn.Tag with
             | :? System.Collections.IEnumerable as results -> //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
                 let resultsRootNode = createNode (tn.Name + "@Results") null "Results"
-                results
-                |> Seq.cast<obj>
-                |> Seq.truncate 100
-                |> Seq.mapi (fun i x -> createNode (sprintf "%s@Results[%i]" tn.Name i) x (sprintf "[%i]" i))
+                ResultModel.GetResults(tn.Name, results)
+                |> Seq.map (fun x -> createNode x.Name x x.Text)
                 |> Seq.toArray
                 |> resultsRootNode.Nodes.AddRange
 
-                
                 resultsRootNode
                 |> tn.Nodes.Add
                 |> ignore
@@ -85,7 +79,9 @@ type WatchTreeView() as this =
                 this.Nodes.Add(node) |> ignore
             )
             this.EndUpdate()
-        member this.AddOrUpdateWatch(name: string, tag:obj) =
+
+        ///Add or update a watch with the given name.
+        member this.Watch(name: string, tag:obj) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
@@ -95,3 +91,7 @@ type WatchTreeView() as this =
             | Some(tn) when obj.ReferenceEquals(tn.Tag, tag) |> not -> this.UpdateWatch(tn, tag)
             | None -> this.AddWatch(name, tag)
             | _ -> ()
+
+        ///Add or update all the elements in the sequence by name.
+        member this.Watch(watchList: seq<string * obj>) =
+            watchList |> Seq.iter this.Watch
