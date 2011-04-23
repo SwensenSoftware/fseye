@@ -20,10 +20,29 @@ type WatchTreeView() as this =
         updateNode tn name tag text
         tn
 
-    ///if tag is null, do nothing, this is a special node
-    let updateNodeChildren (tn:TreeNode) =
+    let getTypeNodeName ownerName = 
+        ownerName + "@Type"
+
+    let getTypeNodeText (ownerType:System.Type) =
+        sprintf "Type: %s" (ownerType.ToString())
+
+    ///if tag is null, do nothing, this is a special node, or otherwise has no meaningful children
+    //acutally N.B. Tag should encode more info than just the value of the watch type, in particular
+    //capture whether a load attempt has already been made on a type, or the type of a null value
+    //if we have it.
+    let rec updateNodeChildren (tn:TreeNode) =
         if tn.Tag <> null then
             tn.Nodes.Clear()
+
+            //create type node
+            //don't create Type node for type Node, or will get infinite recursion
+            if tn.Name.EndsWith("@Type") |> not then //want to be stronger typed :(
+                let typeNode = createNode (getTypeNodeName tn.Name) (tn.Tag.GetType()) (getTypeNodeText (tn.Tag.GetType()))
+                updateNodeChildren typeNode
+
+                typeNode
+                |> tn.Nodes.Add
+                |> ignore
 
             //add Results node if the given Tag value is of IEnumerable
             //call it "Results" because that's what VS Watch window does
