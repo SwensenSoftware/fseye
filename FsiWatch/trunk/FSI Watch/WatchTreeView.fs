@@ -30,6 +30,10 @@ type WatchTreeView() as this =
             let nonPublicModels, publicModels = 
                 MemberModel.GetMembers(tn.Tag)
 
+            publicModels
+            |> Array.map createNodeFromModel 
+            |> tn.Nodes.AddRange
+
             if nonPublicModels.Length > 0 then
                 let nonPublicRootNode = createNode (tn.Name + "@Non-public") null "Non-public"
                 
@@ -41,16 +45,12 @@ type WatchTreeView() as this =
                 |> tn.Nodes.Add 
                 |> ignore
 
-            publicModels
-            |> Array.map createNodeFromModel 
-            |> tn.Nodes.AddRange
-
             //call "Results" because that's what VS Watch window does
             match tn.Tag with
             | :? System.Collections.IEnumerable as results -> //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
                 let resultsRootNode = createNode (tn.Name + "@Results") null "Results"
                 ResultModel.GetResults(tn.Name, results)
-                |> Seq.map (fun x -> createNode x.Name x x.Text)
+                |> Seq.map (fun x -> createNode x.Name x.Value x.Text)
                 |> Seq.toArray
                 |> resultsRootNode.Nodes.AddRange
 

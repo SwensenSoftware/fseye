@@ -21,8 +21,8 @@ fsi.AddPrintTransformer(
                 watch.Show()
                 watch.Activate()
 
-            for KeyValue(key,value) in fsi.GetNamedVariables() do
-                watch.AddOrUpdateWatch(key, value)
+            fsi.GetNamedVariables()
+            |> watch.Watch
 
             null
         with e ->
