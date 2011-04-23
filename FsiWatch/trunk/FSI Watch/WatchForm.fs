@@ -16,9 +16,17 @@ type WatchForm() as this =
         this.Controls.Add treeView
     with
         ///Add or update a watch with the given name.
-        member this.Watch(name: string, tag:obj) =
+        member this.Watch(name, tag) =
             treeView.Watch(name, tag)
 
         ///Add or update all the elements in the sequence by name.
-        member this.Watch(watchList: seq<string * obj>) =
+        member this.Watch(watchList) =
             treeView.Watch watchList
+
+        ///take archival snap shot of all current watches
+        member this.Archive(label: string) =
+            treeView.Archive(label)
+
+        ///take archival snap shot of all current watches with a default label
+        member this.Archive() = 
+            treeView.Archive()

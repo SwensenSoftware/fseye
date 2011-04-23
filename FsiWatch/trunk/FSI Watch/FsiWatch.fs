@@ -1,4 +1,5 @@
 ﻿//dont auto open since my want to use other things.
+[<AutoOpen>]
 module Swensen.Watch.Fsi.FsiWatch
 //open Swensen.Watch
 open Swensen.Watch.Forms

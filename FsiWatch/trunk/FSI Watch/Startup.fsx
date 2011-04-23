@@ -7,6 +7,7 @@ open Swensen.Watch.Forms
 open Swensen.Watch.Forms
 open Swensen.Watch.Fsi
 #load "FsiWatch.fs"
+open Swensen.Watch.Fsi
 
 //----testing todo, need to refactor out to model view
 //lazy load children

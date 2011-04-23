@@ -6,6 +6,8 @@ open Swensen.Watch.Model
 type WatchTreeView() as this =
     inherit TreeView()
 
+    let mutable archiveCounter = 0
+
     //should also include type here
     let getRootNodeText name tag = 
         sprintf "%s: %A" name tag
@@ -110,7 +112,7 @@ type WatchTreeView() as this =
             this.EndUpdate()
 
         ///Add or update a watch with the given name.
-        member this.Watch(name: string, tag:obj) =
+        member this.Watch(name: string, tag) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
@@ -122,5 +124,35 @@ type WatchTreeView() as this =
             | _ -> ()
 
         ///Add or update all the elements in the sequence by name.
-        member this.Watch(watchList: seq<string * obj>) =
+        member this.Watch(watchList:seq<string*obj>) =
             watchList |> Seq.iter this.Watch
+
+        //NOT WORKING RIGHT NOW
+        ///take archival snap shot of all current watches
+        member this.Archive(label: string) =
+            this.BeginUpdate()
+            (
+                let nodesToArchiveBeforeClone =
+                    this.Nodes 
+                    |> Seq.cast<TreeNode> 
+                    |> Seq.filter (fun tn -> tn.Name.EndsWith("@Archive") |> not)
+                    |> Seq.toArray //need to convert to array or get lazy evaluation issues!
+
+                let nodesToArchiveCloned =
+                    nodesToArchiveBeforeClone
+                    |> Seq.map (fun tn -> tn.Clone() :?> TreeNode) 
+                    |> Seq.toArray
+            
+                nodesToArchiveBeforeClone
+                |> Seq.iter (fun tn -> this.Nodes.Remove(tn))
+
+                let archiveNode = createNode (sprintf "%i@Archive" archiveCounter) null label
+                nodesToArchiveCloned |> archiveNode.Nodes.AddRange
+                archiveNode |> this.Nodes.Add |> ignore
+
+                archiveCounter <- archiveCounter + 1
+            )
+            this.EndUpdate()
+
+        ///take archival snap shot of all current watches with a default label
+        member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
