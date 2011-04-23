@@ -7,7 +7,8 @@ type WatchTreeView() as this =
     inherit TreeView()
 
     //should also include type here
-    let getRootNodeText name tag = sprintf "%s: %s" name (if obj.ReferenceEquals(tag, null)  then "null" else tag.ToString())
+    let getRootNodeText name tag = 
+        sprintf "%s: %A" name tag
 
     let updateNode (tn:TreeNode) name tag text =
         tn.Tag <- tag

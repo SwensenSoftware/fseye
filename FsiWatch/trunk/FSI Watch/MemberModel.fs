@@ -9,17 +9,17 @@ type MemberModelProtection =
     | NonPublic
     | Public
 
-///Represents a field or property member of a Value.
+///Represents a field or property member of a Value. Member Type is not null.
 type MemberModel = { Name:string; Value: obj; Kind: MemberModelKind; Protection: MemberModelProtection; MemberType: System.Type }
     with
         ///The text representation of this model
         member this.Text =
-            sprintf "%s (%s %s %s): %s" 
+            sprintf "%s (%s %s %s): %A" 
                 (this.Name)
                 (this.Protection |> function | Public -> "public" | NonPublic -> "private") //put all privates under one node
                 (this.Kind |> function | Field -> "field" | Property -> "property") //use icons
-                (this.MemberType.Name)
-                (if obj.ReferenceEquals(this.Value, null) then "null" else this.Value.ToString())
+                (this.MemberType.ToString())
+                this.Value
         
         ///Get all the properties of value. If value is null returns Seq.empty.
         static member GetProperties(value:obj) =
