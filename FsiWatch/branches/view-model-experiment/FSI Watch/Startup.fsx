@@ -1,6 +1,5 @@
 ﻿#load "InteractiveSessionExt.fs"
-#load "ResultModel.fs"
-#load "MemberModel.fs"
+#load "WatchTreeModel.fs"
 #load "WatchTreeView.fs"
 open Swensen.Watch.Forms
 #load "WatchForm.fs"

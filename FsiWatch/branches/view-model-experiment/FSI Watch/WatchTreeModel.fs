@@ -139,26 +139,24 @@ and SeqElement(ownerName:string, index:int, value:obj) =
 and Watch(name:string, value:obj) = 
     inherit AbstractNode()
     let text = sprintf "%s: %A" name value
-    let children = 
-        lazy(seq {
-        //try create Results node
+    let children = lazy(seq {
         yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
+        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
 
-        } |> Seq.cache)
     override __.Text = text
     override __.Name = name
     override __.Children = children
     member __.Value = value
 
-type Archive(count:int, watches: Watch[]) =
-    inherit AbstractNode()
-    let name = sprintf "%i@Archive" count
-    let text = sprintf "Archive (%i)" count
-    let children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
-    
-    override __.Text = text
-    override __.Name = name
-    override __.Children = children
+//type Archive(count:int, watches: Watch[]) =
+//    inherit AbstractNode()
+//    let name = sprintf "%i@Archive" count
+//    let text = sprintf "Archive (%i)" count
+//    let children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
+//    
+//    override __.Text = text
+//    override __.Name = name
+//    override __.Children = children
 
 //type nodeData = {Name:string, Text, }
 
