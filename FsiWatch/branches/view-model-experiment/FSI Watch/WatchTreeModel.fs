@@ -1,6 +1,6 @@
 ﻿module ExperimentalModels
 open System
-open Reflection
+open System.Reflection
 
 type INode =
     abstract Name : string
@@ -22,7 +22,7 @@ type dataMemberInfo =
     | Property of PropertyInfo
 
 ///Represents a field or property member of a Value. Member Type is not null.
-type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
+type DataMember(ownerValue: obj, dmi: dataMemberInfo) as this =
     inherit AbstractNode()
     let name, value, text, ty, isPublic =
         match dmi with
@@ -30,7 +30,7 @@ type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
             let name = fi.Name
             let value =
                 try 
-                    fi.GetValue(value)
+                    fi.GetValue(ownerValue)
                 with e ->
                     e :> obj
             let text = sprintf "%s (F): %A" name value
@@ -39,36 +39,41 @@ type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
             let name = pi.Name
             let value =
                 try
-                    p.GetValue(value, Array.empty)
+                    pi.GetValue(ownerValue, Array.empty)
                 with e ->
                     e :> obj
             let text = sprintf "%s (P): %A" name value
             name, value, text, pi.PropertyType, pi.GetGetMethod(true).IsPublic
 
+    let children = lazy(seq {
+        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
+        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
+
     override __.Text = text
     override __.Name = name
+    override __.Children = children
     member __.Value = value
     member __.Type = ty
     member __.IsPublic = isPublic
         
     ///Get all data members for the given owner value
-    static member GetDataMembers(value:obj) =
-        if obj.ReferenceEquals(value, null) then Seq.empty
+    static member GetDataMembers(ownerValue:obj) =
+        if obj.ReferenceEquals(ownerValue, null) then Seq.empty
         else
             let props = seq {
                 let propInfos = 
-                    value.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+                    ownerValue.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
 
                 for pi in propInfos do
                     if pi.GetIndexParameters() = Array.empty then //non-indexed property
-                        yield Property(pi) }
+                        yield DataMember(ownerValue,Property(pi)) }
             
             let fields = seq {
                 let fieldInfos = 
-                    value.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+                    ownerValue.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
 
                 for fi in fieldInfos do
-                    yield Field(fi) }
+                    yield DataMember(ownerValue,Field(fi)) }
 
             let publicDataMembers, nonPublicDataMembers = 
                 Seq.append props fields
@@ -76,18 +81,31 @@ type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
                 |> Seq.toArray
                 |> Array.partition (fun dm -> dm.IsPublic)
 
-            
+            seq {
+                if nonPublicDataMembers.Length > 0 then
+                    let children = lazy(nonPublicDataMembers |> Seq.cast<INode>)
+                        
+                    yield { new INode with
+                        member __.Text = "Non-public"
+                        member __.Name = "Non-public" //does it really even need to be unique?, I'm strating to think most of the time not (except for root Watch node)
+                        member __.Children = children }
+
+                    yield! publicDataMembers |> Seq.cast<INode>
+            }
 
 and SeqElement(ownerName:string, index:int, value:obj) = 
     inherit AbstractNode()
     let name = sprintf "%s@Results[%i]" ownerName index
     let text = sprintf "[%i]: %A" index value
+    let children = lazy(seq {
+        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
+        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
 
     member __.Index = index
     member __.Value = value
     override __.Name = name
     override __.Text = text
-    override __.Children = lazy(Seq.empty)
+    override __.Children = children
 
     ///if value is IEnumerable, then retrn Some INode node with SeqElement Children
     static member TryGetSeqElementsRoot(ownerName:string, value:obj) =
