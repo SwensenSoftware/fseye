@@ -1,5 +1,6 @@
 ﻿module ExperimentalModels
 open System
+open Reflection
 
 type INode =
     abstract Name : string
@@ -16,8 +17,68 @@ type AbstractNode() =
         member this.Text = this.Text
         member this.Children = this.Children
 
+type dataMemberInfo = 
+    | Field of FieldInfo
+    | Property of PropertyInfo
 
-type SeqElement(ownerName:string, index:int, value:obj) = 
+///Represents a field or property member of a Value. Member Type is not null.
+type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
+    inherit AbstractNode()
+    let name, value, text, ty, isPublic =
+        match dmi with
+        | Field(fi) -> 
+            let name = fi.Name
+            let value =
+                try 
+                    fi.GetValue(value)
+                with e ->
+                    e :> obj
+            let text = sprintf "%s (F): %A" name value
+            name, value, text, fi.FieldType, fi.IsPublic
+        | Property(pi) ->
+            let name = pi.Name
+            let value =
+                try
+                    p.GetValue(value, Array.empty)
+                with e ->
+                    e :> obj
+            let text = sprintf "%s (P): %A" name value
+            name, value, text, pi.PropertyType, pi.GetGetMethod(true).IsPublic
+
+    override __.Text = text
+    override __.Name = name
+    member __.Value = value
+    member __.Type = ty
+    member __.IsPublic = isPublic
+        
+    ///Get all data members for the given owner value
+    static member GetDataMembers(value:obj) =
+        if obj.ReferenceEquals(value, null) then Seq.empty
+        else
+            let props = seq {
+                let propInfos = 
+                    value.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+
+                for pi in propInfos do
+                    if pi.GetIndexParameters() = Array.empty then //non-indexed property
+                        yield Property(pi) }
+            
+            let fields = seq {
+                let fieldInfos = 
+                    value.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+
+                for fi in fieldInfos do
+                    yield Field(fi) }
+
+            let publicDataMembers, nonPublicDataMembers = 
+                Seq.append props fields
+                |> Seq.sortBy (fun dm -> dm.Text.ToLower())
+                |> Seq.toArray
+                |> Array.partition (fun dm -> dm.IsPublic)
+
+            
+
+and SeqElement(ownerName:string, index:int, value:obj) = 
     inherit AbstractNode()
     let name = sprintf "%s@Results[%i]" ownerName index
     let text = sprintf "[%i]: %A" index value
@@ -57,26 +118,28 @@ type SeqElement(ownerName:string, index:int, value:obj) =
                 | _ -> ()
         }
 
-type Watch(name:string, value:obj) = 
+and Watch(name:string, value:obj) = 
     inherit AbstractNode()
     let text = sprintf "%s: %A" name value
-    override __.Text = text
-    override __.Name = name
-    override __.Children =
+    let children = 
         lazy(seq {
-            //try create Results node
-            yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
+        //try create Results node
+        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
 
         } |> Seq.cache)
+    override __.Text = text
+    override __.Name = name
+    override __.Children = children
 
 type Archive(count:int, watches:Watch list) =
     inherit AbstractNode()
     let name = sprintf "%i@Archive" count
     let text = sprintf "Archive (%i)" count
+    let children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
     
     override __.Text = text
     override __.Name = name
-    override __.Children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
+    override __.Children = children
 
 //type nodeData = {Name:string, Text, }
 
