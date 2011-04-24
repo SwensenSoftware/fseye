@@ -136,12 +136,13 @@ and SeqElement(ownerName:string, index:int, value:obj) =
                 | _ -> ()
         }
 
-and Watch(name:string, value:obj) = 
+and Watch(name:string, value:obj, ty:Type) = 
     inherit AbstractWatchNode()
     let text = sprintf "%s: %A" name value
     let children = lazy(seq {
         yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
-        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
+        yield! DataMember.GetDataMembers(value) 
+    } |> Seq.cache)
 
     override __.Text = text
     override __.Name = name

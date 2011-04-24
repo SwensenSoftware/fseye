@@ -26,10 +26,10 @@ type WatchTreeView() as this =
     do
         this.AfterExpand.Add (fun args -> afterExpand args.Node)
     with
-        member private this.UpdateWatch(tn:TreeNode, value) =
+        member private this.UpdateWatch(tn:TreeNode, value, ty) =
             this.BeginUpdate()
             (
-                let wn = Watch(tn.Name, value)
+                let wn = Watch(tn.Name, value, ty)
                 tn.Text <- wn.Text
                 tn.Tag <- wn
                 tn.Nodes.Clear()
@@ -37,10 +37,10 @@ type WatchTreeView() as this =
                 tn.Collapse()
             )
             this.EndUpdate()
-        member private this.AddWatch(name, value) =
+        member private this.AddWatch(name, value, ty) =
             this.BeginUpdate()
             (
-                Watch(name,value) 
+                Watch(name, value, ty) 
                 |> createTreeNode
                 |> this.Nodes.Add
                 |> ignore
@@ -48,19 +48,19 @@ type WatchTreeView() as this =
             this.EndUpdate()
 
         ///Add or update a watch with the given name.
-        member this.Watch(name: string, value) =
+        member this.Watch(name: string, value, ty) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> Watch).Value, value) |> not -> this.UpdateWatch(tn, value)
-            | None -> this.AddWatch(name, value)
+            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> Watch).Value, value) |> not -> this.UpdateWatch(tn, value, ty)
+            | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
         ///Add or update all the elements in the sequence by name.
-        member this.Watch(watchList:seq<string*obj>) =
+        member this.Watch(watchList:seq<string * obj * System.Type>) =
             watchList |> Seq.iter this.Watch
 
         //NOT WORKING RIGHT NOW
