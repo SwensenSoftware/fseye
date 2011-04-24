@@ -1,4 +1,4 @@
-﻿module ExperimentalModels
+﻿module Swensen.Watch.Model
 open System
 open System.Reflection
 
@@ -148,8 +148,9 @@ and Watch(name:string, value:obj) =
     override __.Text = text
     override __.Name = name
     override __.Children = children
+    member __.Value = value
 
-type Archive(count:int, watches:Watch list) =
+type Archive(count:int, watches: Watch[]) =
     inherit AbstractNode()
     let name = sprintf "%i@Archive" count
     let text = sprintf "Archive (%i)" count

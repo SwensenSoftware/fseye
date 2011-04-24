@@ -43,8 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InteractiveSessionExt.fs" />
-    <Compile Include="MemberModel.fs" />
-    <Compile Include="ResultModel.fs" />
     <Compile Include="WatchTreeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchForm.fs" />
