@@ -6,7 +6,7 @@ open Swensen.Watch.Model
 type WatchTreeView() as this =
     inherit TreeView()
     let mutable archiveCounter = 0
-    let createTreeNode (watchNode:INode) =
+    let createTreeNode (watchNode:IWatchNode) =
         let tn = new TreeNode()
         tn.Name <- watchNode.Name
         tn.Text <- watchNode.Text
@@ -15,14 +15,14 @@ type WatchTreeView() as this =
         tn
 
     let afterExpand (node:TreeNode) =
-        let watchNode = node.Tag :?> INode
-        if watchNode.Children.IsValueCreated |> not then
+        match node.Tag with
+        | :? IWatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
             node.Nodes.Clear() //clear dummy node
             watchNode.Children.Value
             |> Seq.map createTreeNode
             |> Seq.toArray
             |> node.Nodes.AddRange
-
+        | _ -> () //either an Archive node or IWatchNode children already expanded
     do
         this.AfterExpand.Add (fun args -> afterExpand args.Node)
     with

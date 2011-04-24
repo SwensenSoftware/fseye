@@ -2,17 +2,17 @@
 open System
 open System.Reflection
 
-type INode =
+type IWatchNode =
     abstract Name : string
     abstract Text : string
-    abstract Children : Lazy<seq<INode>>
+    abstract Children : Lazy<seq<IWatchNode>>
 
 [<AbstractClass>]
-type AbstractNode() =
+type AbstractWatchNode() =
     abstract Name : string
     abstract Text : string
-    abstract Children : Lazy<seq<INode>>
-    interface INode with
+    abstract Children : Lazy<seq<IWatchNode>>
+    interface IWatchNode with
         member this.Name = this.Name
         member this.Text = this.Text
         member this.Children = this.Children
@@ -22,8 +22,8 @@ type dataMemberInfo =
     | Property of PropertyInfo
 
 ///Represents a field or property member of a Value. Member Type is not null.
-type DataMember(ownerValue: obj, dmi: dataMemberInfo) as this =
-    inherit AbstractNode()
+type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
+    inherit AbstractWatchNode()
     let name, value, text, ty, isPublic =
         match dmi with
         | Field(fi) -> 
@@ -83,18 +83,18 @@ type DataMember(ownerValue: obj, dmi: dataMemberInfo) as this =
 
             seq {
                 if nonPublicDataMembers.Length > 0 then
-                    let children = lazy(nonPublicDataMembers |> Seq.cast<INode>)
+                    let children = lazy(nonPublicDataMembers |> Seq.cast<IWatchNode>)
                         
-                    yield { new INode with
+                    yield { new IWatchNode with
                         member __.Text = "Non-public"
                         member __.Name = "Non-public" //does it really even need to be unique?, I'm strating to think most of the time not (except for root Watch node)
                         member __.Children = children }
 
-                    yield! publicDataMembers |> Seq.cast<INode>
+                    yield! publicDataMembers |> Seq.cast<IWatchNode>
             }
 
 and SeqElement(ownerName:string, index:int, value:obj) = 
-    inherit AbstractNode()
+    inherit AbstractWatchNode()
     let name = sprintf "%s@Results[%i]" ownerName index
     let text = sprintf "[%i]: %A" index value
     let children = lazy(seq {
@@ -107,7 +107,7 @@ and SeqElement(ownerName:string, index:int, value:obj) =
     override __.Text = text
     override __.Children = children
 
-    ///if value is IEnumerable, then retrn Some INode node with SeqElement Children
+    ///if value is IEnumerable, then retrn Some IWatchNode node with SeqElement Children
     static member TryGetSeqElementsRoot(ownerName:string, value:obj) =
         match value with
         | :? System.Collections.IEnumerable as value -> 
@@ -116,11 +116,11 @@ and SeqElement(ownerName:string, index:int, value:obj) =
                 lazy(value 
                 |> Seq.cast<obj>
                 |> Seq.truncate 100
-                |> Seq.mapi (fun i x -> SeqElement(ownerName, i, x) :> INode)
+                |> Seq.mapi (fun i x -> SeqElement(ownerName, i, x) :> IWatchNode)
                 |> Seq.cache)
 
             let name = ownerName + "@Results"
-            Some({ new INode with
+            Some({ new IWatchNode with
                 member this.Name = name
                 member this.Text = "Results"
                 member this.Children = results
@@ -137,7 +137,7 @@ and SeqElement(ownerName:string, index:int, value:obj) =
         }
 
 and Watch(name:string, value:obj) = 
-    inherit AbstractNode()
+    inherit AbstractWatchNode()
     let text = sprintf "%s: %A" name value
     let children = lazy(seq {
         yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
@@ -149,10 +149,10 @@ and Watch(name:string, value:obj) =
     member __.Value = value
 
 //type Archive(count:int, watches: Watch[]) =
-//    inherit AbstractNode()
+//    inherit AbstractWatchNode()
 //    let name = sprintf "%i@Archive" count
 //    let text = sprintf "Archive (%i)" count
-//    let children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
+//    let children = lazy(watches |> Seq.cast<IWatchNode>) //give me co/contravariant generics!
 //    
 //    override __.Text = text
 //    override __.Name = name
