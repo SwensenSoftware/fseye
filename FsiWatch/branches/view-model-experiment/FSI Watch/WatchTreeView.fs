@@ -156,3 +156,5 @@ type WatchTreeView() as this =
 
         ///take archival snap shot of all current watches with a default label
         member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
+
+        

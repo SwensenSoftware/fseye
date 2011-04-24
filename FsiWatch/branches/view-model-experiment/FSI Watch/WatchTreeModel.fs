@@ -1,13 +1,23 @@
 ﻿module ExperimentalModels
 open System
 
+type INode =
+    abstract Name : string
+    abstract Text : string
+    abstract Children : Lazy<seq<INode>>
+
 [<AbstractClass>]
 type AbstractNode() =
     abstract Name : string
     abstract Text : string
-    //abstract Children : seq<IWatchNode>
+    abstract Children : Lazy<seq<INode>>
+    interface INode with
+        member this.Name = this.Name
+        member this.Text = this.Text
+        member this.Children = this.Children
 
-type ResultsElement(ownerName:string, index:int, value:obj) = 
+
+type SeqElement(ownerName:string, index:int, value:obj) = 
     inherit AbstractNode()
     let name = sprintf "%s@Results[%i]" ownerName index
     let text = sprintf "[%i]: %A" index value
@@ -16,36 +26,48 @@ type ResultsElement(ownerName:string, index:int, value:obj) =
     member __.Value = value
     override __.Name = name
     override __.Text = text
+    override __.Children = lazy(Seq.empty)
 
-//should i flip this on it's head and make Results have a list of Option<Lazy<list<ResultsElement>>> ?
-type Results(ownerName:string, elements:Lazy<list<ResultsElement>>) =
-    inherit AbstractNode()
-    let name = ownerName + "@Results"
-
-    override __.Name = ownerName
-    override __.Text = "Results"
-    member __.Elements = elements
-
-    static member TryCreate(ownerName:string, value:obj) =
+    ///if value is IEnumerable, then retrn Some INode node with SeqElement Children
+    static member TryGetSeqElementsRoot(ownerName:string, value:obj) =
         match value with
         | :? System.Collections.IEnumerable as value -> 
             //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
-            Some(lazy(value 
-            |> Seq.cast<obj>
-            |> Seq.truncate 100
-            |> Seq.mapi (fun i x -> ResultsElement(ownerName, i, x))
-            |> Seq.toList))
+            let results =
+                lazy(value 
+                |> Seq.cast<obj>
+                |> Seq.truncate 100
+                |> Seq.mapi (fun i x -> SeqElement(ownerName, i, x) :> INode)
+                |> Seq.cache)
+
+            let name = ownerName + "@Results"
+            Some({ new INode with
+                member this.Name = name
+                member this.Text = "Results"
+                member this.Children = results
+            })
         | _ -> 
             None
+
+    ///return a seq which yields the Seq element root, or empty if None
+    static member YieldSeqElementsRootOrEmptyIfNone(ownerName:string, value:obj) =
+        seq {
+            match SeqElement.TryGetSeqElementsRoot(ownerName, value) with
+                | Some(elementsNode) -> yield elementsNode
+                | _ -> ()
+        }
 
 type Watch(name:string, value:obj) = 
     inherit AbstractNode()
     let text = sprintf "%s: %A" name value
-    let results = Results.TryCreate(name, value)
-
     override __.Text = text
     override __.Name = name
-    member __.Results = results
+    override __.Children =
+        lazy(seq {
+            //try create Results node
+            yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
+
+        } |> Seq.cache)
 
 type Archive(count:int, watches:Watch list) =
     inherit AbstractNode()
@@ -54,6 +76,7 @@ type Archive(count:int, watches:Watch list) =
     
     override __.Text = text
     override __.Name = name
+    override __.Children = lazy(watches |> Seq.cast<INode>) //give me co/contravariant generics!
 
 //type nodeData = {Name:string, Text, }
 
