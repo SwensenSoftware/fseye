@@ -10,10 +10,7 @@ type IWatchNode =
 [<AbstractClass>]
 type AbstractWatchNode(value:obj, ty:Type) =
     let children = lazy(seq {
-        match ty with
-        | null -> ()
-        | _ -> yield DataType(ty) :> IWatchNode
-
+        yield! DataType.Yield(ty)
         yield! SeqElement.Yield(value)
         yield! DataMember.Yield(value) 
     } |> Seq.cache)
@@ -39,6 +36,13 @@ and DataType(ty:Type) =
     inherit AbstractWatchNode(ty, ty.GetType())
     let text = sprintf "Type: %s" ty.Name
     override __.Text = text
+
+    static member Yield(ty) =
+        seq {
+            match ty with
+            | null -> ()
+            | _ -> yield DataType(ty) :> IWatchNode
+        }
 
 ///Represents a field or property member of a Value. Member Type is not null.
 and DataMember(value:obj, ty:Type, isPublic:bool, text:string) =
@@ -101,7 +105,7 @@ and DataMember(value:obj, ty:Type, isPublic:bool, text:string) =
                         member __.Children = children 
                         member __.Name = String.Empty }
 
-                    yield! publicDataMembers |> Seq.cast<IWatchNode>
+                yield! publicDataMembers |> Seq.cast<IWatchNode>
             }
 
 and SeqElement(index:int, value:obj, ty:System.Type) =
@@ -119,9 +123,9 @@ and SeqElement(index:int, value:obj, ty:System.Type) =
                     lazy(value 
                     |> Seq.cast<obj>
                     |> Seq.truncate 100
-                    |> Seq.mapi (fun i x -> SeqElement(i, x, if obj.ReferenceEquals(x,null) then null else value.GetType()) :> IWatchNode)
+                    |> Seq.mapi (fun i x -> SeqElement(i, x, if obj.ReferenceEquals(x,null) then null else x.GetType()) :> IWatchNode)
                     |> Seq.cache)
-
+                
                 yield { new IWatchNode with
                     member this.Name = String.Empty
                     member this.Text = "Results"
