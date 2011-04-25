@@ -71,7 +71,7 @@ type WatchTreeView() as this =
                 let nodesToArchiveBeforeClone =
                     this.Nodes 
                     |> Seq.cast<TreeNode> 
-                    |> Seq.filter (fun tn -> tn.Tag |> function | :? Watch -> true | _ -> false)
+                    |> Seq.filter (fun tn -> tn.Tag :? Watch)
                     |> Seq.toArray //need to convert to array or get lazy evaluation issues!
 
                 let nodesToArchiveCloned =
