@@ -10,6 +10,10 @@ type IWatchNode =
 [<AbstractClass>]
 type AbstractWatchNode(value:obj, ty:Type) =
     let children = lazy(seq {
+        match ty with
+        | null -> ()
+        | _ -> yield DataType(ty) :> IWatchNode
+
         yield! SeqElement.Yield(value)
         yield! DataMember.Yield(value) 
     } |> Seq.cache)
@@ -29,6 +33,12 @@ type AbstractWatchNode(value:obj, ty:Type) =
         member this.Name = this.Name
         member this.Text = this.Text
         member this.Children = this.Children
+
+///ty must not be null
+and DataType(ty:Type) =
+    inherit AbstractWatchNode(ty, ty.GetType())
+    let text = sprintf "Type: %s" ty.Name
+    override __.Text = text
 
 ///Represents a field or property member of a Value. Member Type is not null.
 and DataMember(value:obj, ty:Type, isPublic:bool, text:string) =
