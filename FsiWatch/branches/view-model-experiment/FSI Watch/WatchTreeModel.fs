@@ -2,11 +2,24 @@
 open System
 open System.Reflection
 
-type IWatchNode =
-    abstract Name : string
-    abstract Text : string
-    abstract Children : Lazy<seq<IWatchNode>>
-    abstract Value : option<obj>
+//how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
+
+type WatchNode(text, children, ?value, ?name) =
+    let name =
+        match name with
+        | Some(name) -> name
+        | None -> String.Empty
+
+    let value = 
+        match value with
+        | Some(value) -> value
+        | None -> null
+
+    member __.Name = name
+    member __.Text = text
+    member __.Children = children
+    member __.Value = value
+
 
 ///Create lazy seq of children nodes
 let rec createChildren (value:obj) (ty:Type) =
@@ -23,11 +36,7 @@ and createTypeNode ty =
         | _ -> 
             let text = sprintf "Type: %s" ty.Name
             let children = createChildren ty (ty.GetType())
-            yield { new IWatchNode with
-                    member __.Text = text
-                    member __.Name = String.Empty
-                    member __.Children = children 
-                    member __.Value = Some(ty :> obj)}
+            yield WatchNode(text, children)
     }
 ///Results node, if value is IEnumerable
 and createResultsNode value =
@@ -38,12 +47,7 @@ and createResultsNode value =
                 let text = sprintf "[%i]: %A" index value
                 let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
                 let children = createChildren value ty
-
-                { new IWatchNode with
-                  member __.Name = String.Empty
-                  member __.Text = text
-                  member __.Children = children 
-                  member __.Value = Some(value)}
+                WatchNode(text, children)
             
             //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
             let children =
@@ -53,11 +57,7 @@ and createResultsNode value =
                 |> Seq.mapi createChild
                 |> Seq.cache)
                 
-            yield { new IWatchNode with
-                    member __.Name = String.Empty
-                    member __.Text = "Results"
-                    member __.Children = children 
-                    member __.Value = None }
+            yield WatchNode("Results", children)
         | _ -> ()
     }
 and createDataMemberNodes ownerValue =
@@ -82,11 +82,7 @@ and createDataMemberNodes ownerValue =
 
                         let text = sprintf "%s (P): %A" name value
                         let children = createChildren value pi.PropertyType
-                        yield { new IWatchNode with
-                                member __.Name = String.Empty
-                                member __.Text = text
-                                member __.Children = children 
-                                member __.Value = Some(value) }
+                        yield WatchNode(text, children)
             }
             
         let fields flags = 
@@ -104,11 +100,7 @@ and createDataMemberNodes ownerValue =
 
                     let text = sprintf "%s (F): %A" name value
                     let children = createChildren value fi.FieldType
-                    yield { new IWatchNode with
-                            member __.Name = String.Empty
-                            member __.Text = text
-                            member __.Children = children 
-                            member __.Value = Some(value) }
+                    yield WatchNode(text, children)
             }
 
         let getDataMembers flags = 
@@ -121,22 +113,11 @@ and createDataMemberNodes ownerValue =
         seq {
             if nonPublicDataMembers |> Seq.isEmpty |> not then
                 let children = lazy(nonPublicDataMembers)
-                        
-                yield { new IWatchNode with
-                        member __.Text = "Non-public"
-                        member __.Children = children 
-                        member __.Name = String.Empty 
-                        member __.Value = None }
-
+                yield WatchNode("Non-public", children)
             yield! publicDataMembers
         }
-
 
 let createWatchNode (name:string) (value:obj) (ty:Type) = 
     let text = sprintf "%s: %A" name value
     let children = createChildren value ty
-    { new IWatchNode with
-      member __.Text = text
-      member __.Name = name
-      member __.Children = children 
-      member __.Value = Some(value) }
+    WatchNode(text, children, value=value, name=name)

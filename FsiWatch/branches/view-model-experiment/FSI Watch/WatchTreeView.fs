@@ -6,7 +6,7 @@ open Swensen.Watch.Model
 type WatchTreeView() as this =
     inherit TreeView()
     let mutable archiveCounter = 0
-    let createTreeNode (watchNode:IWatchNode) =
+    let createTreeNode (watchNode:WatchNode) =
         let tn = new TreeNode()
         tn.Name <- watchNode.Name
         tn.Text <- watchNode.Text
@@ -16,7 +16,7 @@ type WatchTreeView() as this =
 
     let afterExpand (node:TreeNode) =
         match node.Tag with
-        | :? IWatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
+        | :? WatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
             node.Nodes.Clear() //clear dummy node
             watchNode.Children.Value
             |> Seq.map createTreeNode
@@ -55,7 +55,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> IWatchNode).Value |> Option.get, value) |> not -> this.UpdateWatch(tn, value, ty)
+            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> WatchNode).Value, value) |> not -> this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
@@ -71,7 +71,7 @@ type WatchTreeView() as this =
                 let nodesToArchiveBeforeClone =
                     this.Nodes 
                     |> Seq.cast<TreeNode> 
-                    |> Seq.filter (fun tn -> tn.Tag :? IWatchNode)
+                    |> Seq.filter (fun tn -> tn.Tag :? WatchNode)
                     |> Seq.toArray //need to convert to array or get lazy evaluation issues!
 
                 let nodesToArchiveCloned =
