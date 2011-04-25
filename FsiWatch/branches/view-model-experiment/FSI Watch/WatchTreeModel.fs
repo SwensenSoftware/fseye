@@ -8,72 +8,73 @@ type IWatchNode =
     abstract Children : Lazy<seq<IWatchNode>>
 
 [<AbstractClass>]
-type AbstractWatchNode() =
+type AbstractWatchNode(value:obj, ty:Type) =
+    let children = lazy(seq {
+        yield! SeqElement.Yield(value)
+        yield! DataMember.Yield(value) 
+    } |> Seq.cache)
+
     abstract Name : string
     abstract Text : string
     abstract Children : Lazy<seq<IWatchNode>>
+    abstract Value : obj
+    abstract Type : System.Type
+    
+    default this.Name = String.Empty
+    default this.Children = children
+    default this.Type = ty
+    default this.Value = value
+
     interface IWatchNode with
         member this.Name = this.Name
         member this.Text = this.Text
         member this.Children = this.Children
 
-type dataMemberInfo = 
-    | Field of FieldInfo
-    | Property of PropertyInfo
-
 ///Represents a field or property member of a Value. Member Type is not null.
-type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
-    inherit AbstractWatchNode()
-    let name, value, text, ty, isPublic =
-        match dmi with
-        | Field(fi) -> 
-            let name = fi.Name
-            let value =
-                try 
-                    fi.GetValue(ownerValue)
-                with e ->
-                    e :> obj
-            let text = sprintf "%s (F): %A" name value
-            name, value, text, fi.FieldType, fi.IsPublic
-        | Property(pi) ->
-            let name = pi.Name
-            let value =
-                try
-                    pi.GetValue(ownerValue, Array.empty)
-                with e ->
-                    e :> obj
-            let text = sprintf "%s (P): %A" name value
-            name, value, text, pi.PropertyType, pi.GetGetMethod(true).IsPublic
-
-    let children = lazy(seq {
-        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
-        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
+and DataMember(value:obj, ty:Type, isPublic:bool, text:string) =
+    inherit AbstractWatchNode(value, ty)
 
     override __.Text = text
-    override __.Name = name
-    override __.Children = children
-    member __.Value = value
-    member __.Type = ty
     member __.IsPublic = isPublic
         
     ///Get all data members for the given owner value
-    static member GetDataMembers(ownerValue:obj) =
+    static member Yield(ownerValue:obj) =
         if obj.ReferenceEquals(ownerValue, null) then Seq.empty
         else
-            let props = seq {
-                let propInfos = 
-                    ownerValue.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+            let props = 
+                seq {
+                    let propInfos = 
+                        ownerValue.GetType().GetProperties(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
 
-                for pi in propInfos do
-                    if pi.GetIndexParameters() = Array.empty then //non-indexed property
-                        yield DataMember(ownerValue,Property(pi)) }
+                    for pi in propInfos do
+                        if pi.GetIndexParameters() = Array.empty then //non-indexed property
+                            let name = pi.Name
+                            let value =
+                                try
+                                    pi.GetValue(ownerValue, Array.empty)
+                                with e ->
+                                    e :> obj
+
+                            let text = sprintf "%s (P): %A" name value
+                            yield DataMember(value, pi.PropertyType, pi.GetGetMethod(true).IsPublic, text) 
+                }
             
-            let fields = seq {
-                let fieldInfos = 
-                    ownerValue.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
+            let fields = 
+                seq {
+                    let fieldInfos = 
+                        ownerValue.GetType().GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic ||| BindingFlags.Public)
 
-                for fi in fieldInfos do
-                    yield DataMember(ownerValue,Field(fi)) }
+                    for fi in fieldInfos do
+                        let name = fi.Name
+                        let value =
+                            try 
+                                fi.GetValue(ownerValue)
+                            with e ->
+                                e :> obj
+
+                        let text = sprintf "%s (F): %A" name value
+                        yield DataMember(value, fi.FieldType, fi.IsPublic, text)
+                }
 
             let publicDataMembers, nonPublicDataMembers = 
                 Seq.append props fields
@@ -87,81 +88,40 @@ type DataMember(ownerValue: obj, dmi: dataMemberInfo) =
                         
                     yield { new IWatchNode with
                         member __.Text = "Non-public"
-                        member __.Name = "Non-public" //does it really even need to be unique?, I'm strating to think most of the time not (except for root Watch node)
-                        member __.Children = children }
+                        member __.Children = children 
+                        member __.Name = String.Empty }
 
                     yield! publicDataMembers |> Seq.cast<IWatchNode>
             }
 
-and SeqElement(ownerName:string, index:int, value:obj) = 
-    inherit AbstractWatchNode()
-    let name = sprintf "%s@Results[%i]" ownerName index
+and SeqElement(index:int, value:obj, ty:System.Type) =
+    inherit AbstractWatchNode(value, ty)
     let text = sprintf "[%i]: %A" index value
-    let children = lazy(seq {
-        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
-        yield! DataMember.GetDataMembers(value) } |> Seq.cache)
-
-    member __.Index = index
-    member __.Value = value
-    override __.Name = name
     override __.Text = text
-    override __.Children = children
-
-    ///if value is IEnumerable, then retrn Some IWatchNode node with SeqElement Children
-    static member TryGetSeqElementsRoot(ownerName:string, value:obj) =
-        match value with
-        | :? System.Collections.IEnumerable as value -> 
-            //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
-            let results =
-                lazy(value 
-                |> Seq.cast<obj>
-                |> Seq.truncate 100
-                |> Seq.mapi (fun i x -> SeqElement(ownerName, i, x) :> IWatchNode)
-                |> Seq.cache)
-
-            let name = ownerName + "@Results"
-            Some({ new IWatchNode with
-                member this.Name = name
-                member this.Text = "Results"
-                member this.Children = results
-            })
-        | _ -> 
-            None
 
     ///return a seq which yields the Seq element root, or empty if None
-    static member YieldSeqElementsRootOrEmptyIfNone(ownerName:string, value:obj) =
+    static member Yield(value:obj) =
         seq {
-            match SeqElement.TryGetSeqElementsRoot(ownerName, value) with
-                | Some(elementsNode) -> yield elementsNode
-                | _ -> ()
+            match value with
+            | :? System.Collections.IEnumerable as value -> 
+                //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
+                let results =
+                    lazy(value 
+                    |> Seq.cast<obj>
+                    |> Seq.truncate 100
+                    |> Seq.mapi (fun i x -> SeqElement(i, x, if obj.ReferenceEquals(x,null) then null else value.GetType()) :> IWatchNode)
+                    |> Seq.cache)
+
+                yield { new IWatchNode with
+                    member this.Name = String.Empty
+                    member this.Text = "Results"
+                    member this.Children = results
+                }
+            | _ -> ()
         }
 
 and Watch(name:string, value:obj, ty:Type) = 
-    inherit AbstractWatchNode()
+    inherit AbstractWatchNode(value, ty)
     let text = sprintf "%s: %A" name value
-    let children = lazy(seq {
-        yield! SeqElement.YieldSeqElementsRootOrEmptyIfNone(name, value)
-        yield! DataMember.GetDataMembers(value) 
-    } |> Seq.cache)
-
     override __.Text = text
-    override __.Name = name
-    override __.Children = children
-    member __.Value = value
-
-//type Archive(count:int, watches: Watch[]) =
-//    inherit AbstractWatchNode()
-//    let name = sprintf "%i@Archive" count
-//    let text = sprintf "Archive (%i)" count
-//    let children = lazy(watches |> Seq.cast<IWatchNode>) //give me co/contravariant generics!
-//    
-//    override __.Text = text
-//    override __.Name = name
-//    override __.Children = children
-
-//type nodeData = {Name:string, Text, }
-
-//type watch =
-//    | Archive of (int, watch list)
-//    | Watch of (string, obj)
-//    | Result of (string, 
+    override __.Name = name //needed
