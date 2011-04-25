@@ -21,7 +21,7 @@ type WatchNode(text, children, ?value, ?name) =
     member __.Value = value
 
 
-///Create lazy seq of children nodes
+///Create lazy seq of children nodes for a typical valued node
 let rec createChildren (value:obj) (ty:Type) =
     lazy(seq {
         yield! createTypeNode ty
@@ -60,6 +60,7 @@ and createResultsNode value =
             yield WatchNode("Results", children)
         | _ -> ()
     }
+//Create a nodes for fields and properites, sorted by name and sub-organized by access
 and createDataMemberNodes ownerValue =
     if obj.ReferenceEquals(ownerValue, null) then Seq.empty
     else
@@ -117,6 +118,7 @@ and createDataMemberNodes ownerValue =
             yield! publicDataMembers
         }
 
+///Create a watch root node
 let createWatchNode (name:string) (value:obj) (ty:Type) = 
     let text = sprintf "%s: %A" name value
     let children = createChildren value ty
