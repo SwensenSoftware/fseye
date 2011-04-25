@@ -29,7 +29,7 @@ type WatchTreeView() as this =
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             this.BeginUpdate()
             (
-                let wn = Watch(tn.Name, value, ty)
+                let wn = createWatchNode tn.Name value  ty
                 tn.Text <- wn.Text
                 tn.Tag <- wn
                 tn.Nodes.Clear()
@@ -40,7 +40,7 @@ type WatchTreeView() as this =
         member private this.AddWatch(name, value, ty) =
             this.BeginUpdate()
             (
-                Watch(name, value, ty) 
+                createWatchNode name value ty
                 |> createTreeNode
                 |> this.Nodes.Add
                 |> ignore
@@ -55,7 +55,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> Watch).Value, value) |> not -> this.UpdateWatch(tn, value, ty)
+            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> IWatchNode).Value |> Option.get, value) |> not -> this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
@@ -71,7 +71,7 @@ type WatchTreeView() as this =
                 let nodesToArchiveBeforeClone =
                     this.Nodes 
                     |> Seq.cast<TreeNode> 
-                    |> Seq.filter (fun tn -> tn.Tag :? Watch)
+                    |> Seq.filter (fun tn -> tn.Tag :? IWatchNode)
                     |> Seq.toArray //need to convert to array or get lazy evaluation issues!
 
                 let nodesToArchiveCloned =
