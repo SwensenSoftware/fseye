@@ -67,11 +67,10 @@ and createDataMemberNodes ownerValue =
         let publicFlags = BindingFlags.Instance ||| BindingFlags.Public
         let nonPublicFlags =BindingFlags.Instance ||| BindingFlags.NonPublic
 
+        //returns count * WatchNode
         let props flags = 
-            seq {
-                let propInfos = 
-                    ownerValue.GetType().GetProperties(flags)
-
+            let propInfos = ownerValue.GetType().GetProperties(flags)
+            propInfos.Length, seq {
                 for pi in propInfos do
                     if pi.GetIndexParameters() = Array.empty then //non-indexed property
                         let name = pi.Name
@@ -85,12 +84,11 @@ and createDataMemberNodes ownerValue =
                         let children = createChildren value pi.PropertyType
                         yield WatchNode(text, children)
             }
-            
+          
+        //returns count * WatchNode  
         let fields flags = 
-            seq {
-                let fieldInfos = 
-                    ownerValue.GetType().GetFields(flags)
-
+            let fieldInfos = ownerValue.GetType().GetFields(flags)
+            fieldInfos.Length, seq {
                 for fi in fieldInfos do
                     let name = fi.Name
                     let value =
@@ -104,15 +102,23 @@ and createDataMemberNodes ownerValue =
                     yield WatchNode(text, children)
             }
 
-        let getDataMembers flags = 
-            Seq.append (props flags) (fields flags)
-            |> Seq.sortBy (fun node -> node.Text.ToLower())
+        let getDataMembers flags =
+            let propCount, propSeq = props flags
+            let fieldCount, fieldSeq = fields flags
 
-        let publicDataMembers = getDataMembers publicFlags
-        let nonPublicDataMembers =  getDataMembers nonPublicFlags
+            let sortedDataMembers =
+                Seq.append propSeq fieldSeq
+                |> Seq.sortBy (fun node -> node.Text.ToLower())
+
+            (propCount + fieldCount), sortedDataMembers
+
+        let _, publicDataMembers = getDataMembers publicFlags
+        let nonPublicDataMembersCount, nonPublicDataMembers =  getDataMembers nonPublicFlags
 
         seq {
-            if nonPublicDataMembers |> Seq.isEmpty |> not then
+            //optimization: check count instead of doing Seq.isEmpty |> not which forces
+            //full evaluation due to Seq.sortBy
+            if nonPublicDataMembersCount > 0 then 
                 let children = lazy(nonPublicDataMembers)
                 yield WatchNode("Non-public", children)
             yield! publicDataMembers
