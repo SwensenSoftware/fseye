@@ -24,7 +24,11 @@ type WatchTreeView() as this =
             |> node.Nodes.AddRange
         | _ -> () //either an Archive node or IWatchNode children already expanded
     do
-        this.AfterExpand.Add (fun args -> afterExpand args.Node)
+        this.AfterExpand.Add (fun args -> 
+            this.BeginUpdate()
+            afterExpand args.Node
+            this.EndUpdate()
+        )
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             this.BeginUpdate()
