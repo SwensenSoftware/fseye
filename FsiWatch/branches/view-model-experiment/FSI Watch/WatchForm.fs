@@ -18,17 +18,17 @@ type WatchForm() as this =
         (
             let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
             (
-                let archiveButton = new Button(Text="Archive Watches")
+                let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
                 archiveButton.Click.Add(fun _ -> treeView.Archive()) 
                 buttonPanel.Controls.Add(archiveButton)
             )
             (
-                let clearButton = new Button(Text="Clear Watches")
+                let clearButton = new Button(Text="Clear Watches", AutoSize=true)
                 clearButton.Click.Add(fun _ -> treeView.ClearWatches()) 
                 buttonPanel.Controls.Add(clearButton)
             )
             (
-                let clearButton = new Button(Text="Clear All")
+                let clearButton = new Button(Text="Clear All", AutoSize=true)
                 clearButton.Click.Add(fun _ -> treeView.Nodes.Clear()) 
                 buttonPanel.Controls.Add(clearButton)
             )
