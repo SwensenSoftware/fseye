@@ -3,17 +3,32 @@ open System.Windows.Forms
 open System.Reflection
 
 type WatchForm() as this =
-    inherit Form()
-    let treeView = new WatchTreeView()
+    inherit Form(
+        Text="Stephen Swensen's FSI Watch", 
+        Size = (
+            let size = SystemInformation.PrimaryMonitorSize
+            System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
+        )
+    )
+    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
     do
-        let title = "FSI Watch"
-        this.Name <- title
-        this.Text <- title
-        let size = SystemInformation.PrimaryMonitorSize
-        this.Size <- System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
-
-        treeView.Dock <- DockStyle.Fill
-        this.Controls.Add treeView
+        //must tree view (with dockstyle fill) first in order for it to be flush with button panel
+        //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
+        this.Controls.Add(treeView)
+        (
+            let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
+            (
+                let archiveButton = new Button(Text="Archive")
+                archiveButton.Click.Add(fun _ -> treeView.Archive()) 
+                buttonPanel.Controls.Add(archiveButton)
+            )
+            (
+                let clearButton = new Button(Text="Clear")
+                clearButton.Click.Add(fun _ -> treeView.Clear()) 
+                buttonPanel.Controls.Add(clearButton)
+            )
+            this.Controls.Add(buttonPanel)
+        )
     with
         ///Add or update a watch with the given name.
         member this.Watch(name, value, ty) =

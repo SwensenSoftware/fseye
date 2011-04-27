@@ -7,10 +7,7 @@ type WatchTreeView() as this =
     inherit TreeView()
     let mutable archiveCounter = 0
     let createTreeNode (watchNode:WatchNode) =
-        let tn = new TreeNode()
-        tn.Name <- watchNode.Name
-        tn.Text <- watchNode.Text
-        tn.Tag <- watchNode
+        let tn = TreeNode(Name=watchNode.Name, Text=watchNode.Text, Tag=watchNode)
         tn.Nodes.Add("dummy") |> ignore
         tn
 
@@ -26,7 +23,9 @@ type WatchTreeView() as this =
     do
         this.AfterExpand.Add (fun args -> 
             this.BeginUpdate()
-            afterExpand args.Node
+            (
+                afterExpand args.Node
+            )
             this.EndUpdate()
         )
     with
@@ -67,7 +66,6 @@ type WatchTreeView() as this =
         member this.Watch(watchList:seq<string * obj * System.Type>) =
             watchList |> Seq.iter this.Watch
 
-        //NOT WORKING RIGHT NOW
         ///take archival snap shot of all current watches
         member this.Archive(label: string) =
             this.BeginUpdate()
@@ -86,9 +84,7 @@ type WatchTreeView() as this =
                 nodesToArchiveBeforeClone
                 |> Seq.iter (fun tn -> this.Nodes.Remove(tn))
 
-                let archiveNode = TreeNode()
-                archiveNode.Name <- (sprintf "%i@Archive" archiveCounter)
-                archiveNode.Text <- label
+                let archiveNode = TreeNode(Name=(sprintf "%i@Archive" archiveCounter), Text = label)
 
                 nodesToArchiveCloned 
                 |> archiveNode.Nodes.AddRange
@@ -101,5 +97,13 @@ type WatchTreeView() as this =
             )
             this.EndUpdate()
 
-        ///take archival snap shot of all current watches with a default label
+        ///Take archival snap shot of all current watches with a default label
         member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
+
+        ///Clear all watches (doesn't include archive nodes
+        member this.Clear() =
+            this.Nodes 
+            |> Seq.cast<TreeNode> 
+            |> Seq.filter (fun tn -> tn.Tag :? WatchNode)
+            |> Seq.toArray
+            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
