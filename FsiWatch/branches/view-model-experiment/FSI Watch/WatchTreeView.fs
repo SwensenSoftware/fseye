@@ -101,7 +101,7 @@ type WatchTreeView() as this =
         member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
 
         ///Clear all watches (doesn't include archive nodes
-        member this.Clear() =
+        member this.ClearWatches() =
             this.Nodes 
             |> Seq.cast<TreeNode> 
             |> Seq.filter (fun tn -> tn.Tag :? WatchNode)

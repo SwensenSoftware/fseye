@@ -18,13 +18,18 @@ type WatchForm() as this =
         (
             let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
             (
-                let archiveButton = new Button(Text="Archive")
+                let archiveButton = new Button(Text="Archive Watches")
                 archiveButton.Click.Add(fun _ -> treeView.Archive()) 
                 buttonPanel.Controls.Add(archiveButton)
             )
             (
-                let clearButton = new Button(Text="Clear")
-                clearButton.Click.Add(fun _ -> treeView.Clear()) 
+                let clearButton = new Button(Text="Clear Watches")
+                clearButton.Click.Add(fun _ -> treeView.ClearWatches()) 
+                buttonPanel.Controls.Add(clearButton)
+            )
+            (
+                let clearButton = new Button(Text="Clear All")
+                clearButton.Click.Add(fun _ -> treeView.Nodes.Clear()) 
                 buttonPanel.Controls.Add(clearButton)
             )
             this.Controls.Add(buttonPanel)
@@ -45,3 +50,5 @@ type WatchForm() as this =
         ///take archival snap shot of all current watches with a default label
         member this.Archive() = 
             treeView.Archive()
+
+            

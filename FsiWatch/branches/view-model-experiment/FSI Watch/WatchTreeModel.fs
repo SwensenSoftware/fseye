@@ -41,6 +41,7 @@ and createTypeNode ty =
 ///Results node, if value is IEnumerable
 and createResultsNode value =
     seq {
+        
         match value with
         | :? System.Collections.IEnumerable as value -> 
             let createChild index value =
@@ -49,13 +50,21 @@ and createResultsNode value =
                 let children = createChildren value ty
                 WatchNode(text, children)
             
-            //todo: chunck so take first 100 nodes or so, and then keep expanding "Rest" last node until exhausted
-            let children =
-                lazy(value 
-                |> Seq.cast<obj>
-                |> Seq.truncate 100
-                |> Seq.mapi createChild
-                |> Seq.cache)
+            //yield 100 node chunks
+            let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
+                if ie.MoveNext() then
+                    let nextResult = createChild pos ie.Current
+                    if pos % 100 = 0 && pos <> 0 then
+                        let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
+                        yield WatchNode("Rest", lazy(rest))
+                    else
+                        yield nextResult;
+                        yield! calcRest (pos+1) ie
+            }
+            
+            let children = lazy(seq {
+                yield! calcRest 0 (value.GetEnumerator())
+            } |> Seq.cache)
                 
             yield WatchNode("Results", children)
         | _ -> ()

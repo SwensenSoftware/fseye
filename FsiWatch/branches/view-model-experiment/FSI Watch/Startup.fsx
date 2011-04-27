@@ -14,3 +14,9 @@ open Swensen.Watch.Fsi
 //loads fields in alphebetic order, then properties in alphebetic order; case ignored
 //loads enumerables
 //does not load static properties
+
+//for i in 1..100 do
+//    watch.Watch("i", i, null)
+//    watch.Archive()
+//    if i = 50 then
+//        System.Threading.Thread.CurrentThread.Suspend()
