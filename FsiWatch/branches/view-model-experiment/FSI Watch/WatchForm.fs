@@ -11,7 +11,11 @@ type WatchForm() as this =
         )
     )
     let treeView = new WatchTreeView(Dock=DockStyle.Fill)
-    let resumeButton = new Button(Text="Resume", AutoSize=true)
+    let continueButton = new Button(Text="Continue", AutoSize=true, Enabled=false)
+    let debugBreak = async {
+        let! _ = Async.AwaitEvent continueButton.Click
+        ()
+    }
     do
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
@@ -24,6 +28,11 @@ type WatchForm() as this =
                 buttonPanel.Controls.Add(archiveButton)
             )
             (
+                let clearButton = new Button(Text="Clear Archives", AutoSize=true)
+                clearButton.Click.Add(fun _ -> treeView.ClearArchives() ) 
+                buttonPanel.Controls.Add(clearButton)
+            )
+            (
                 let clearButton = new Button(Text="Clear Watches", AutoSize=true)
                 clearButton.Click.Add(fun _ -> treeView.ClearWatches()) 
                 buttonPanel.Controls.Add(clearButton)
@@ -34,7 +43,8 @@ type WatchForm() as this =
                 buttonPanel.Controls.Add(clearButton)
             )
             (
-                buttonPanel.Controls.Add(resumeButton)
+                continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
+                buttonPanel.Controls.Add(continueButton)
             )
             this.Controls.Add(buttonPanel)
         )
@@ -55,5 +65,29 @@ type WatchForm() as this =
         member this.Archive() = 
             treeView.Archive()
 
-        member this.ResumeButton = resumeButton
-            
+        member this.ClearArchives() = 
+            treeView.ClearArchives()
+
+        member this.ClearWatches() = 
+            treeView.ClearWatches()
+
+        member this.ClearAll() = 
+            treeView.Nodes.Clear()
+
+        ///<summary>
+        ///Use this in a sync block with do!, e.g.
+        ///<para></para>
+        ///<para>async { </para>
+        ///<para>&#160;&#160;&#160;&#160;for i in 1..100 do</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Watch("i", i, typeof&lt;int&gt;)</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Archive()</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if i = 50 then</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.Break()</para>
+        ///<para>} |> Async.StartImmediate</para>
+        ///</summary>
+        member this.Break() = 
+            continueButton.Enabled <- true
+            debugBreak
+
+        member this.Continue() =
+            continueButton.PerformClick()

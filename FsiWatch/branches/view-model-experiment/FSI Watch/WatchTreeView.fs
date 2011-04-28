@@ -107,3 +107,13 @@ type WatchTreeView() as this =
             |> Seq.filter (fun tn -> tn.Tag :? WatchNode)
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
+
+        ///Clear all archives and reset archive count
+        member this.ClearArchives() =
+            this.Nodes 
+            |> Seq.cast<TreeNode> 
+            |> Seq.filter (fun tn -> tn.Tag :? WatchNode |> not)
+            |> Seq.toArray
+            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
+            
+            archiveCounter <- 0
