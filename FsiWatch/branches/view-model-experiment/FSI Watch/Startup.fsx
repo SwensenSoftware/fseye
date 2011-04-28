@@ -15,8 +15,12 @@ open Swensen.Watch.Fsi
 //loads enumerables
 //does not load static properties
 
-//for i in 1..100 do
-//    watch.Watch("i", i, null)
-//    watch.Archive()
-//    if i = 50 then
-//        System.Threading.Thread.CurrentThread.Suspend()
+///Simple example of how we can "break" during evaluation!
+//async {
+//    for i in 1..100 do
+//        watch.Watch("i", i, null)
+//        watch.Archive()
+//        if i = 50 then
+//            let! _ = Async.AwaitEvent watch.ResumeButton.Click
+//            ()
+//} |> Async.StartImmediate

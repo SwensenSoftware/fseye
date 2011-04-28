@@ -11,6 +11,7 @@ type WatchForm() as this =
         )
     )
     let treeView = new WatchTreeView(Dock=DockStyle.Fill)
+    let resumeButton = new Button(Text="Resume", AutoSize=true)
     do
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
@@ -32,6 +33,9 @@ type WatchForm() as this =
                 clearButton.Click.Add(fun _ -> treeView.Nodes.Clear()) 
                 buttonPanel.Controls.Add(clearButton)
             )
+            (
+                buttonPanel.Controls.Add(resumeButton)
+            )
             this.Controls.Add(buttonPanel)
         )
     with
@@ -51,4 +55,5 @@ type WatchForm() as this =
         member this.Archive() = 
             treeView.Archive()
 
+        member this.ResumeButton = resumeButton
             
