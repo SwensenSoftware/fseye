@@ -84,7 +84,7 @@ type WatchTreeView() as this =
                 nodesToArchiveBeforeClone
                 |> Seq.iter (fun tn -> this.Nodes.Remove(tn))
 
-                let archiveNode = TreeNode(Name=(sprintf "%i@Archive" archiveCounter), Text = label)
+                let archiveNode = TreeNode(Text = label)
 
                 nodesToArchiveCloned 
                 |> archiveNode.Nodes.AddRange
