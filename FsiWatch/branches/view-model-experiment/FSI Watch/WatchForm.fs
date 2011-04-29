@@ -17,6 +17,8 @@ type WatchForm() as this =
         ()
     }
     do
+        ///prevent form from disposing when closing
+        this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
         this.Controls.Add(treeView)
