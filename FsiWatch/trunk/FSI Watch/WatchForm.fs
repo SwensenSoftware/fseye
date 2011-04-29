@@ -16,7 +16,8 @@ type WatchForm() as this =
         let! _ = Async.AwaitEvent continueButton.Click
         ()
     }
-    do
+
+    do        
         ///prevent form from disposing when closing
         this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
@@ -51,13 +52,23 @@ type WatchForm() as this =
             this.Controls.Add(buttonPanel)
         )
     with
+        //a lot of delegation to treeView below -- not sure how to do this better
+
         ///Add or update a watch with the given name.
         member this.Watch(name, value, ty) =
             treeView.Watch(name, value, ty)
 
-        ///Add or update all the elements in the sequence by name.
-        member this.Watch(watchList) =
-            treeView.Watch watchList
+        ///Add or update a watch with the given name and value, determine the type if not null.
+        member this.Watch(name: string, value) =
+            treeView.Watch(name,value)
+
+        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
+        member this.Watch(watchList:seq<string * obj>) =
+            treeView.Watch(watchList)
+
+        ///Add or update all the elements in the sequence by name, value, and type.
+        member this.Watch(watchList:seq<string * obj * System.Type>) =
+            treeView.Watch(watchList)
 
         ///take archival snap shot of all current watches
         member this.Archive(label: string) =

@@ -5,22 +5,48 @@ open Swensen.Watch.Model
 
 type WatchTreeView() as this =
     inherit TreeView()
+    let contextMenu = new ContextMenu()
+    
     let mutable archiveCounter = 0
-    let createTreeNode (watchNode:WatchNode) =
-        let tn = TreeNode(Name=watchNode.Name, Text=watchNode.Text, Tag=watchNode)
+    
+    let createWatchTreeNode isRoot (watchNode:WatchNode) =
+        let tn = TreeNode(Name=watchNode.Name, Text=watchNode.Text, Tag=watchNode, ContextMenu=if isRoot then contextMenu else null)
         tn.Nodes.Add("dummy") |> ignore
         tn
+
+    let createWatchChildTreeNode = createWatchTreeNode false
+    let createWatchRootTreeNode = createWatchTreeNode true
 
     let afterExpand (node:TreeNode) =
         match node.Tag with
         | :? WatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
             node.Nodes.Clear() //clear dummy node
             watchNode.Children.Value
-            |> Seq.map createTreeNode
+            |> Seq.map createWatchChildTreeNode
             |> Seq.toArray
             |> node.Nodes.AddRange
         | _ -> () //either an Archive node or IWatchNode children already expanded
+
+    let refresh (node:TreeNode) =
+        let watch = node.Tag :?> WatchNode
+        this.UpdateWatch(node, watch.Value, if obj.ReferenceEquals(watch, null) then null else watch.GetType())
+
     do
+        this.MouseClick.Add(fun args ->
+            if args.Button = MouseButtons.Right then
+                this.SelectedNode <- this.GetNodeAt(args.X, args.Y))
+
+        (
+            let mi = new MenuItem("Refresh")
+            mi.Click.Add(fun args -> refresh this.SelectedNode)
+            contextMenu.MenuItems.Add(mi) |> ignore
+        )
+        (
+            let mi = new MenuItem("Remove")
+            mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
+            contextMenu.MenuItems.Add(mi) |> ignore
+        )
+
         this.AfterExpand.Add (fun args -> 
             this.BeginUpdate()
             (
@@ -44,13 +70,13 @@ type WatchTreeView() as this =
             this.BeginUpdate()
             (
                 createWatchNode name value ty
-                |> createTreeNode
+                |> createWatchRootTreeNode
                 |> this.Nodes.Add
                 |> ignore
             )
             this.EndUpdate()
 
-        ///Add or update a watch with the given name.
+        ///Add or update a watch with the given name, value, and type.
         member this.Watch(name: string, value, ty) =
             let objNode =
                 this.Nodes
@@ -62,7 +88,15 @@ type WatchTreeView() as this =
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
-        ///Add or update all the elements in the sequence by name.
+        ///Add or update a watch with the given name and value, determine the type if not null.
+        member this.Watch(name: string, value) =
+            this.Watch(name, value, if obj.ReferenceEquals(value, null) then null else value.GetType())
+
+        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
+        member this.Watch(watchList:seq<string * obj>) =
+            watchList |> Seq.iter this.Watch
+
+        ///Add or update all the elements in the sequence by name, value, and type.
         member this.Watch(watchList:seq<string * obj * System.Type>) =
             watchList |> Seq.iter this.Watch
 
