@@ -10,16 +10,16 @@ let private getFsiVariables() =
     seq{for t in types |> Seq.sortBy (fun t -> t.Name) do
             if t.Name.StartsWith("FSI_") then 
                 let flags = BindingFlags.Static ||| BindingFlags.NonPublic ||| BindingFlags.Public
-                for m in t.GetProperties(flags) do 
-                    if not (m.Name = "it"|| m.Name.Contains("@")) then
-                        yield m.Name, lazy m.GetValue(null, Array.empty)}
+                for pi in t.GetProperties(flags) do 
+                    if pi.GetIndexParameters().Length > 0 |> not then
+                        yield pi.Name, lazy pi.GetValue(null, Array.empty), pi.PropertyType}
 
 type InteractiveSession with
     member this.GetVariables() = 
         getFsiVariables() 
-        |> Seq.map (fun (name, lval) -> name, lval.Value)
+        |> Seq.map (fun (name, lval, ty) -> name, lval.Value, ty)
 
     member this.GetNamedVariables() = 
         getFsiVariables() 
-        |> Seq.filter (fun (name, _) -> not (name = "it"|| name.Contains("@")))
-        |> Seq.map (fun (name, lval) -> name, lval.Value)
+        |> Seq.filter (fun (name,_,_) -> (name = "it"|| name.Contains("@")) |> not)
+        |> Seq.map (fun (name, lval, ty) -> name, lval.Value, ty)
