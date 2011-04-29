@@ -1,6 +1,7 @@
 ﻿module Swensen.Watch.Model
 open System
 open System.Reflection
+open Swensen.Unquote
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
@@ -36,7 +37,7 @@ and createTypeNode ty =
         match ty with
         | null -> ()
         | _ -> 
-            let text = sprintf "Type: %s" ty.Name
+            let text = sprintf "Type"// ty.Name
             let children = createChildren ty (ty.GetType())
             yield WatchNode(text, children)
     }
@@ -47,8 +48,8 @@ and createResultsNode value =
         match value with
         | :? System.Collections.IEnumerable as value -> 
             let createChild index value =
-                let text = sprintf "[%i]: %A" index value |> cleanString
                 let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
+                let text = sprintf "[%i] : %s = %A" index ty.FSharpName value |> cleanString
                 let children = createChildren value ty
                 WatchNode(text, children)
             
@@ -91,7 +92,7 @@ and createDataMemberNodes ownerValue =
                             with e ->
                                 e :> obj
 
-                        let text = sprintf "%s (P): %A" name value |> cleanString
+                        let text = sprintf "(P) %s : %s = %A" name pi.PropertyType.FSharpName value |> cleanString
                         let children = createChildren value pi.PropertyType
                         yield WatchNode(text, children)
             }
@@ -108,7 +109,7 @@ and createDataMemberNodes ownerValue =
                         with e ->
                             e :> obj
 
-                    let text = sprintf "%s (F): %A" name value |> cleanString
+                    let text = sprintf "(F) %s : %s = %A" name fi.FieldType.FSharpName value |> cleanString
                     let children = createChildren value fi.FieldType
                     yield WatchNode(text, children)
             }
@@ -137,6 +138,6 @@ and createDataMemberNodes ownerValue =
 
 ///Create a watch root node
 let createWatchNode (name:string) (value:obj) (ty:Type) = 
-    let text = sprintf "%s: %A" name value |> cleanString
+    let text = sprintf "%s : %s = %A" name ty.FSharpName value |> cleanString
     let children = createChildren value ty
     WatchNode(text, children, value=value, name=name)

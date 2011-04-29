@@ -1,4 +1,6 @@
-﻿#load "InteractiveSessionExt.fs"
+﻿#r @"C:\Users\Stephen\Documents\Visual Studio 2010\Projects\Unquote\builds\Unquote-1.3.0\Unquote.dll"
+open Swensen.Unquote
+#load "InteractiveSessionExt.fs"
 #load "WatchTreeModel.fs"
 #load "WatchTreeView.fs"
 open Swensen.Watch.Forms
