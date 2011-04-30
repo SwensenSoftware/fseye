@@ -9,10 +9,25 @@ type WatchTreeView() as this =
     
     let mutable archiveCounter = 0
     
-    let createWatchTreeNode isRoot (watchNode:WatchNode) =
-        let tn = TreeNode(Name=watchNode.Name, Text=watchNode.Text, Tag=watchNode, ContextMenu=if isRoot then contextMenu else null)
-        tn.Nodes.Add("dummy") |> ignore
-        tn
+    let createWatchTreeNode isRoot guiContext (watchNode:WatchNode) =
+        let create text = TreeNode(Name=watchNode.Name, Text=text, Tag=watchNode, ContextMenu=if isRoot then contextMenu else null)
+        match watchNode.Text with
+        | Immediate(text) -> 
+            let tn = create text
+            tn.Nodes.Add("dummy") |> ignore
+            tn, None
+        | Delayed(ltext) -> //need to make this not clickable, Lazy is not thread safe
+            let tn = create "Loading..."
+            tn, Some(async {
+                let original = System.Threading.SynchronizationContext.Current
+                printfn "original: %A" original
+                printfn "gui: %A" guiContext
+                let text = ltext.Value
+                do! Async.SwitchToContext guiContext
+                tn.Text <- text
+                tn.Nodes.Add("dummy") |> ignore
+                do! Async.SwitchToContext original
+            })
 
     let createWatchChildTreeNode = createWatchTreeNode false
     let createWatchRootTreeNode = createWatchTreeNode true
@@ -21,10 +36,21 @@ type WatchTreeView() as this =
         match node.Tag with
         | :? WatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
             node.Nodes.Clear() //clear dummy node
-            watchNode.Children.Value
-            |> Seq.map createWatchChildTreeNode
-            |> Seq.toArray
-            |> node.Nodes.AddRange
+
+            let context = System.Threading.SynchronizationContext.Current //gui thread
+
+            let createWatchChildTreeNode = createWatchChildTreeNode context
+            let asyncNodes = seq {
+                for (tn, a) in watchNode.Children.Value |> Seq.map createWatchChildTreeNode do
+                    node.Nodes.Add(tn) |> ignore
+                    match a with
+                    | Some(a) -> yield a
+                    | _ -> () } |> Seq.toArray
+
+            asyncNodes
+            |> Async.Parallel 
+            |> Async.Ignore
+            |> Async.Start
         | _ -> () //either an Archive node or IWatchNode children already expanded
 
     let refresh (node:TreeNode) =
@@ -60,7 +86,11 @@ type WatchTreeView() as this =
             this.BeginUpdate()
             (
                 let wn = createWatchNode tn.Name value  ty
-                tn.Text <- wn.Text
+                tn.Text <- 
+                    match wn.Text with
+                    | Immediate(text) -> text
+                    | Delayed(text) -> text.Value
+
                 tn.Tag <- wn
                 tn.Nodes.Clear()
                 tn.Nodes.Add("dummy") |> ignore
@@ -71,7 +101,8 @@ type WatchTreeView() as this =
             this.BeginUpdate()
             (
                 createWatchNode name value ty
-                |> createWatchRootTreeNode
+                |> createWatchRootTreeNode null
+                |> fst
                 |> this.Nodes.Add
                 |> ignore
             )

@@ -23,8 +23,8 @@ open Swensen.Watch.Fsi
 //Simple example of how we can "break" during evaluation!
 async {
     for i in 1..40 do
-        watch.Watch("i", i, typeof<int>)
-        watch.Watch("i*2", i*2, typeof<int>)
+        watch.Watch("i", i)
+        watch.Watch("i*2", i*2)
         watch.Archive()
         if i % 10 = 0 then
             System.Threading.Thread.Sleep(50)
@@ -33,3 +33,9 @@ async {
 
 watch.AsyncContinue()
 watch.Show()
+
+type SlowType() =
+    member this.One = System.Threading.Thread.Sleep(1000) ; 1
+    member this.Two = System.Threading.Thread.Sleep(2000) ; 2
+    member this.Three = System.Threading.Thread.Sleep(3000) ; 3
+    member this.Four = System.Threading.Thread.Sleep(4000) ; 4
