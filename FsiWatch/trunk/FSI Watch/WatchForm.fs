@@ -11,8 +11,8 @@ type WatchForm() as this =
         )
     )
     let treeView = new WatchTreeView(Dock=DockStyle.Fill)
-    let continueButton = new Button(Text="Continue", AutoSize=true, Enabled=false)
-    let debugBreak = async {
+    let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
+    let asyncBreak = async {
         let! _ = Async.AwaitEvent continueButton.Click
         ()
     }
@@ -98,9 +98,16 @@ type WatchForm() as this =
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.Break()</para>
         ///<para>} |> Async.StartImmediate</para>
         ///</summary>
-        member this.Break() = 
+        member this.AsyncBreak() =
             continueButton.Enabled <- true
-            debugBreak
+            if this.Visible |> not then
+                this.Show()
 
-        member this.Continue() =
-            continueButton.PerformClick()
+            this.Activate()
+
+            asyncBreak
+
+        member this.AsyncContinue() =
+            //the Click event for continueButton.PerformClick() doesn't fire when form is closed
+            //but it does fire using InvokeOnClick
+            this.InvokeOnClick(continueButton, System.EventArgs.Empty)
