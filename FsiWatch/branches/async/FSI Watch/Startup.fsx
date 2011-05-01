@@ -37,7 +37,7 @@ watch.Show()
 type SlowType() =
     member this.One = System.Threading.Thread.Sleep(1000) ; 1
     member this.Two = System.Threading.Thread.Sleep(2000) ; 2
-    member this.Three = System.Threading.Thread.Sleep(3000) ; 3
+    member this.Three = System.Threading.Thread.Sleep(3000) ; failwith "Some exception occurred" ; 3
     member this.Four = System.Threading.Thread.Sleep(4000) ; 4
     member this.Four3 = System.Threading.Thread.Sleep(6000) ; 4
     member this.Four2 = System.Threading.Thread.Sleep(7000) ; 4

@@ -23,14 +23,12 @@ type WatchTreeView() as this =
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(async {
-                let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
-//                printfn "original: %A" original
-//                printfn "gui: %A" guiContext
+                //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
                 let text,_ = info.AsyncInfo.Value
                 do! Async.SwitchToContext guiContext
                 tn.Text <- text
                 tn.Nodes.Add("dummy") |> ignore
-                do! Async.SwitchToContext original
+                //do! Async.SwitchToContext original
             })
 
     let afterExpand (node:TreeNode) =
@@ -42,12 +40,12 @@ type WatchTreeView() as this =
 
             let createWatchTreeNode = createWatchTreeNode context
 
-            let asyncNodes = seq {
-                for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
-                    node.Nodes.Add(tn) |> ignore
-                    match a with
-                    | Some(a) -> yield a
-                    | _ -> () } |> Seq.toArray
+            let asyncNodes = 
+                [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
+                        node.Nodes.Add(tn) |> ignore
+                        match a with
+                        | Some(a) -> yield a
+                        | _ -> () |]
 
             asyncNodes
             |> Async.Parallel 
@@ -57,7 +55,7 @@ type WatchTreeView() as this =
 
     let refresh (node:TreeNode) =
         let watch = node.Tag :?> Watch
-        let info = (watch |> function Root(info) -> info | _ -> failwith "Invalid attempt to refresh non-root watch node")
+        let info = watch.RootInfo
         this.UpdateWatch(node, info.Value , if obj.ReferenceEquals(info.Value, null) then null else info.Value.GetType())
 
     do

@@ -96,13 +96,13 @@ and createDataMembers ownerValue =
                         let pretext = sprintf "(P) %s : %s = %s" pi.Name pi.PropertyType.FSharpName
 
                         let delayed = lazy(
-                            let value =
+                            let value, valueTy =
                                 try
-                                    pi.GetValue(ownerValue, Array.empty)
+                                    pi.GetValue(ownerValue, Array.empty), pi.PropertyType
                                 with e ->
-                                    box e
+                                    box e, e.GetType()
 
-                            pretext (value |> string |> cleanString), createChildren value pi.PropertyType
+                            pretext (value |> string |> cleanString), createChildren value valueTy
                         )
                         yield pi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
@@ -116,13 +116,13 @@ and createDataMembers ownerValue =
                     let pretext = sprintf "(F) %s : %s = %s" fi.Name fi.FieldType.FSharpName
 
                     let delayed = lazy(
-                        let value = 
+                        let value, valueTy = 
                             try 
-                                fi.GetValue(ownerValue)
+                                fi.GetValue(ownerValue), fi.FieldType
                             with e ->
-                                box e
+                                box e, e.GetType()
 
-                        pretext (value |> string |> cleanString), createChildren value fi.FieldType
+                        pretext (value |> string |> cleanString), createChildren value valueTy
                     )
 
                     yield fi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
