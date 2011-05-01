@@ -39,3 +39,14 @@ type SlowType() =
     member this.Two = System.Threading.Thread.Sleep(2000) ; 2
     member this.Three = System.Threading.Thread.Sleep(3000) ; 3
     member this.Four = System.Threading.Thread.Sleep(4000) ; 4
+    member this.Four3 = System.Threading.Thread.Sleep(6000) ; 4
+    member this.Four2 = System.Threading.Thread.Sleep(7000) ; 4
+    member this.Four1 = System.Threading.Thread.Sleep(8000) ; 4
+    member this.Fou5 = System.Threading.Thread.Sleep(9000) ; 4
+    member private this.Fou23 = System.Threading.Thread.Sleep(1000) ; 4
+    member this.Fou234 = System.Threading.Thread.Sleep(12000) ; 4
+    member this.Fousd = System.Threading.Thread.Sleep(32000) ; 4
+    member private this.Fous = System.Threading.Thread.Sleep(4000) ; 4
+    member this.Foug = System.Threading.Thread.Sleep(4000) ; 4
+
+watch.Watch("test!", 23)

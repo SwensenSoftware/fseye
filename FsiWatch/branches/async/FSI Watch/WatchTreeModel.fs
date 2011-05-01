@@ -7,114 +7,125 @@ open Swensen.Unquote
 
 let private cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
 
-type textMode =
-    | Delayed of Lazy<string>
-    | Immediate of string
+type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
+and DataMemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
+and GenericInfo = { Text: string ; Children:seq<Watch>}
+and Watch =
+    | Root of RootInfo
+    | DataMember of  DataMemberInfo
+    | Generic of GenericInfo
+    with 
+        member this.RootInfo =
+            match this with
+            | Root(info) -> info
+            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
+        member this.DefaultText =
+            match this with
+            | Root(info) -> info.Text
+            | DataMember(info) -> info.LoadingText
+            | Generic(info) -> info.Text
+        member this.Children =
+            match this with
+            | Root(info) -> info.Children
+            | DataMember(info) -> info.AsyncInfo.Value |> snd
+            | Generic(info) -> info.Children
 
-type WatchNode(text, children, ?value, ?name) =
-    let name =
-        match name with
-        | Some(name) -> name
-        | None -> String.Empty
-
-    let value = 
-        match value with
-        | Some(value) -> value
-        | None -> null
-
-    member __.Name = name
-    member __.Text = text
-    member __.Children = children
-    member __.Value = value
-
-///Create lazy seq of children nodes for a typical valued node
-let rec createChildren (value:Lazy<obj>) (ty:Type) =
-    lazy(seq {
-        yield! createTypeNode ty
-        yield! createResultsNode value
-        yield! createDataMemberNodes value
-    } |> Seq.cache)
-///Type node, if type info exists
-and createTypeNode ty = 
+///Create lazy seq of children s for a typical valued 
+let rec createChildren (value:obj) (ty:Type) =
+    seq {
+        yield! createType ty
+        yield! createResults value
+        yield! createDataMembers value
+    } //maybe |> Seq.cache
+///Type , if type info exists
+and createType ty = 
     seq {
         match ty with
         | null -> ()
         | _ -> 
-            let text = sprintf "Type"// ty.Name
-            let children = createChildren (lazy(box ty)) (ty.GetType())
-            yield WatchNode(Immediate(text), children)
+            let text = sprintf "typeof<%s>" ty.FSharpName
+            let children = createChildren ty (ty.GetType())
+            yield Generic({Text=text ; Children=children})
     }
-///Results node, if value is IEnumerable
-and createResultsNode value =
+///Results , if value is IEnumerable
+and createResults value =
     seq {
-        
-        match value.Value with
+        match value with
         | :? System.Collections.IEnumerable as value -> 
             let createChild index value =
+                //Would like to be able to always get the type
+                //but if is non-generic IEnumerable, then can't
                 let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
                 let text = sprintf "[%i] : %s = %A" index ty.FSharpName value |> cleanString
                 let children = createChildren value ty
-                WatchNode(Immediate(text), children)
+                Generic({Text=text ; Children=children})
             
-            //yield 100 node chunks
+            //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
                 if ie.MoveNext() then
-                    let nextResult = createChild pos (lazy(ie.Current))
+                    let nextResult = createChild pos ie.Current
                     if pos % 100 = 0 && pos <> 0 then
                         let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
-                        yield WatchNode(Immediate("Rest"), lazy(rest))
+                        yield Generic({Text="Rest" ; Children=rest})
                     else
                         yield nextResult;
                         yield! calcRest (pos+1) ie
             }
             
-            let children = lazy(seq {
-                yield! calcRest 0 (value.GetEnumerator())
-            } |> Seq.cache)
+            let children = seq {
+                yield! calcRest 0 (value.GetEnumerator()) //should use "use" when getting enumerator?
+            } // |> Seq.cache
                 
-            yield WatchNode(Immediate("Results"), children)
+            yield Generic({Text="IEnumerable" ; Children = children})
         | _ -> ()
     }
-//Create a nodes for fields and properites, sorted by name and sub-organized by access
-and createDataMemberNodes ownerValue =
-    if obj.ReferenceEquals(ownerValue.Value, null) then Seq.empty
+//Create a s for fields and properites, sorted by name and sub-organized by access
+and createDataMembers ownerValue =
+    if obj.ReferenceEquals(ownerValue, null) then Seq.empty
     else
         let publicFlags = BindingFlags.Instance ||| BindingFlags.Public
         let nonPublicFlags =BindingFlags.Instance ||| BindingFlags.NonPublic
 
-        //returns count * WatchNode
+        //returns count * Watch
         let props flags = 
-            let propInfos = ownerValue.Value.GetType().GetProperties(flags)
-            propInfos.Length, seq {
+            let propInfos = ownerValue.GetType().GetProperties(flags)
+            propInfos.Length, 
+            seq {
                 for pi in propInfos do
                     if pi.GetIndexParameters() = Array.empty then //non-indexed property
-                        let name = pi.Name
-                        let value = lazy(
-                            try
-                                pi.GetValue(ownerValue.Value, Array.empty)
-                            with e ->
-                                e :> obj)
+                        let pretext = sprintf "(P) %s : %s = %s" pi.Name pi.PropertyType.FSharpName
 
-                        let text = lazy(sprintf "(P) %s : %s = %A" name pi.PropertyType.FSharpName value.Value |> cleanString)
-                        let children = createChildren value pi.PropertyType
-                        yield name, WatchNode(Delayed(text), children)
+                        let delayed = lazy(
+                            let value =
+                                try
+                                    pi.GetValue(ownerValue, Array.empty)
+                                with e ->
+                                    box e
+
+                            pretext (value |> string |> cleanString), createChildren value pi.PropertyType
+                        )
+                        yield pi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
           
-        //returns count * WatchNode  
+        //returns count * Watch  
         let fields flags = 
-            let fieldInfos = ownerValue.Value.GetType().GetFields(flags)
-            fieldInfos.Length, seq {
+            let fieldInfos = ownerValue.GetType().GetFields(flags)
+            fieldInfos.Length, 
+            seq {
                 for fi in fieldInfos do
-                    let name = fi.Name
-                    let value = lazy(
-                        try 
-                            fi.GetValue(ownerValue.Value)
-                        with e ->
-                            e :> obj)
+                    let pretext = sprintf "(F) %s : %s = %s" fi.Name fi.FieldType.FSharpName
 
-                    let text = lazy(sprintf "(F) %s : %s = %A" name fi.FieldType.FSharpName value.Value |> cleanString)
-                    let children = createChildren value fi.FieldType
-                    yield name, WatchNode(Delayed(text), children)
+                    let delayed = lazy(
+                        let value = 
+                            try 
+                                fi.GetValue(ownerValue)
+                            with e ->
+                                box e
+
+                        pretext (value |> string |> cleanString), createChildren value fi.FieldType
+                    )
+
+                    yield fi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
 
         let getDataMembers flags =
@@ -134,13 +145,13 @@ and createDataMemberNodes ownerValue =
             //optimization: check count instead of doing Seq.isEmpty |> not which forces
             //full evaluation due to Seq.sortBy
             if nonPublicDataMembersCount > 0 then 
-                let children = lazy(nonPublicDataMembers |> Seq.map snd)
-                yield WatchNode(Immediate("Non-public"), children)
+                let children = nonPublicDataMembers |> Seq.map snd
+                yield Generic({Text="Non-public" ; Children=children})
             yield! publicDataMembers |> Seq.map snd
         }
 
-///Create a watch root node
-let createWatchNode (name:string) (value:obj) (ty:Type) = 
+///Create a watch root 
+let createRootWatch (name:string) (value:obj) (ty:Type) = 
     let text = sprintf "%s : %s = %A" name ty.FSharpName value |> cleanString
-    let children = createChildren (lazy(value)) ty
-    WatchNode(Immediate(text), children, value=value, name=name)
+    let children = createChildren value ty
+    Root({Text=text ; Children=children ; Value=value ; Name=name})
