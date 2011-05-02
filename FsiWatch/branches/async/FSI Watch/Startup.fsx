@@ -18,6 +18,7 @@ open Swensen.Watch.Fsi
 //does not load static properties
 
 
+//add refresh all
     
 
 //Simple example of how we can "break" during evaluation!
@@ -50,3 +51,7 @@ type SlowType() =
     member this.Foug = System.Threading.Thread.Sleep(4000) ; 4
 
 watch.Watch("test!", 23)
+
+//Async.Parallel(
+
+let f = 23;;
