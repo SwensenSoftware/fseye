@@ -13,9 +13,11 @@ module internal FsiHelper =
             |> Array.find (fun assm -> assm.GetName().Name = "FSI-ASSEMBLY")
 
         fun () ->
-            let types = fsiAssembly.GetTypes()
             [|
-                for t in types |> Seq.sortBy (fun t -> t.Name) do
+                let types = fsiAssembly.GetTypes()
+                types |> Array.sortInPlaceBy (fun t -> t.Name)
+
+                for t in types do
                     if t.Name.StartsWith("FSI_") then 
                         let flags = BindingFlags.Static ||| BindingFlags.NonPublic ||| BindingFlags.Public
                         for pi in t.GetProperties(flags) do //i checked, nothing interesting in GetFields
