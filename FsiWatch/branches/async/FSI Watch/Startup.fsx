@@ -1,14 +1,13 @@
-﻿#r @"C:\Users\Stephen\Documents\Visual Studio 2010\Projects\Unquote\builds\Unquote-1.3.0\Unquote.dll"
+﻿#r @"C:\Documents and Settings\swensens\My Documents\Visual Studio 2010\Projects\Unquote\Unquote\bin\Release\Unquote.dll"
 open Swensen.Unquote
-#load "InteractiveSessionExt.fs"
 #load "WatchTreeModel.fs"
 #load "WatchTreeView.fs"
 open Swensen.Watch.Forms
 #load "WatchForm.fs"
 open Swensen.Watch.Forms
+#load "InteractiveSessionExt.fs"
 open Swensen.Watch.Fsi
-#load "FsiWatch.fs"
-open Swensen.Watch.Fsi
+
 
 //----testing todo, need to refactor out to model view
 //lazy load children
@@ -24,16 +23,16 @@ open Swensen.Watch.Fsi
 //Simple example of how we can "break" during evaluation!
 async {
     for i in 1..40 do
-        watch.Watch("i", i)
-        watch.Watch("i*2", i*2)
-        watch.Archive()
+        fsi.watch.Watch("i", i)
+        fsi.watch.Watch("i*2", i*2)
+        fsi.watch.Archive()
         if i % 10 = 0 then
             System.Threading.Thread.Sleep(50)
-            do! watch.AsyncBreak()
+            do! fsi.watch.AsyncBreak()
 } |> Async.StartImmediate
 
-watch.AsyncContinue()
-watch.Show()
+fsi.watch.AsyncContinue()
+fsi.watch.Show()
 
 type SlowType() =
     member this.One = System.Threading.Thread.Sleep(1000) ; 1
@@ -50,7 +49,7 @@ type SlowType() =
     member private this.Fous = System.Threading.Thread.Sleep(4000) ; 4
     member this.Foug = System.Threading.Thread.Sleep(4000) ; 4
 
-watch.Watch("test!", 23)
+fsi.watch.Watch("test!", 23)
 
 //Async.Parallel(
 
