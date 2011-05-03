@@ -6,6 +6,9 @@ open Swensen.Unquote
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
 let private cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
+//let valuePrinter (value:obj) =
+//    match obj with
+//    | 
 
 type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
 and DataMemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
@@ -43,7 +46,8 @@ and createType ty =
         match ty with
         | null -> ()
         | _ -> 
-            let text = sprintf "typeof<%s>" ty.FSharpName
+            let tyty = ty.GetType()
+            let text = sprintf "Type : %s = typeof<%s>" tyty.FSharpName ty.FSharpName
             let children = createChildren ty (ty.GetType())
             yield Generic({Text=text ; Children=children})
     }

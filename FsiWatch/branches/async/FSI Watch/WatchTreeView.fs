@@ -59,10 +59,9 @@ type WatchTreeView() as this =
         this.UpdateWatch(node, info.Value , if obj.ReferenceEquals(info.Value, null) then null else info.Value.GetType())
 
     do
-        this.MouseClick.Add (fun args ->
+        this.MouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
-        )
 
         (
             let mi = new MenuItem("Refresh")
@@ -75,13 +74,12 @@ type WatchTreeView() as this =
             rootWatchContextMenu.MenuItems.Add(mi) |> ignore
         )
 
-        this.AfterExpand.Add (fun args -> 
+        this.AfterExpand.Add <| fun args -> 
             this.BeginUpdate()
             (
                 afterExpand args.Node
             )
             this.EndUpdate()
-        )
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             this.BeginUpdate()
