@@ -19,7 +19,7 @@ fsi.AddPrintTransformer(
                 watch.Show()
                 watch.Activate()
 
-            fsi.GetNamedVariables()
+            fsi.GetVariables()
             |> watch.Watch
 
             null

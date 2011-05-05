@@ -5,63 +5,88 @@ open Swensen.Watch.Model
 
 type WatchTreeView() as this =
     inherit TreeView()
-    let contextMenu = new ContextMenu()
+    let rootWatchContextMenu = new ContextMenu()
     
     let mutable archiveCounter = 0
     
-    let createWatchTreeNode isRoot (watchNode:WatchNode) =
-        let tn = TreeNode(Name=watchNode.Name, Text=watchNode.Text, Tag=watchNode, ContextMenu=if isRoot then contextMenu else null)
-        tn.Nodes.Add("dummy") |> ignore
-        tn
+    let createWatchTreeNode guiContext (watch:Watch) =
+        let tn = new TreeNode(Text=watch.DefaultText, Tag=watch)
 
-    let createWatchChildTreeNode = createWatchTreeNode false
-    let createWatchRootTreeNode = createWatchTreeNode true
+        match watch with
+        | Root info ->
+            tn.Name <- info.Name
+            tn.ContextMenu <- rootWatchContextMenu
+            tn.Nodes.Add("dummy") |> ignore
+            tn, None
+        | Generic _ -> 
+            tn.Nodes.Add("dummy") |> ignore
+            tn, None
+        | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
+            tn, Some(async {
+                //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
+                let text,_ = info.AsyncInfo.Value
+                do! Async.SwitchToContext guiContext
+                tn.Text <- text
+                tn.Nodes.Add("dummy") |> ignore
+                //do! Async.SwitchToContext original
+            })
 
     let afterExpand (node:TreeNode) =
         match node.Tag with
-        | :? WatchNode as watchNode when watchNode.Children.IsValueCreated |> not ->
+        | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not
             node.Nodes.Clear() //clear dummy node
-            watchNode.Children.Value
-            |> Seq.map createWatchChildTreeNode
-            |> Seq.toArray
-            |> node.Nodes.AddRange
+
+            let context = System.Threading.SynchronizationContext.Current //gui thread
+
+            let createWatchTreeNode = createWatchTreeNode context
+
+            let asyncNodes = 
+                [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
+                        node.Nodes.Add(tn) |> ignore
+                        match a with
+                        | Some(a) -> yield a
+                        | _ -> () |]
+
+            asyncNodes
+            |> Async.Parallel 
+            |> Async.Ignore
+            |> Async.Start
         | _ -> () //either an Archive node or IWatchNode children already expanded
 
     let refresh (node:TreeNode) =
-        let watch = node.Tag :?> WatchNode
-        this.UpdateWatch(node, watch.Value, if obj.ReferenceEquals(watch, null) then null else watch.GetType())
+        let watch = node.Tag :?> Watch
+        let info = watch.RootInfo
+        this.UpdateWatch(node, info.Value , if obj.ReferenceEquals(info.Value, null) then null else info.Value.GetType())
 
     do
-        this.MouseClick.Add (fun args ->
+        this.MouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
-        )
 
         (
             let mi = new MenuItem("Refresh")
             mi.Click.Add(fun args -> refresh this.SelectedNode)
-            contextMenu.MenuItems.Add(mi) |> ignore
+            rootWatchContextMenu.MenuItems.Add(mi) |> ignore
         )
         (   
             let mi = new MenuItem("Remove")
             mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
-            contextMenu.MenuItems.Add(mi) |> ignore
+            rootWatchContextMenu.MenuItems.Add(mi) |> ignore
         )
 
-        this.AfterExpand.Add (fun args -> 
+        this.AfterExpand.Add <| fun args -> 
             this.BeginUpdate()
             (
                 afterExpand args.Node
             )
             this.EndUpdate()
-        )
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             this.BeginUpdate()
             (
-                let wn = createWatchNode tn.Name value  ty
-                tn.Text <- wn.Text
-                tn.Tag <- wn
+                let watch = createRootWatch tn.Name value ty
+                tn.Text <- watch.DefaultText
+                tn.Tag <- watch
                 tn.Nodes.Clear()
                 tn.Nodes.Add("dummy") |> ignore
                 tn.Collapse()
@@ -70,8 +95,9 @@ type WatchTreeView() as this =
         member private this.AddWatch(name, value, ty) =
             this.BeginUpdate()
             (
-                createWatchNode name value ty
-                |> createWatchRootTreeNode
+                createRootWatch name value ty
+                |> createWatchTreeNode null //don't like passing null here...
+                |> fst
                 |> this.Nodes.Add
                 |> ignore
             )
@@ -85,7 +111,8 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> WatchNode).Value, value) |> not -> this.UpdateWatch(tn, value, ty)
+            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> Watch).RootInfo.Value, value) |> not -> 
+                this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
@@ -108,7 +135,7 @@ type WatchTreeView() as this =
                 let nodesToArchiveBeforeClone =
                     this.Nodes 
                     |> Seq.cast<TreeNode> 
-                    |> Seq.filter (fun tn -> tn.Tag :? WatchNode)
+                    |> Seq.filter (fun tn -> tn.Tag :? Watch)
                     |> Seq.toArray //need to convert to array or get lazy evaluation issues!
 
                 let nodesToArchiveCloned =
@@ -139,7 +166,7 @@ type WatchTreeView() as this =
         member this.ClearWatches() =
             this.Nodes 
             |> Seq.cast<TreeNode> 
-            |> Seq.filter (fun tn -> tn.Tag :? WatchNode)
+            |> Seq.filter (fun tn -> tn.Tag :? Watch)
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
 
@@ -147,7 +174,7 @@ type WatchTreeView() as this =
         member this.ClearArchives() =
             this.Nodes 
             |> Seq.cast<TreeNode> 
-            |> Seq.filter (fun tn -> tn.Tag :? WatchNode |> not)
+            |> Seq.filter (fun tn -> tn.Tag :? Watch |> not)
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
             

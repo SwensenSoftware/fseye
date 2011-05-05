@@ -32,7 +32,6 @@
     <DocumentationFile>bin\Release\FSI_Watch.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Compiler.Interactive.Settings, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
@@ -41,15 +40,17 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Unquote">
-      <HintPath>..\..\Unquote\builds\Unquote-1.3.0\Unquote.dll</HintPath>
+      <HintPath>..\..\Unquote\Unquote\bin\Release\Unquote.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InteractiveSessionExt.fs" />
     <Compile Include="WatchTreeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchForm.fs" />
-    <Compile Include="FsiWatch.fs" />
+    <Compile Include="FsiHelper.fs" />
+    <None Include="FsiWatch.fsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Startup.fsx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
