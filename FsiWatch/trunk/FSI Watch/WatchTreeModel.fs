@@ -2,13 +2,21 @@
 open System
 open System.Reflection
 open Swensen.Unquote
+open Microsoft.FSharp.Reflection
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
-let private cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
-//let valuePrinter (value:obj) =
-//    match obj with
-//    | 
+let private sprintValue (value:obj) (ty:Type) =
+    let cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
+
+    match value with
+    | null when ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<option<_>> -> "None"
+    | null -> "null"
+    | _ -> 
+        if typeof<System.Type>.IsAssignableFrom(ty) then
+            sprintf "typeof<%s>" (value :?> Type).FSharpName
+        else
+            sprintf "%A" value |> cleanString
 
 type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
 and MemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
@@ -60,7 +68,7 @@ and createResults value =
                 //Would like to be able to always get the type
                 //but if is non-Custom IEnumerable, then can't
                 let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
-                let text = sprintf "[%i] : %s = %A" index ty.FSharpName value |> cleanString
+                let text = sprintf "[%i] : %s = %s" index ty.FSharpName (sprintValue value ty)
                 let children = createChildren value ty
                 Custom({Text=text ; Children=children})
             
@@ -106,7 +114,7 @@ and createMembers ownerValue =
                                 with e ->
                                     box e, e.GetType()
 
-                            pretext (value |> string |> cleanString), createChildren value valueTy
+                            pretext (sprintValue value valueTy), createChildren value valueTy
                         )
                         yield pi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
@@ -126,7 +134,7 @@ and createMembers ownerValue =
                             with e ->
                                 box e, e.GetType()
 
-                        pretext (value |> string |> cleanString), createChildren value valueTy
+                        pretext (sprintValue value valueTy), createChildren value valueTy
                     )
 
                     yield fi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
@@ -156,6 +164,6 @@ and createMembers ownerValue =
 
 ///Create a watch root 
 let createRootWatch (name:string) (value:obj) (ty:Type) = 
-    let text = sprintf "%s : %s = %A" name ty.FSharpName value |> cleanString
+    let text = sprintf "%s : %s = %s" name ty.FSharpName (sprintValue value ty)
     let children = createChildren value ty
     Root({Text=text ; Children=children ; Value=value ; Name=name})

@@ -45,7 +45,7 @@ fsi.AddPrintTransformer <|
 module FsiWatch = 
     let watch = watch
     
-
+    
 //Simple example of how we can "break" during evaluation!
 async {
     for i in 1..40 do
@@ -85,3 +85,5 @@ watch.Watch("test!", 23)
 //Async.Parallel(
 
 let f = 23;;
+
+let x = <@ "hi" @>
