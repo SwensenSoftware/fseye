@@ -11,12 +11,12 @@ let private cleanString (str:string) = str.Replace("\n","").Replace("\r","").Rep
 //    | 
 
 type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
-and DataMemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
-and GenericInfo = { Text: string ; Children:seq<Watch>}
+and MemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
+and CustomInfo = { Text: string ; Children:seq<Watch>}
 and Watch =
     | Root of RootInfo
-    | DataMember of  DataMemberInfo
-    | Generic of GenericInfo
+    | Member of  MemberInfo
+    | Custom of CustomInfo
     with 
         member this.RootInfo =
             match this with
@@ -25,20 +25,20 @@ and Watch =
         member this.DefaultText =
             match this with
             | Root(info) -> info.Text
-            | DataMember(info) -> info.LoadingText
-            | Generic(info) -> info.Text
+            | Member(info) -> info.LoadingText
+            | Custom(info) -> info.Text
         member this.Children =
             match this with
             | Root(info) -> info.Children
-            | DataMember(info) -> info.AsyncInfo.Value |> snd
-            | Generic(info) -> info.Children
+            | Member(info) -> info.AsyncInfo.Value |> snd
+            | Custom(info) -> info.Children
 
 ///Create lazy seq of children s for a typical valued 
 let rec createChildren (value:obj) (ty:Type) =
     seq {
         yield! createType ty
         yield! createResults value
-        yield! createDataMembers value
+        yield! createMembers value
     } //maybe |> Seq.cache
 ///Type , if type info exists
 and createType ty = 
@@ -47,9 +47,9 @@ and createType ty =
         | null -> ()
         | _ -> 
             let tyty = ty.GetType()
-            let text = sprintf "Type : %s = typeof<%s>" tyty.FSharpName ty.FSharpName
+            let text = sprintf "GetType() : %s = typeof<%s>" tyty.FSharpName ty.FSharpName
             let children = createChildren ty (ty.GetType())
-            yield Generic({Text=text ; Children=children})
+            yield Custom({Text=text ; Children=children})
     }
 ///Results , if value is IEnumerable
 and createResults value =
@@ -58,11 +58,11 @@ and createResults value =
         | :? System.Collections.IEnumerable as value -> 
             let createChild index value =
                 //Would like to be able to always get the type
-                //but if is non-generic IEnumerable, then can't
+                //but if is non-Custom IEnumerable, then can't
                 let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
                 let text = sprintf "[%i] : %s = %A" index ty.FSharpName value |> cleanString
                 let children = createChildren value ty
-                Generic({Text=text ; Children=children})
+                Custom({Text=text ; Children=children})
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -70,7 +70,7 @@ and createResults value =
                     let nextResult = createChild pos ie.Current
                     if pos % 100 = 0 && pos <> 0 then
                         let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
-                        yield Generic({Text="Rest" ; Children=rest})
+                        yield Custom({Text="Rest" ; Children=rest})
                     else
                         yield nextResult;
                         yield! calcRest (pos+1) ie
@@ -80,11 +80,11 @@ and createResults value =
                 yield! calcRest 0 (value.GetEnumerator()) //should use "use" when getting enumerator?
             } // |> Seq.cache
                 
-            yield Generic({Text="IEnumerable" ; Children = children})
+            yield Custom({Text= sprintf "GetEnumerator() : IEnumerator" ; Children = children})
         | _ -> ()
     }
 //Create a s for fields and properites, sorted by name and sub-organized by access
-and createDataMembers ownerValue =
+and createMembers ownerValue =
     if obj.ReferenceEquals(ownerValue, null) then Seq.empty
     else
         let publicFlags = BindingFlags.Instance ||| BindingFlags.Public
@@ -108,7 +108,7 @@ and createDataMembers ownerValue =
 
                             pretext (value |> string |> cleanString), createChildren value valueTy
                         )
-                        yield pi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
+                        yield pi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
           
         //returns count * Watch  
@@ -129,29 +129,29 @@ and createDataMembers ownerValue =
                         pretext (value |> string |> cleanString), createChildren value valueTy
                     )
 
-                    yield fi.Name, DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
+                    yield fi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
             }
 
-        let getDataMembers flags =
+        let getMembers flags =
             let propCount, propSeq = props flags
             let fieldCount, fieldSeq = fields flags
 
-            let sortedDataMembers =
+            let sortedMembers =
                 Seq.append propSeq fieldSeq
                 |> Seq.sortBy (fun (name, _) -> name.ToLower())
 
-            (propCount + fieldCount), sortedDataMembers
+            (propCount + fieldCount), sortedMembers
 
-        let _, publicDataMembers = getDataMembers publicFlags
-        let nonPublicDataMembersCount, nonPublicDataMembers =  getDataMembers nonPublicFlags
+        let _, publicMembers = getMembers publicFlags
+        let nonPublicMembersCount, nonPublicMembers =  getMembers nonPublicFlags
 
         seq {
             //optimization: check count instead of doing Seq.isEmpty |> not which forces
             //full evaluation due to Seq.sortBy
-            if nonPublicDataMembersCount > 0 then 
-                let children = nonPublicDataMembers |> Seq.map snd
-                yield Generic({Text="Non-public" ; Children=children})
-            yield! publicDataMembers |> Seq.map snd
+            if nonPublicMembersCount > 0 then 
+                let children = nonPublicMembers |> Seq.map snd
+                yield Custom({Text="Non-public" ; Children=children})
+            yield! publicMembers |> Seq.map snd
         }
 
 ///Create a watch root 

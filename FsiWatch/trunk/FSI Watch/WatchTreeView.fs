@@ -18,10 +18,10 @@ type WatchTreeView() as this =
             tn.ContextMenu <- rootWatchContextMenu
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | Generic _ -> 
+        | Custom _ -> 
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
+        | Member(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(async {
                 //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
                 let text,_ = info.AsyncInfo.Value
