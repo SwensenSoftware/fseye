@@ -112,10 +112,11 @@ let getZeroArgNonUnitMethods (ty:Type) =
     let tyMethods = Seq.append tyConcreteMethods tyInterfaces
     tyMethods
     |> Seq.filter 
-        (fun m -> m.ReturnType <> typeof<unit> 
-                  && m.ReturnType <> typeof<Void> 
-                  && m.GetGenericArguments().Length = 0 
-                  && m.GetParameters().Length = 0)
+        (fun m -> m.ReturnType <> typeof<unit> //doesn't return unit
+                  && m.ReturnType <> typeof<Void> //doesn't return Void
+                  && m.GetGenericArguments().Length = 0 //doesn't take generic parameters
+                  && m.GetParameters().Length = 0 //doesn't take normal parameters
+                  && not ((m.Name.StartsWith("get_") || m.Name.StartsWith("set_")))) //is not a property (FSharp does not set the IsSpecialName bit: http://code.google.com/p/moq/issues/detail?id=238)
     |> Seq.map
         (fun m ->
             let suffix = m.Name + "()"
@@ -130,6 +131,4 @@ let getZeroArgNonUnitMethods (ty:Type) =
 //    tyMethods
 //    |> Seq.filter 
 //        (fun tyMethod ->
-//            tyMethod.
-    
-Type.
+//            tyMethod..
