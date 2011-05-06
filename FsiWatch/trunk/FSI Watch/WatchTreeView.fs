@@ -3,6 +3,10 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.Watch.Model
 
+//features to add: Methods with lazy loading values
+//type info about IEnumerable
+//Copy / Copy Value context Menu
+
 type WatchTreeView() as this =
     inherit TreeView()
     let rootWatchContextMenu = new ContextMenu()

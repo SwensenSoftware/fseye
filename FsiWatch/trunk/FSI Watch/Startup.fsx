@@ -87,3 +87,45 @@ watch.Watch("test!", 23)
 let f = 23;;
 
 let x = <@ "hi" @>
+
+open System
+type SeqType =
+    | Generic
+    | NonGeneric of Type
+    | NonSeq
+
+let ty = typeof<list<int>>
+let tyInterfaces = ty.GetInterfaces()
+let tyGenericSeq = tyInterfaces |> Array.tryFind(fun i -> i.IsGenericType && i.GetGenericTypeDefinition() = typedefof<seq<_>>)
+match tyGenericSeq with
+| Some(tyGenericSeq) -> tyGenericSeq.FSharpName
+| None -> "not found"
+
+open System.Reflection
+let getZeroArgNonUnitMethods (ty:Type) =
+    let flags = BindingFlags.Instance ||| BindingFlags.Public ||| BindingFlags.NonPublic
+    let tyConcreteMethods = ty.GetMethods()
+    let tyInterfaces = ty.GetInterfaces() |> Seq.map (fun i -> i.GetMethods(flags)) |> Seq.concat
+    let tyMethods = Seq.append tyConcreteMethods tyInterfaces
+    tyMethods
+    |> Seq.filter 
+        (fun m -> m.ReturnType <> typeof<unit> 
+                  && m.ReturnType <> typeof<Void> 
+                  && m.GetGenericArguments().Length = 0 
+                  && m.GetParameters().Length = 0)
+    |> Seq.map
+        (fun m ->
+            let suffix = m.Name + "()"
+            if m.DeclaringType.IsInterface then
+                m.DeclaringType.FSharpName + "." + suffix
+            else
+                suffix)                
+    |> Seq.sortBy (fun name -> name.ToLower())
+
+    //|> Seq.map (fun m -> m.DeclaringType.FSharpName + "." + m.Name)
+
+//    tyMethods
+//    |> Seq.filter 
+//        (fun tyMethod ->
+//            tyMethod.
+    
