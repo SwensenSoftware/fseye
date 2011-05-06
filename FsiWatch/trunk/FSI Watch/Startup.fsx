@@ -88,6 +88,7 @@ let f = 23;;
 
 let x = <@ "hi" @>
 
+//use the following to determine whether is generic or nongeneric or nonseq type (to display right type info)
 open System
 type SeqType =
     | Generic
@@ -100,6 +101,8 @@ let tyGenericSeq = tyInterfaces |> Array.tryFind(fun i -> i.IsGenericType && i.G
 match tyGenericSeq with
 | Some(tyGenericSeq) -> tyGenericSeq.FSharpName
 | None -> "not found"
+
+//also try to avoid display immediately seq's which are lazy (e.g. known concrete type, or perhaps having Item.[int] property lookup)
 
 open System.Reflection
 let getZeroArgNonUnitMethods (ty:Type) =
@@ -129,3 +132,4 @@ let getZeroArgNonUnitMethods (ty:Type) =
 //        (fun tyMethod ->
 //            tyMethod.
     
+Type.
