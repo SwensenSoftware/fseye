@@ -1,8 +1,8 @@
 ﻿#I __SOURCE_DIRECTORY__ //http://stackoverflow.com/questions/4860991/f-for-scripting-location-of-script-file
 
 //should do dynamic action while building to toggle between this local path and the relative path
-//#r "FsiWatch.dll"
-#r "bin/Release/FsiWatch.dll"
+#r "FsiWatch.dll"
+//#r "bin/Release/FsiWatch.dll"
 
 open Swensen.Watch.Forms
 open Swensen.Watch.Fsi
