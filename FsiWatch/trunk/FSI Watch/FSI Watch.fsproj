@@ -49,9 +49,6 @@
     <Compile Include="WatchPanel.fs" />
     <Compile Include="WatchForm.fs" />
     <Compile Include="FsiHelper.fs" />
-    <None Include="FsiWatch.fsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Startup.fsx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
