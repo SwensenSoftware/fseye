@@ -10,82 +10,48 @@ type WatchForm() as this =
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
         )
     )
-    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
-    let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
-    let asyncBreak = async {
-        let! _ = Async.AwaitEvent continueButton.Click
-        ()
-    }
+    let watchPanel = new WatchPanel()
 
     do        
+        watchPanel.Dock <- DockStyle.Fill
         ///prevent form from disposing when closing
         this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
-        //must tree view (with dockstyle fill) first in order for it to be flush with button panel
-        //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
-        this.Controls.Add(treeView)
-        (
-            let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
-            (
-                let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
-                archiveButton.Click.Add(fun _ -> treeView.Archive()) 
-                buttonPanel.Controls.Add(archiveButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear Archives", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.ClearArchives() ) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear Watches", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.ClearWatches()) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear All", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.Nodes.Clear()) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
-                buttonPanel.Controls.Add(continueButton)
-            )
-            this.Controls.Add(buttonPanel)
-        )
+        this.Controls.Add(watchPanel)
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
         ///Add or update a watch with the given name.
         member this.Watch(name, value, ty) =
-            treeView.Watch(name, value, ty)
+            watchPanel.Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value, determine the type if not null.
         member this.Watch(name: string, value) =
-            treeView.Watch(name,value)
+            watchPanel.Watch(name,value)
 
         ///Add or update all the elements in the sequence by name and value, determine null type if not null.
         member this.Watch(watchList:seq<string * obj>) =
-            treeView.Watch(watchList)
+            watchPanel.Watch(watchList)
 
         ///Add or update all the elements in the sequence by name, value, and type.
         member this.Watch(watchList:seq<string * obj * System.Type>) =
-            treeView.Watch(watchList)
+            watchPanel.Watch(watchList)
 
         ///take archival snap shot of all current watches
         member this.Archive(label: string) =
-            treeView.Archive(label)
+            watchPanel.Archive(label)
 
         ///take archival snap shot of all current watches with a default label
         member this.Archive() = 
-            treeView.Archive()
+            watchPanel.Archive()
 
         member this.ClearArchives() = 
-            treeView.ClearArchives()
+            watchPanel.ClearArchives()
 
         member this.ClearWatches() = 
-            treeView.ClearWatches()
+            watchPanel.ClearWatches()
 
         member this.ClearAll() = 
-            treeView.Nodes.Clear()
+            watchPanel.ClearAll()
 
         ///<summary>
         ///Use this in a sync block with do!, e.g.
@@ -99,7 +65,7 @@ type WatchForm() as this =
         ///<para>} |> Async.StartImmediate</para>
         ///</summary>
         member this.AsyncBreak() =
-            continueButton.Enabled <- true
+            let asyncBreak = watchPanel.AsyncBreak()
             if this.Visible |> not then
                 this.Show()
 
@@ -108,6 +74,4 @@ type WatchForm() as this =
             asyncBreak
 
         member this.AsyncContinue() =
-            //the Click event for continueButton.PerformClick() doesn't fire when form is closed
-            //but it does fire using InvokeOnClick
-            this.InvokeOnClick(continueButton, System.EventArgs.Empty)
+            watchPanel.AsyncContinue()

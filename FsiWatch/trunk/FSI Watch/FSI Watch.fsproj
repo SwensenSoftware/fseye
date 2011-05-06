@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="WatchTreeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
+    <Compile Include="WatchPanel.fs" />
     <Compile Include="WatchForm.fs" />
     <Compile Include="FsiHelper.fs" />
     <None Include="FsiWatch.fsx">
