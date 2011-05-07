@@ -16,8 +16,8 @@ type FsiWatch(watchForm:WatchForm) =
                         watchForm.Show()
                         watchForm.Activate()
 
-                    FsiHelper.getWatchableFsiVariables()
-                    |> watchForm.Watch
+                    FsiHelper.getWatchableFsiVariables() 
+                    |> Array.iter watchForm.Watch
                     //System.Threading.Timer(new TimerCallback(fun _ -> listen <- true), 0, 1000)
                     null
                 with e ->
@@ -27,39 +27,63 @@ type FsiWatch(watchForm:WatchForm) =
                 //printfn "listen is false"
                 null
 
-    member __.Watch(watches : seq<string * obj>) =
-        watchForm.Watch(watches)
+    ///Add or update a watch with the given name, value, and type.
+    member __.Watch(name, value, ty) =
+        watchForm.Watch(name, value, ty)
 
+    ///Add or update a watch with the given name and value.
     member __.Watch(name, value) =
         watchForm.Watch(name, value)
 
+    ///Take archival snap shot of all current watches using the given label.
+    member this.Archive(label: string) =
+        watchForm.Archive(label)
+
+    ///Take archival snap shot of all current watches using a default label based on an archive count.
+    member __.Archive() =
+        watchForm.Archive()
+    
+    ///Clear all watches (doesn't include archive nodes).
+    member __.ClearArchives() =
+        watchForm.ClearArchives()
+
+    ///Clear all watches (doesn't include archive nodes).
+    member __.ClearWatches() =
+        watchForm.ClearWatches()
+
+    ///Clear all archives and watches.
+    member __.ClearAll() =
+        watchForm.ClearAll()
+
+    ///<summary>
+    ///Use this in a sync block with do!, e.g.
+    ///<para></para>
+    ///<para>async { </para>
+    ///<para>&#160;&#160;&#160;&#160;for i in 1..100 do</para>
+    ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Watch("i", i, typeof&lt;int&gt;)</para>
+    ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Archive()</para>
+    ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if i = 50 then</para>
+    ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.AsyncBreak()</para>
+    ///<para>} |> Async.StartImmediate</para>
+    ///</summary>
     member __.AsyncBreak() =
         watchForm.AsyncBreak()
 
-    member __.ClearAll() =
-        watchForm.ClearAll()
-    
-    member __.ClearWatches() =
-        watchForm.ClearWatches()
-    
-    member __.ClearArchives() =
-        watchForm.ClearArchives()
-    
-    member __.Archive() =
-        watchForm.Archive()
-
-    ///Indicates whether or not FSI session listening is turned on
+    ///Indicates whether or not FSI session listening is turned on.
     member __.Listen 
         with get() = listen
         and set(value) = listen <- value
 
+    ///The listener to attached to FSI.
     member __.Listener = 
         listener
 
+    ///Show the Watch form.
     member __.Show() =
         watchForm.Show()
         watchForm.Activate()
 
+    ///Hide the Watch form.
     member __.Hide() =
         watchForm.Hide()
 

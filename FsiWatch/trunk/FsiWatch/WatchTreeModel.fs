@@ -162,8 +162,14 @@ and createMembers ownerValue =
             yield! publicMembers |> Seq.map snd
         }
 
-///Create a watch root 
+///Create a watch root. If value is not null, then value.GetType() is used as the watch Type instead of
+///ty. Else if ty is not null ty is used. Else typeof<obj> is used.
 let createRootWatch (name:string) (value:obj) (ty:Type) = 
+    let ty =
+        if value <> null then value.GetType()
+        elif ty <> null then ty
+        else typeof<obj>
+
     let text = sprintf "%s : %s = %s" name ty.FSharpName (sprintValue value ty)
     let children = createChildren value ty
     Root({Text=text ; Children=children ; Value=value ; Name=name})

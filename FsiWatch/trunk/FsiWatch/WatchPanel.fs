@@ -19,22 +19,22 @@ type WatchPanel() as this =
             let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
             (
                 let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
-                archiveButton.Click.Add(fun _ -> treeView.Archive()) 
+                archiveButton.Click.Add(fun _ -> this.Archive()) 
                 buttonPanel.Controls.Add(archiveButton)
             )
             (
                 let clearButton = new Button(Text="Clear Archives", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.ClearArchives() ) 
+                clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
                 buttonPanel.Controls.Add(clearButton)
             )
             (
                 let clearButton = new Button(Text="Clear Watches", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.ClearWatches()) 
+                clearButton.Click.Add(fun _ -> this.ClearWatches()) 
                 buttonPanel.Controls.Add(clearButton)
             )
             (
                 let clearButton = new Button(Text="Clear All", AutoSize=true)
-                clearButton.Click.Add(fun _ -> treeView.Nodes.Clear()) 
+                clearButton.Click.Add(fun _ -> this.ClearAll()) 
                 buttonPanel.Controls.Add(clearButton)
             )
             (
@@ -46,36 +46,31 @@ type WatchPanel() as this =
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
-        ///Add or update a watch with the given name.
+        ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
             treeView.Watch(name, value, ty)
 
-        ///Add or update a watch with the given name and value, determine the type if not null.
-        member this.Watch(name: string, value) =
+        ///Add or update a watch with the given name and value.
+        member this.Watch(name, value) =
             treeView.Watch(name,value)
 
-        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
-        member this.Watch(watchList:seq<string * obj>) =
-            treeView.Watch(watchList)
-
-        ///Add or update all the elements in the sequence by name, value, and type.
-        member this.Watch(watchList:seq<string * obj * System.Type>) =
-            treeView.Watch(watchList)
-
-        ///take archival snap shot of all current watches
+        ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
             treeView.Archive(label)
 
-        ///take archival snap shot of all current watches with a default label
+        ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = 
             treeView.Archive()
 
+        ///Clear all archives and reset the archive count.        
         member this.ClearArchives() = 
             treeView.ClearArchives()
 
+        ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() = 
             treeView.ClearWatches()
 
+        ///Clear all archives and watches.
         member this.ClearAll() = 
             treeView.Nodes.Clear()
 
@@ -87,7 +82,7 @@ type WatchPanel() as this =
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Watch("i", i, typeof&lt;int&gt;)</para>
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Archive()</para>
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if i = 50 then</para>
-        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.Break()</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.AsyncBreak()</para>
         ///<para>} |> Async.StartImmediate</para>
         ///</summary>
         member this.AsyncBreak() =

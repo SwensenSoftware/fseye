@@ -108,7 +108,7 @@ type WatchTreeView() as this =
             this.EndUpdate()
 
         ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name: string, value, ty) =
+        member this.Watch(name, value, ty) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
@@ -120,19 +120,11 @@ type WatchTreeView() as this =
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
-        ///Add or update a watch with the given name and value, determine the type if not null.
-        member this.Watch(name: string, value) =
-            this.Watch(name, value, if obj.ReferenceEquals(value, null) then null else value.GetType())
+        ///Add or update a watch with the given name and value.
+        member this.Watch(name: string, value: 'a) =
+            this.Watch(name, value, typeof<'a>)
 
-        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
-        member this.Watch(watchList:seq<string * obj>) =
-            watchList |> Seq.iter this.Watch
-
-        ///Add or update all the elements in the sequence by name, value, and type.
-        member this.Watch(watchList:seq<string * obj * System.Type>) =
-            watchList |> Seq.iter this.Watch
-
-        ///take archival snap shot of all current watches
+        ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
             this.BeginUpdate()
             (
@@ -163,18 +155,10 @@ type WatchTreeView() as this =
             )
             this.EndUpdate()
 
-        ///Take archival snap shot of all current watches with a default label
+        ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
 
-        ///Clear all watches (doesn't include archive nodes
-        member this.ClearWatches() =
-            this.Nodes 
-            |> Seq.cast<TreeNode> 
-            |> Seq.filter (fun tn -> tn.Tag :? Watch)
-            |> Seq.toArray
-            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
-
-        ///Clear all archives and reset archive count
+        ///Clear all archives and reset the archive count.
         member this.ClearArchives() =
             this.Nodes 
             |> Seq.cast<TreeNode> 
@@ -183,3 +167,15 @@ type WatchTreeView() as this =
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
             
             archiveCounter <- 0
+
+        ///Clear all watches (doesn't include archive nodes).
+        member this.ClearWatches() =
+            this.Nodes 
+            |> Seq.cast<TreeNode> 
+            |> Seq.filter (fun tn -> tn.Tag :? Watch)
+            |> Seq.toArray
+            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
+
+        ///Clear all archives and watches.
+        member this.ClearAll() = 
+            this.Nodes.Clear()

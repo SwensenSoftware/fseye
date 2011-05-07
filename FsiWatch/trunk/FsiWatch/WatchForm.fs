@@ -4,7 +4,7 @@ open System.Reflection
 
 type WatchForm() as this =
     inherit Form(
-        Text="Stephen Swensen's FSI Watch", 
+        Text="FsiWatch, by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
@@ -20,36 +20,31 @@ type WatchForm() as this =
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
-        ///Add or update a watch with the given name.
+        ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
             watchPanel.Watch(name, value, ty)
 
-        ///Add or update a watch with the given name and value, determine the type if not null.
-        member this.Watch(name: string, value) =
+        ///Add or update a watch with the given name and value.
+        member this.Watch(name, value) =
             watchPanel.Watch(name,value)
 
-        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
-        member this.Watch(watchList:seq<string * obj>) =
-            watchPanel.Watch(watchList)
-
-        ///Add or update all the elements in the sequence by name, value, and type.
-        member this.Watch(watchList:seq<string * obj * System.Type>) =
-            watchPanel.Watch(watchList)
-
-        ///take archival snap shot of all current watches
+        ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
             watchPanel.Archive(label)
 
-        ///take archival snap shot of all current watches with a default label
+        ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = 
             watchPanel.Archive()
 
+        ///Clear all archives and reset the archive count.
         member this.ClearArchives() = 
             watchPanel.ClearArchives()
 
+        ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() = 
             watchPanel.ClearWatches()
 
+        ///Clear all archives and watches.
         member this.ClearAll() = 
             watchPanel.ClearAll()
 
@@ -61,7 +56,7 @@ type WatchForm() as this =
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Watch("i", i, typeof&lt;int&gt;)</para>
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;watch.Archive()</para>
         ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;if i = 50 then</para>
-        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.Break()</para>
+        ///<para>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;do! watch.AsyncBreak()</para>
         ///<para>} |> Async.StartImmediate</para>
         ///</summary>
         member this.AsyncBreak() =
