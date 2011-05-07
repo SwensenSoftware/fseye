@@ -10,7 +10,7 @@
     <RootNamespace>FSI_Watch</RootNamespace>
     <AssemblyName>FsiWatch</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>FsiWatch</Name>
+    <Name>FsEye</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,8 +50,8 @@
     <Compile Include="WatchPanel.fs" />
     <Compile Include="WatchForm.fs" />
     <Compile Include="FsiHelper.fs" />
-    <Compile Include="FsiWatch.fs" />
-    <None Include="FsiWatch.fsx">
+    <Compile Include="Eye.fs" />
+    <None Include="FsEye.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Startup.fsx" />
