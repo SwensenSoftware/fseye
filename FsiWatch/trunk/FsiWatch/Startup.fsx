@@ -132,3 +132,12 @@ let getZeroArgNonUnitMethods (ty:Type) =
 //    |> Seq.filter 
 //        (fun tyMethod ->
 //            tyMethod..
+
+//features
+//Monitors FSI for watch additions and updates
+//Asycronous, parallel, lazy loading of child nodes
+//Asyncronouse Break and Continue debugging
+//View large or infinite sequences in 100 element lazy loaded chunks
+//View Public and Non-public value members
+//Programatic access to Gui commands and watch addition and updates through FSI
+//Pretty F# name printing via Unquote
