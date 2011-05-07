@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSI Watch", "FSI Watch\FSI Watch.fsproj", "{20DE2466-D7B1-4F72-B8F8-51F10F5F186E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsiWatch", "FSI Watch\FsiWatch.fsproj", "{20DE2466-D7B1-4F72-B8F8-51F10F5F186E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

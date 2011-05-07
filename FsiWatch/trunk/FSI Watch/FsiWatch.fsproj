@@ -10,7 +10,7 @@
     <RootNamespace>FSI_Watch</RootNamespace>
     <AssemblyName>FsiWatch</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>FSI Watch</Name>
+    <Name>FsiWatch</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
