@@ -50,6 +50,7 @@
     <Compile Include="WatchPanel.fs" />
     <Compile Include="WatchForm.fs" />
     <Compile Include="FsiHelper.fs" />
+    <Compile Include="FsiWatch.fs" />
     <None Include="FsiWatch.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
