@@ -22,3 +22,7 @@ An existing root watch may also be refreshed (for example, if its value has been
 Archiving allows you to take a snapshot of all current root watches, consolidating them as children of an archive root node. Future watches of the same name will be added freshly to the GUI tree, and the archived watches of the same name will not be updated. This is especially useful for watching how a value changes over the course of several iterations of a loop.
 
 Root watches may be archived using the GUI Archive button or via {{{eye.Archive(label:string)}}} {{{eye.Archive()}}}. The Archive button uses the latter parameterless Archive method, which applies uses an internal archive count as part of a default label.
+
+== Clearing archives and watches ==
+
+Archives and watches may be cleared using the Clear Archives, Clear Watches, or Clear All (i.e. clear both watches and archives) GUI buttons as well as using {{{eye.ClearArchives()}}}, {{{eye.ClearWatches()}}} and {{{eye.ClearAll()}}}.
