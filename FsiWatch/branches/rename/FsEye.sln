@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye", "FsEye\FsEye.fsproj", "{20DE2466-D7B1-4F72-B8F8-51F10F5F186E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsiWatchTests", "FsEyeTests\FsiWatchTests.fsproj", "{5F774BCF-2BED-428E-B2F5-2165EB7862E0}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEyeTests", "FsEyeTests\FsEyeTests.fsproj", "{5F774BCF-2BED-428E-B2F5-2165EB7862E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
