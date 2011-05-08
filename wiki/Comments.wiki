@@ -1,4 +1,2 @@
 #summary This page is open for general comments about FsEye.
 #labels Featured
-
-This page is open for general comments about FsEye.
