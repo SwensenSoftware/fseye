@@ -44,7 +44,7 @@ type WatchForm() as this =
         member this.ClearWatches() = 
             watchPanel.ClearWatches()
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
             watchPanel.ClearAll()
 

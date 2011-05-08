@@ -70,9 +70,9 @@ type WatchPanel() as this =
         member this.ClearWatches() = 
             treeView.ClearWatches()
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
-            treeView.Nodes.Clear()
+            treeView.ClearAll()
 
         ///<summary>
         ///Use this in a sync block with do!, e.g.

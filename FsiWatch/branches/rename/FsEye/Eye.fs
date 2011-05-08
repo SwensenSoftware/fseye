@@ -51,7 +51,7 @@ type Eye(watchForm:WatchForm) =
     member __.ClearWatches() =
         watchForm.ClearWatches()
 
-    ///Clear all archives and watches.
+    ///Clear all archives (reseting archive count) and watches.
     member __.ClearAll() =
         watchForm.ClearAll()
 

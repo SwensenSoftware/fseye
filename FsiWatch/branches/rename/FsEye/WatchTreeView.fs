@@ -176,6 +176,7 @@ type WatchTreeView() as this =
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
             this.Nodes.Clear()
+            archiveCounter <- 0
