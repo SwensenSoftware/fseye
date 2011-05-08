@@ -7,7 +7,7 @@
   * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}}. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches.
   * Open Swensen.FsEye within .fs files in order to gain intellisense to the open {{{eye}}} instance.
 
-= Guide =
+= Manual =
 
 == Adding and updating watches ==
 
