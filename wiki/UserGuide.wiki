@@ -6,3 +6,11 @@
   * Download and unzip featured release of FsEye from the [http://code.google.com/p/fseye/downloads/list Downloads] page
   * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}}. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches.
   * Open Swensen.FsEye within .fs files in order to gain intellisense to the open {{{eye}}} instance.
+
+= Guide =
+
+== Adding and updating watches ==
+
+Adding and updating watches is done one of two ways:
+  # Send let bindings (or unnamed "it" bindings) to the F# Interactive, FsEye will automatically add, or update an existing, watch in the GUI tree view.
+  # Programmatically add, or update an existing, watch using {{{eye.Watch}}}, e.g. {{{eye.Watch("watchName", watchValue)}}}
