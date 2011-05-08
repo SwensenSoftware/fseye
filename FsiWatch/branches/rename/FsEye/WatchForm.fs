@@ -68,5 +68,6 @@ type WatchForm() as this =
 
             asyncBreak
 
+        ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             watchPanel.AsyncContinue()

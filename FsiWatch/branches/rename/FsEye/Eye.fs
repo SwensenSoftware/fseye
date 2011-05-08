@@ -69,6 +69,10 @@ type Eye(watchForm:WatchForm) =
     member __.AsyncBreak() =
         watchForm.AsyncBreak()
 
+    ///Continue from an AsyncBreak()
+    member __.AsyncContinue() =
+        watchForm.AsyncContinue()
+
     ///Indicates whether or not FSI session listening is turned on.
     member __.Listen 
         with get() = listen

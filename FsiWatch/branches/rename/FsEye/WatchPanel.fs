@@ -89,6 +89,7 @@ type WatchPanel() as this =
             continueButton.Enabled <- true
             asyncBreak
 
+        ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             //the Click event for continueButton.PerformClick() doesn't fire when form is closed
             //but it does fire using InvokeOnClick

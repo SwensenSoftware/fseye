@@ -1,64 +1,23 @@
-﻿#r @"C:\Unquote\Unquote.dll"
-open Swensen.Unquote
-#load "WatchTreeModel.fs"
-#load "WatchTreeView.fs"
-open Swensen.FsEye.Forms
-#load "WatchForm.fs"
-open Swensen.FsEye.Forms
-#load "FsiHelper.fs"
-open Swensen.FsEye.Fsi
-open Microsoft.FSharp.Compiler.Interactive
+﻿//#r "FsEye.dll" //release deployment expects this file next to the dll
+#r "bin/Release/FsEye.dll"
 
+open Swensen.FsEye
+fsi.AddPrintTransformer eye.Listener //attached the listener
+let eye = eye //bring it into scope    
 
-//----testing todo, need to refactor out to model view
-//lazy load children
-//loads private and public instance properties and fields
-//loads fields in alphebetic order, then properties in alphebetic order; case ignored
-//loads enumerables
-//does not load static properties
-
-
-//add refresh all
-
-open Swensen.FsEye.Forms
-
-//initialize watch and attached fsi listener
-let watch = new WatchForm()
-
-fsi.AddPrintTransformer <|
-    //need to figure out a way to not call repeatedly for single evaluation
-    fun (_:obj) ->
-        try
-            if watch.Visible |> not then
-                watch.Show()
-                watch.Activate()
-
-            FsiHelper.getWatchableFsiVariables()
-            |> watch.Watch
-
-            null
-        with e ->
-            printfn "%A" (e.InnerException)
-            null
-
-//only way can get at
-module FsEye = 
-    let watch = watch
-    
-    
 //Simple example of how we can "break" during evaluation!
 async {
     for i in 1..40 do
-        watch.Watch("i", i)
-        watch.Watch("i*2", i*2)
-        watch.Archive()
+        eye.Watch("i", i)
+        eye.Watch("i*2", i*2)
+        eye.Archive()
         if i % 10 = 0 then
             System.Threading.Thread.Sleep(50)
-            do! watch.AsyncBreak()
+            do! eye.AsyncBreak()
 } |> Async.StartImmediate
 
-watch.AsyncContinue()
-watch.Show()
+eye.AsyncContinue()
+eye.Show()
 
 
 let work loops = 
@@ -80,7 +39,7 @@ type SlowType() =
     member private this.Fous =work 3I
     member this.Foug = work 2I
 
-watch.Watch("test!", 23)
+eye.Watch("test!", 23)
 
 //Async.Parallel(
 
