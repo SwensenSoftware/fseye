@@ -1,7 +1,7 @@
-﻿namespace Swensen.Watch.Fsi
-open Swensen.Watch.Forms
+﻿namespace Swensen.FsEye
+open Swensen.FsEye.Forms
 
-type FsiWatch(watchForm:WatchForm) = 
+type Eye(watchForm:WatchForm) = 
     //value indicates whether or not FSI session listening is turned on
     let mutable listen = true
 
@@ -89,5 +89,5 @@ type FsiWatch(watchForm:WatchForm) =
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module FsiWatch =
-    let watch = new FsiWatch(new WatchForm())
+module Eye =
+    let eye = new Eye(new WatchForm())

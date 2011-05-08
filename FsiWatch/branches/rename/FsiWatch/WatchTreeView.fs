@@ -1,7 +1,7 @@
-﻿namespace Swensen.Watch.Forms
+﻿namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
-open Swensen.Watch.Model
+open Swensen.FsEye.Model
 
 //features to add: Methods with lazy loading values
 //type info about IEnumerable

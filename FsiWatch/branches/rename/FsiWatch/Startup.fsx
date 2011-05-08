@@ -2,11 +2,11 @@
 open Swensen.Unquote
 #load "WatchTreeModel.fs"
 #load "WatchTreeView.fs"
-open Swensen.Watch.Forms
+open Swensen.FsEye.Forms
 #load "WatchForm.fs"
-open Swensen.Watch.Forms
+open Swensen.FsEye.Forms
 #load "FsiHelper.fs"
-open Swensen.Watch.Fsi
+open Swensen.FsEye.Fsi
 open Microsoft.FSharp.Compiler.Interactive
 
 
@@ -20,7 +20,7 @@ open Microsoft.FSharp.Compiler.Interactive
 
 //add refresh all
 
-open Swensen.Watch.Forms
+open Swensen.FsEye.Forms
 
 //initialize watch and attached fsi listener
 let watch = new WatchForm()
@@ -42,7 +42,7 @@ fsi.AddPrintTransformer <|
             null
 
 //only way can get at
-module FsiWatch = 
+module FsEye = 
     let watch = watch
     
     

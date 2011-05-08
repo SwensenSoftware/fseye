@@ -1,3 +1,3 @@
-﻿module Test.Swensen.Watch.Model
+﻿module Test.Swensen.FsEye.Model
 
 

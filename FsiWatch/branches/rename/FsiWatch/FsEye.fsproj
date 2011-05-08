@@ -8,7 +8,7 @@
     <ProjectGuid>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSI_Watch</RootNamespace>
-    <AssemblyName>FsiWatch</AssemblyName>
+    <AssemblyName>FsEye</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>FsEye</Name>
   </PropertyGroup>

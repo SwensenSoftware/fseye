@@ -1,10 +1,10 @@
-﻿namespace Swensen.Watch.Forms
+﻿namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 
 type WatchForm() as this =
     inherit Form(
-        Text="FsiWatch, by Stephen Swensen", 
+        Text="FsEye, by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)

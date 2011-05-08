@@ -1,4 +1,4 @@
-﻿module Swensen.Watch.Model
+﻿module Swensen.FsEye.Model
 open System
 open System.Reflection
 open Swensen.Unquote
