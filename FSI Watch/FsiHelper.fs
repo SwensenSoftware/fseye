@@ -1,7 +1,7 @@
-﻿module internal Swensen.FsEye.FsiHelper
+﻿module Swensen.Watch.Fsi.FsiHelper
 
 open System.Reflection
-open Swensen.FsEye.Forms
+open Swensen.Watch.Forms
 
 ///adapted from: http://stackoverflow.com/questions/4997028/f-interactive-how-to-see-all-the-variables-defined-in-current-session/4998232#4998232
 let getRawFsiVariables =

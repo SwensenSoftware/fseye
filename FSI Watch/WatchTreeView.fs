@@ -1,11 +1,7 @@
-﻿namespace Swensen.FsEye.Forms
+﻿namespace Swensen.Watch.Forms
 open System.Windows.Forms
 open System.Reflection
-open Swensen.FsEye.Model
-
-//features to add: Methods with lazy loading values
-//type info about IEnumerable
-//Copy / Copy Value context Menu
+open Swensen.Watch.Model
 
 type WatchTreeView() as this =
     inherit TreeView()
@@ -22,10 +18,10 @@ type WatchTreeView() as this =
             tn.ContextMenu <- rootWatchContextMenu
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | Custom _ -> 
+        | Generic _ -> 
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | Member(info) -> //need to make this not clickable, Lazy is not thread safe
+        | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(async {
                 //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
                 let text,_ = info.AsyncInfo.Value
@@ -108,7 +104,7 @@ type WatchTreeView() as this =
             this.EndUpdate()
 
         ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
+        member this.Watch(name: string, value, ty) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
@@ -120,11 +116,19 @@ type WatchTreeView() as this =
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
-        ///Add or update a watch with the given name and value.
-        member this.Watch(name: string, value: 'a) =
-            this.Watch(name, value, typeof<'a>)
+        ///Add or update a watch with the given name and value, determine the type if not null.
+        member this.Watch(name: string, value) =
+            this.Watch(name, value, if obj.ReferenceEquals(value, null) then null else value.GetType())
 
-        ///Take archival snap shot of all current watches using the given label.
+        ///Add or update all the elements in the sequence by name and value, determine null type if not null.
+        member this.Watch(watchList:seq<string * obj>) =
+            watchList |> Seq.iter this.Watch
+
+        ///Add or update all the elements in the sequence by name, value, and type.
+        member this.Watch(watchList:seq<string * obj * System.Type>) =
+            watchList |> Seq.iter this.Watch
+
+        ///take archival snap shot of all current watches
         member this.Archive(label: string) =
             this.BeginUpdate()
             (
@@ -155,20 +159,10 @@ type WatchTreeView() as this =
             )
             this.EndUpdate()
 
-        ///Take archival snap shot of all current watches using a default label based on an archive count.
+        ///Take archival snap shot of all current watches with a default label
         member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
 
-        ///Clear all archives and reset the archive count.
-        member this.ClearArchives() =
-            this.Nodes 
-            |> Seq.cast<TreeNode> 
-            |> Seq.filter (fun tn -> tn.Tag :? Watch |> not)
-            |> Seq.toArray
-            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
-            
-            archiveCounter <- 0
-
-        ///Clear all watches (doesn't include archive nodes).
+        ///Clear all watches (doesn't include archive nodes
         member this.ClearWatches() =
             this.Nodes 
             |> Seq.cast<TreeNode> 
@@ -176,7 +170,12 @@ type WatchTreeView() as this =
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
 
-        ///Clear all archives (reseting archive count) and watches.
-        member this.ClearAll() = 
-            this.Nodes.Clear()
+        ///Clear all archives and reset archive count
+        member this.ClearArchives() =
+            this.Nodes 
+            |> Seq.cast<TreeNode> 
+            |> Seq.filter (fun tn -> tn.Tag :? Watch |> not)
+            |> Seq.toArray
+            |> Array.iter (fun tn -> this.Nodes.Remove(tn))
+            
             archiveCounter <- 0
