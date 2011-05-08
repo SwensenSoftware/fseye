@@ -1,10 +1,10 @@
-﻿namespace Swensen.Watch.Forms
+﻿namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 
 type WatchForm() as this =
     inherit Form(
-        Text="FsiWatch, by Stephen Swensen", 
+        Text="FsEye, by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
@@ -44,7 +44,7 @@ type WatchForm() as this =
         member this.ClearWatches() = 
             watchPanel.ClearWatches()
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
             watchPanel.ClearAll()
 
@@ -68,5 +68,6 @@ type WatchForm() as this =
 
             asyncBreak
 
+        ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             watchPanel.AsyncContinue()

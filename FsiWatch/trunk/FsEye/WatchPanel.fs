@@ -1,4 +1,4 @@
-﻿namespace Swensen.Watch.Forms
+﻿namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 
@@ -70,9 +70,9 @@ type WatchPanel() as this =
         member this.ClearWatches() = 
             treeView.ClearWatches()
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
-            treeView.Nodes.Clear()
+            treeView.ClearAll()
 
         ///<summary>
         ///Use this in a sync block with do!, e.g.
@@ -89,6 +89,7 @@ type WatchPanel() as this =
             continueButton.Enabled <- true
             asyncBreak
 
+        ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             //the Click event for continueButton.PerformClick() doesn't fire when form is closed
             //but it does fire using InvokeOnClick

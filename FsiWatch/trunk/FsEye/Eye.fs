@@ -1,7 +1,7 @@
-﻿namespace Swensen.Watch.Fsi
-open Swensen.Watch.Forms
+﻿namespace Swensen.FsEye
+open Swensen.FsEye.Forms
 
-type FsiWatch(watchForm:WatchForm) = 
+type Eye(watchForm:WatchForm) = 
     //value indicates whether or not FSI session listening is turned on
     let mutable listen = true
 
@@ -51,7 +51,7 @@ type FsiWatch(watchForm:WatchForm) =
     member __.ClearWatches() =
         watchForm.ClearWatches()
 
-    ///Clear all archives and watches.
+    ///Clear all archives (reseting archive count) and watches.
     member __.ClearAll() =
         watchForm.ClearAll()
 
@@ -68,6 +68,10 @@ type FsiWatch(watchForm:WatchForm) =
     ///</summary>
     member __.AsyncBreak() =
         watchForm.AsyncBreak()
+
+    ///Continue from an AsyncBreak()
+    member __.AsyncContinue() =
+        watchForm.AsyncContinue()
 
     ///Indicates whether or not FSI session listening is turned on.
     member __.Listen 
@@ -89,5 +93,5 @@ type FsiWatch(watchForm:WatchForm) =
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module FsiWatch =
-    let watch = new FsiWatch(new WatchForm())
+module Eye =
+    let eye = new Eye(new WatchForm())

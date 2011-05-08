@@ -10,7 +10,7 @@
     <RootNamespace>FsiWatchTests</RootNamespace>
     <AssemblyName>FsiWatchTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>FsiWatchTests</Name>
+    <Name>FsEyeTests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,8 +49,8 @@
     <None Include="Script.fsx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FsiWatch\FsiWatch.fsproj">
-      <Name>FsiWatch</Name>
+    <ProjectReference Include="..\FsiWatch\FsEye.fsproj">
+      <Name>FsEye</Name>
       <Project>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</Project>
       <Private>True</Private>
     </ProjectReference>

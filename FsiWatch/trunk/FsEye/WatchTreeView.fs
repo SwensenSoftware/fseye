@@ -1,7 +1,7 @@
-﻿namespace Swensen.Watch.Forms
+﻿namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
-open Swensen.Watch.Model
+open Swensen.FsEye.Model
 
 //features to add: Methods with lazy loading values
 //type info about IEnumerable
@@ -176,6 +176,7 @@ type WatchTreeView() as this =
             |> Seq.toArray
             |> Array.iter (fun tn -> this.Nodes.Remove(tn))
 
-        ///Clear all archives and watches.
+        ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
             this.Nodes.Clear()
+            archiveCounter <- 0
