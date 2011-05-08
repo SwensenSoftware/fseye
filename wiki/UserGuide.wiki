@@ -26,3 +26,18 @@ Root watches may be archived using the GUI Archive button or via {{{eye.Archive(
 == Clearing archives and watches ==
 
 Archives and watches may be cleared using the Clear Archives, Clear Watches, or Clear All (i.e. clear both watches and archives) GUI buttons as well as using {{{eye.ClearArchives()}}}, {{{eye.ClearWatches()}}} and {{{eye.ClearAll()}}}.
+
+== Async break and continue ==
+
+A particularly novel feature of FsEye is the ability to perform debugger-like "break" and "continue" within {{{async blocks}}}. When code executing inside an async block executes {{{do! eye.AsyncBreak()}}}, execution is suspending until the user clicks the Async Continue button on the GUI or uses {{{eye.AsyncContinue()}}}. For example,
+
+{{{
+async {
+    for i in 1..40 do
+        eye.Watch("i", i)
+        eye.Watch("i*2", i*2)
+        eye.Archive()
+        if i % 10 = 0 then
+            do! eye.AsyncBreak()
+} |> Async.StartImmediate
+}}}
