@@ -1,5 +1,5 @@
+#summary Installation instructions and user manual
 #labels Featured,Phase-Deploy
-#User guide for FsEye
 
 = Installation =
 
