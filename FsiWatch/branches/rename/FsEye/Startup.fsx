@@ -49,6 +49,8 @@ let x = <@ "hi" @>
 
 //use the following to determine whether is generic or nongeneric or nonseq type (to display right type info)
 open System
+#r "bin/Release/Unquote.dll"
+open Swensen.Unquote
 type SeqType =
     | Generic
     | NonGeneric of Type
