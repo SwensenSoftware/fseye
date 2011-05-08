@@ -13,6 +13,12 @@
 
 Adding and updating watches is done one of two ways:
   # Send let bindings (or unnamed "it" bindings) to the F# Interactive, FsEye will automatically add, or update an existing, watch in the GUI tree view.
-  # Programmatically add, or update an existing, watch using {{{eye.Watch}}}, e.g. {{{eye.Watch("watchName", watchValue)}}}
+  # Programmatically add, or update an existing, watch using {{{eye.Watch(name:string, value:'a}}}, e.g. {{{eye.Watch("watchName", watchValue)}}}
 
 An existing root watch may also be refreshed (for example, if its value has been mutated) via the GUI tree right-click context menu -> Refresh
+
+== Archiving watches ==
+
+Archiving allows you to take a snapshot of all current root watches, consolidating them as children of an archive root node. Future watches of the same name will be added freshly to the GUI tree, and the archived watches of the same name will not be updated. This is especially useful for watching how a value changes over the course of several iterations of a loop.
+
+Root watches may be archived using the GUI Archive button or via {{{eye.Archive(label:string)}}} {{{eye.Archive()}}}. The Archive button uses the latter parameterless Archive method, which applies uses an internal archive count as part of a default label.
