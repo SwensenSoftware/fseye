@@ -41,3 +41,11 @@ async {
             do! eye.AsyncBreak()
 } |> Async.StartImmediate
 }}}
+
+== The FSI Listener ==
+
+By default, FsEye in enabled to listen to FSI adding and updating watches as commands are entered. This may be enabled or disabled using {{{eye.Listen}}}.
+
+== Window visibility ==
+
+The FsEye window is designed never to dispose, even if it is closed. It shows automatically whenever a watch is added or updated through FSI listening, and whenever an "async breakpoint" is encountered. It is not shown automatically when watches are added or updated programmatically. It may also be manually shown using {{{eye.Show()}}} or manually hidden using {{{eye.Hide()}}}
