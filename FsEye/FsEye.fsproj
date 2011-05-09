@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MiscUtils.fs" />
     <Compile Include="WatchTreeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchPanel.fs" />
