@@ -17,6 +17,7 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye.Model
+open Swensen
 
 //features to add: Methods with lazy loading values
 //type info about IEnumerable
@@ -75,7 +76,7 @@ type WatchTreeView() as this =
     let refresh (node:TreeNode) =
         let watch = node.Tag :?> Watch
         let info = watch.RootInfo
-        this.UpdateWatch(node, info.Value , if obj.ReferenceEquals(info.Value, null) then null else info.Value.GetType())
+        this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
 
     do
         this.MouseClick.Add <| fun args ->
@@ -130,7 +131,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when obj.ReferenceEquals((tn.Tag :?> Watch).RootInfo.Value, value) |> not -> 
+            | Some(tn) when (tn.Tag :?> Watch).RootInfo.Value <>& value -> 
                 this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()

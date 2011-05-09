@@ -18,6 +18,7 @@ open System
 open System.Reflection
 open Swensen.Unquote
 open Microsoft.FSharp.Reflection
+open Swensen
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
@@ -82,7 +83,7 @@ and createResults value =
             let createChild index value =
                 //Would like to be able to always get the type
                 //but if is non-Custom IEnumerable, then can't
-                let ty = if obj.ReferenceEquals(value, null) then null else value.GetType()
+                let ty = if value =& null then null else value.GetType()
                 let text = sprintf "[%i] : %s = %s" index ty.FSharpName (sprintValue value ty)
                 let children = createChildren value ty
                 Custom({Text=text ; Children=children})
@@ -108,7 +109,7 @@ and createResults value =
     }
 //Create a s for fields and properites, sorted by name and sub-organized by access
 and createMembers ownerValue =
-    if obj.ReferenceEquals(ownerValue, null) then Seq.empty
+    if ownerValue =& null then Seq.empty
     else
         let publicFlags = BindingFlags.Instance ||| BindingFlags.Public
         let nonPublicFlags =BindingFlags.Instance ||| BindingFlags.NonPublic
