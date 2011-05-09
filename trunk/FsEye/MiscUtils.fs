@@ -1,4 +1,5 @@
-﻿module Swensen.MiscUtils
+﻿[<AutoOpen>]
+module Swensen.MiscUtils
 
 ///Reference comparison
 let inline (=&) a b = obj.ReferenceEquals(a,b)
