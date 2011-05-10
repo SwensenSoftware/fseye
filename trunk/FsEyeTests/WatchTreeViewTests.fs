@@ -4,6 +4,7 @@ open Swensen.Unquote
 open Xunit
 open Swensen.MiscUtils
 open Swensen.FsEye.Model
+open System.Windows.Forms
 
 [<Fact>]
 let ``calling Watch with new name adds a node`` () =
@@ -164,4 +165,25 @@ let ``ClearArchives resets archive count for default archive label`` () =
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.[0].Text = "Archive (0)" @>
+
+let dummyNodeText = "dummy"
+
+[<Fact>]
+let ``new Watch initially adds dummy child node for lazy loading`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", 1)
+
+    test <@ tree.Nodes.[0].Nodes.Count = 1 @>
+    test <@ tree.Nodes.[0].Nodes.[0].Text = dummyNodeText @>
+
+//can't do this, we've gone too far (raises events, other very GUI stuff).
+//[<Fact>]
+//let ``after expanded, dummy watch child replaced with real children`` () =
+//    let tree = new WatchTreeView()
+//    tree.Watch("watch", [1;2;3;4;5])
+//    let button = new Button()
+//
+//    test <@ tree.Nodes.[0].Nodes.Count >= 1 @>
+//    test <@ tree.Nodes.[0].Nodes.[0].Text <> dummyNodeText @>
+//    test <@ tree.Nodes.[0].Nodes |> Seq.cast<TreeNode> |> Seq.forall (fun tn -> tn.Tag :? Watch) @>
 
