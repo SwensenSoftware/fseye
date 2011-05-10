@@ -141,3 +141,27 @@ let ``ClearAll clears all watches and archives`` () =
 
     test <@ tree.Nodes.Count = 0 @>
 
+[<Fact>]
+let ``ClearAll resets archive count for default archive label`` () =
+    let tree = new WatchTreeView()
+    tree.Archive()
+    tree.Archive()
+    tree.Archive()
+    tree.ClearAll()
+    tree.Archive()
+    
+    test <@ tree.Nodes.Count = 1 @>
+    test <@ tree.Nodes.[0].Text = "Archive (0)" @>
+
+[<Fact>]
+let ``ClearArchives resets archive count for default archive label`` () =
+    let tree = new WatchTreeView()
+    tree.Archive()
+    tree.Archive()
+    tree.Archive()
+    tree.ClearArchives()
+    tree.Archive()
+    
+    test <@ tree.Nodes.Count = 1 @>
+    test <@ tree.Nodes.[0].Text = "Archive (0)" @>
+
