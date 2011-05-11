@@ -18,7 +18,7 @@ open System
 open System.Reflection
 open Swensen.Unquote
 open Microsoft.FSharp.Reflection
-open Swensen
+open Swensen.Utils
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 

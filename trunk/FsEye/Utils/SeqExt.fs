@@ -1,4 +1,4 @@
-﻿namespace Swensen.SeqExt
+﻿namespace Swensen.Utils
 
 module Seq =
     let distinctByResolve primaryKey resolveCollision values =

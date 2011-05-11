@@ -2,7 +2,7 @@
 open Swensen.FsEye.Forms
 open Swensen.Unquote
 open Xunit
-open Swensen.MiscUtils
+open Swensen.Utils
 open Swensen.FsEye.Model
 open System.Windows.Forms
 
