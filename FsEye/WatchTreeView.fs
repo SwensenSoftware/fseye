@@ -17,7 +17,7 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye.Model
-open Swensen
+open Swensen.Utils
 
 //features to add: Methods with lazy loading values
 //type info about IEnumerable
