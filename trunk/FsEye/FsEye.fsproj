@@ -45,8 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MiscUtils.fs" />
-    <Compile Include="SeqExt.fs" />
+    <Compile Include="Utils\MiscUtils.fs" />
+    <Compile Include="Utils\SeqExt.fs" />
     <Compile Include="WatchTreeModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchPanel.fs" />
