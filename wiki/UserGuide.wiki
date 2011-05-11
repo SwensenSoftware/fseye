@@ -25,7 +25,7 @@ Root watches may be archived using the GUI Archive button or via {{{eye.Archive(
 
 == Clearing archives and watches ==
 
-Archives and watches may be cleared using the Clear Archives, Clear Watches, or Clear All (i.e. clear both watches and archives) GUI buttons as well as using {{{eye.ClearArchives()}}}, {{{eye.ClearWatches()}}} and {{{eye.ClearAll()}}}.
+Archives and watches may be cleared using the Clear Archives, Clear Watches, or Clear All (i.e. clear both watches and archives) GUI buttons as well as using {{{eye.ClearArchives()}}}, {{{eye.ClearWatches()}}} and {{{eye.ClearAll()}}}. Clear All and Clear Archives reset the internal archive count.
 
 == Async break and continue ==
 
