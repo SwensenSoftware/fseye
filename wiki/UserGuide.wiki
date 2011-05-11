@@ -29,7 +29,7 @@ Archives and watches may be cleared using the Clear Archives, Clear Watches, or 
 
 == Async break and continue ==
 
-A particularly novel feature of FsEye is the ability to perform debugger-like "break" and "continue" within {{{async blocks}}}. When code executing inside an async block executes {{{do! eye.AsyncBreak()}}}, execution is suspending until the user clicks the Async Continue button on the GUI or uses {{{eye.AsyncContinue()}}}. For example,
+A particularly novel feature of FsEye is the ability to perform debugger-like "break" and "continue" within {{{async}}} blocks. When code executing inside an async block executes {{{do! eye.AsyncBreak()}}}, execution is suspending until the user clicks the Async Continue button on the GUI or uses {{{eye.AsyncContinue()}}}. For example,
 
 {{{
 async {
