@@ -13,7 +13,7 @@
 
 Adding and updating watches is done one of two ways:
   # Send let bindings (or unnamed "it" bindings) to the F# Interactive, FsEye will automatically add, or update an existing, watch in the GUI tree view.
-  # Programmatically add, or update an existing, watch using {{{eye.Watch(name:string, value:'a)}}}, e.g. {{{eye.Watch("watchName", watchValue)}}}
+  # Programmatically add, or update an existing, watch using {{{eye.Watch(name:string, value:'a)}}}, e.g. {{{eye.Watch("watchName", 98765432123456789I)}}}
 
 An existing root watch may also be refreshed (for example, if its value has been mutated) via the GUI tree right-click context menu -> Refresh
 
