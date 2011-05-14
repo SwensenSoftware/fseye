@@ -41,7 +41,7 @@ type WatchTreeView() as this =
         | Custom _ -> 
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | Member(info) -> //need to make this not clickable, Lazy is not thread safe
+        | DataMember(info) | CallMember(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(async {
                 //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
                 let text,_ = info.AsyncInfo.Value

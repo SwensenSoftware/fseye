@@ -1,7 +1,7 @@
 ﻿namespace Swensen.Utils
 
 module Seq =
-    let distinctByResolve primaryKey resolveCollision values =
+    let distinctByResolve primaryKey resolveCollision values = seq { //make lazy seq? (YES, Seq.distinct does)
         let cache = System.Collections.Generic.Dictionary<_,_>(HashIdentity.Structural)
         for canidateValue in values do
             let key = primaryKey canidateValue 
@@ -15,4 +15,14 @@ module Seq =
             | false, _ ->
                 cache.Add(key, canidateValue)
 
-        cache.Values :> seq<_>
+        yield! cache.Values }
+
+    let partition condition values =     
+        let pairs = seq {
+            for i in values do
+                if condition i then
+                    yield Some(i), None
+                else
+                    yield None, Some(i) }
+
+        pairs |> Seq.choose (fst>>id), pairs |> Seq.choose (snd>>id)
