@@ -21,8 +21,32 @@ open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
+type Root = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
+and Custom = { Text: string ; Children:seq<Watch>}
+and Member = { Text:string ; Lazy: Lazy<Custom>}
+and Watch =
+    | Root of Root
+    | DataMember of  Member
+    | CallMember of  Member
+    | Custom of Custom
+    with 
+        member this.RootMatch =
+            match this with
+            | Root(info) -> info
+            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
+        member this.Text =
+            match this with
+            | Root {Text=text} | DataMember {Text=text}
+            | CallMember {Text=text} | Custom {Text=text} -> text
+        member this.Children =
+            match this with
+            | Root {Children=children} | Custom {Children=children} -> children
+            | CallMember {Lazy=l} | DataMember {Lazy=l} -> l.Value.Children
 
-let private sprintValue (value:obj) (ty:Type) = //BUG: NEED TO MAKE SURE TY IS NOT NULL
+let private sprintValue (value:obj) (ty:Type) =
+    if ty =& null then
+        nullArg "ty cannot be null"
+
     let cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
 
     match value with
@@ -34,38 +58,10 @@ let private sprintValue (value:obj) (ty:Type) = //BUG: NEED TO MAKE SURE TY IS N
         else
             sprintf "%A" value |> cleanString
 
-type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
-and MemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
-and CustomInfo = { Text: string ; Children:seq<Watch>}
-and Watch =
-    | Root of RootInfo
-    | DataMember of  MemberInfo
-    | CallMember of  MemberInfo
-    | Custom of CustomInfo
-    with 
-        member this.RootInfo =
-            match this with
-            | Root(info) -> info
-            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
-        member this.DefaultText =
-            match this with
-            | Root(info) -> info.Text
-            | DataMember(info) | CallMember(info) -> info.LoadingText
-            | Custom(info) -> info.Text
-        member this.Children =
-            match this with
-            | Root(info) -> info.Children
-            | DataMember(info) | CallMember(info) -> info.AsyncInfo.Value |> snd
-            | Custom(info) -> info.Children
-
 ///Create lazy seq of children s for a typical valued 
-let rec createChildren (value:obj) (ty:Type) =
-    seq { yield! createMembers value } //maybe |> Seq.cache
-//Create a s for fields and properites, sorted by name and sub-organized by access
-and createMembers ownerValue =
+let rec createChildren ownerValue (ownerTy:Type) =
     if ownerValue =& null then Seq.empty
     else
-        let ownerTy = ownerValue.GetType()
         let getMembers bindingFlags =
             let allMembers = seq {
                 ///yield all ownerTy members
@@ -137,8 +133,14 @@ and createMembers ownerValue =
             
             seq { yield! calcRest 0 value } //should use "use" when getting enumerator?
 
+        let getMemberName (mi:Reflection.MemberInfo) =
+            if mi.ReflectedType <> ownerTy then
+                mi.ReflectedType.FSharpName + "." + mi.Name
+            else
+                mi.Name
+
         let getPropertyWatch (pi:PropertyInfo) =
-            let pretext = sprintf "(P) %s : %s = %s" pi.Name pi.PropertyType.FSharpName
+            let pretext = sprintf "(P) %s : %s = %s" (getMemberName pi) pi.PropertyType.FSharpName
             let delayed = lazy(
                 let value, valueTy =
                     try
@@ -146,13 +148,13 @@ and createMembers ownerValue =
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    pretext "seq [..]", createResultWatches (value :?> System.Collections.IEnumerator)
+                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    pretext (sprintValue value valueTy), createChildren value valueTy)
-            DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed })
+                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({Text=(pretext "Loading...") ; Lazy=delayed })
 
         let getFieldWatch (fi:FieldInfo) =
-            let pretext = sprintf "(F) %s : %s = %s" fi.Name fi.FieldType.FSharpName
+            let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi) fi.FieldType.FSharpName
             let delayed = lazy(
                 let value, valueTy = 
                     try 
@@ -160,13 +162,13 @@ and createMembers ownerValue =
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    pretext "seq [..]", createResultWatches (value :?> System.Collections.IEnumerator)
+                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    pretext (sprintValue value valueTy), createChildren value valueTy)
-            DataMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
+                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({Text=(pretext "Loading...") ; Lazy=delayed })
 
         let getMethodWatch (mi:MethodInfo) =
-            let pretext = sprintf "(M) %s() : %s = %s" mi.Name mi.ReturnType.FSharpName
+            let pretext = sprintf "(M) %s() : %s = %s" (getMemberName mi) mi.ReturnType.FSharpName
             let delayed = lazy(
                 let value, valueTy =
                     try
@@ -174,10 +176,10 @@ and createMembers ownerValue =
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    pretext "seq [..]", createResultWatches (value :?> System.Collections.IEnumerator)
+                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    pretext (sprintValue value valueTy), createChildren value valueTy)
-            CallMember({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed })
+                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            CallMember({Text=(pretext "Loading...") ; Lazy=delayed })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
@@ -185,7 +187,8 @@ and createMembers ownerValue =
                 match m with
                 | :? PropertyInfo as x -> yield getPropertyWatch x
                 | :? FieldInfo as x -> yield getFieldWatch x
-                | :? MethodInfo as x -> yield getMethodWatch x }
+                | :? MethodInfo as x -> yield getMethodWatch x 
+                | _ -> failwith "unexpected MemberInfo type: %A" m }
 
         let publicBindingFlags = BindingFlags.Instance ||| BindingFlags.Public
         let nonPublicBindingFlags = BindingFlags.Instance ||| BindingFlags.NonPublic
