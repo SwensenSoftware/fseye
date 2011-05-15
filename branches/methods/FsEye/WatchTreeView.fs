@@ -30,7 +30,7 @@ type WatchTreeView() as this =
     let mutable archiveCounter = 0
     
     let createWatchTreeNode guiContext (watch:Watch) =
-        let tn = new TreeNode(Text=watch.DefaultText, Tag=watch)
+        let tn = new TreeNode(Text=watch.Text, Tag=watch)
 
         match watch with
         | Root info ->
@@ -41,25 +41,30 @@ type WatchTreeView() as this =
         | Custom _ -> 
             tn.Nodes.Add("dummy") |> ignore
             tn, None
-        | DataMember(info) | CallMember(info) -> //need to make this not clickable, Lazy is not thread safe
+        | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(async {
                 //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
-                let text,_ = info.AsyncInfo.Value
+                let text = info.Lazy.Value.Text
                 do! Async.SwitchToContext guiContext
                 tn.Text <- text
                 tn.Nodes.Add("dummy") |> ignore
                 //do! Async.SwitchToContext original
             })
+        | CallMember(info) ->
+            tn.Nodes.Add("dummy") |> ignore
+            tn, None
 
     let afterExpand (node:TreeNode) =
         match node.Tag with
         | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not
             node.Nodes.Clear() //clear dummy node
+            match watch with
+            | CallMember(info) ->
+                node.Text <- info.Lazy.Value.Text
+            | _ -> ()
 
             let context = System.Threading.SynchronizationContext.Current //gui thread
-
             let createWatchTreeNode = createWatchTreeNode context
-
             let asyncNodes = 
                 [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
                         node.Nodes.Add(tn) |> ignore
@@ -75,7 +80,7 @@ type WatchTreeView() as this =
 
     let refresh (node:TreeNode) =
         let watch = node.Tag :?> Watch
-        let info = watch.RootInfo
+        let info = watch.RootMatch
         this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
 
     do
@@ -105,7 +110,7 @@ type WatchTreeView() as this =
             this.BeginUpdate()
             (
                 let watch = createRootWatch tn.Name value ty
-                tn.Text <- watch.DefaultText
+                tn.Text <- watch.Text
                 tn.Tag <- watch
                 tn.Nodes.Clear()
                 tn.Nodes.Add("dummy") |> ignore
@@ -131,7 +136,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when (tn.Tag :?> Watch).RootInfo.Value <>& value -> 
+            | Some(tn) when (tn.Tag :?> Watch).RootMatch.Value <>& value -> 
                 this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
