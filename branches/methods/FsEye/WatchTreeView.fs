@@ -54,12 +54,21 @@ type WatchTreeView() as this =
             tn.Nodes.Add("dummy") |> ignore
             tn, None
 
+    let afterSelect (node:TreeNode) =
+        match node.Tag with
+        | :? Watch as watch ->
+            match watch with
+            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
+                node.Text <- info.Lazy.Value.Text
+            | _ -> ()
+        | _ -> ()
+
     let afterExpand (node:TreeNode) =
         match node.Tag with
         | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not
             node.Nodes.Clear() //clear dummy node
             match watch with
-            | CallMember(info) ->
+            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
                 node.Text <- info.Lazy.Value.Text
             | _ -> ()
 
@@ -84,6 +93,7 @@ type WatchTreeView() as this =
         this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
 
     do
+        //set the selected node on mouse click so can use with right-click context menu
         this.MouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
@@ -98,6 +108,13 @@ type WatchTreeView() as this =
             mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
             rootWatchContextMenu.MenuItems.Add(mi) |> ignore
         )
+
+        this.AfterSelect.Add <| fun args ->
+            this.BeginUpdate()
+            (
+                afterSelect args.Node
+            )
+            this.EndUpdate()
 
         this.AfterExpand.Add <| fun args -> 
             this.BeginUpdate()
