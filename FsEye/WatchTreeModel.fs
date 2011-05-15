@@ -140,46 +140,49 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 mi.Name
 
         let getPropertyWatch (pi:PropertyInfo) =
-            let pretext = sprintf "(P) %s : %s = %s" (getMemberName pi) pi.PropertyType.FSharpName
+            let pretext = sprintf "(P) %s : %s = %s" (getMemberName pi)
             let delayed = lazy(
                 let value, valueTy =
                     try
-                        pi.GetValue(ownerValue, Array.empty), pi.PropertyType
+                        let value = pi.GetValue(ownerValue, Array.empty)
+                        value, if value <>& null then value.GetType() else pi.PropertyType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({Text=(pretext "Loading...") ; Lazy=delayed })
+                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({Text=(pretext  pi.PropertyType.FSharpName "Loading...") ; Lazy=delayed })
 
         let getFieldWatch (fi:FieldInfo) =
-            let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi) fi.FieldType.FSharpName
+            let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi)
             let delayed = lazy(
                 let value, valueTy = 
                     try 
-                        fi.GetValue(ownerValue), fi.FieldType
+                        let value = fi.GetValue(ownerValue)
+                        value, if value <>& null then value.GetType() else fi.FieldType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({Text=(pretext "Loading...") ; Lazy=delayed })
+                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({Text=pretext fi.FieldType.FSharpName "Loading..." ; Lazy=delayed })
 
         let getMethodWatch (mi:MethodInfo) =
-            let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi) mi.ReturnType.FSharpName
+            let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
             let delayed = lazy(
                 let value, valueTy =
                     try
-                        mi.Invoke(ownerValue, Array.empty), mi.ReturnType
+                        let value = mi.Invoke(ownerValue, Array.empty)
+                        value, if value <>& null then value.GetType() else mi.ReturnType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    { Text=pretext (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
-            CallMember({Text=(pretext "") ; Lazy=delayed })
+                    { Text=pretext valueTy.FSharpName (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
+            CallMember({Text=pretext  mi.ReturnType.FSharpName "" ; Lazy=delayed })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
