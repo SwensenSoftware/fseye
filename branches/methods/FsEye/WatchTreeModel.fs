@@ -168,7 +168,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             DataMember({Text=(pretext "Loading...") ; Lazy=delayed })
 
         let getMethodWatch (mi:MethodInfo) =
-            let pretext = sprintf "(M) %s() : %s = %s" (getMemberName mi) mi.ReturnType.FSharpName
+            let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi) mi.ReturnType.FSharpName
             let delayed = lazy(
                 let value, valueTy =
                     try
@@ -178,8 +178,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
                     { Custom.Text=pretext "seq [..]"; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
-                    { Text=pretext (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            CallMember({Text=(pretext "Loading...") ; Lazy=delayed })
+                    { Text=pretext (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
+            CallMember({Text=(pretext "") ; Lazy=delayed })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
