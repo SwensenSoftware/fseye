@@ -69,26 +69,28 @@ type WatchTreeView() as this =
     let afterExpand (node:TreeNode) =
         match node.Tag with
         | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not
-            Control.update this <| fun () ->
-                node.Nodes.Clear() //clear dummy node
-                match watch with
-                | CallMember(info) when info.Lazy.IsValueCreated |> not ->
-                    node.Text <- info.Lazy.Value.Text
-                | _ -> ()
+            this.BeginUpdate()
+            node.Nodes.Clear() //clear dummy node
+            match watch with
+            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
+                node.Text <- info.Lazy.Value.Text
+            | _ -> ()
 
-                let context = System.Threading.SynchronizationContext.Current //gui thread
-                let createWatchTreeNode = createWatchTreeNode context
-                let asyncNodes = 
-                    [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
-                            node.Nodes.Add(tn) |> ignore
-                            match a with
-                            | Some(a) -> yield a
-                            | _ -> () |]
-
-                asyncNodes
-                |> Async.Parallel 
-                |> Async.Ignore
-                |> Async.Start
+            let context = System.Threading.SynchronizationContext.Current //gui thread
+            let createWatchTreeNode = createWatchTreeNode context
+            let asyncNodes = 
+                [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
+                        node.Nodes.Add(tn) |> ignore
+                        match a with
+                        | Some(a) -> yield a
+                        | _ -> () |]
+            this.EndUpdate()
+            //N.B. deliberately excludeing Asyn.Start pipe-line from begin/end update 
+            //so child nodes have chance to expand before parallel updates start kicking off
+            asyncNodes
+            |> Async.Parallel 
+            |> Async.Ignore
+            |> Async.Start
         | _ -> () //either an Archive node or IWatchNode children already expanded
 
     let refresh (node:TreeNode) =
