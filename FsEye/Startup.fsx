@@ -39,6 +39,7 @@ let work loops =
     loops
     
 type SlowType() =
+    member this.AMethod() = work 6I
     member this.One = work 1I
     member this.Two = work 1I
     member this.Three = work 1I |> ignore ; failwith "Some exception occurred" ; 3
@@ -54,7 +55,7 @@ type SlowType() =
     member this.Foug = work 2I
 
 eye.Watch("test!", SlowType())
-
+eye.Show()
 //Async.Parallel(
 
 let f = 23;;
