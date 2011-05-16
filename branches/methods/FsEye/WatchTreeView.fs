@@ -19,17 +19,27 @@ open System.Reflection
 open Swensen.FsEye.Model
 open Swensen.Utils
 
-//features to add: Methods with lazy loading values
-//type info about IEnumerable
 //Copy / Copy Value context Menu
 
-//let (|Watch|_|) (tn:TreeNode)
+//for thoughts on cancellation:
+//http://stackoverflow.com/questions/5852317/how-to-cancel-individual-async-computation-being-run-in-parallel-with-others-fr
 
 type WatchTreeView() as this =
     inherit TreeView()
     let rootWatchContextMenu = new ContextMenu()
     
     let mutable archiveCounter = 0
+
+    let loadWatchAsync guiContext (tn:TreeNode) info addDummy =
+        async {
+            let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
+            let text = info.Lazy.Value.Text
+            do! Async.SwitchToContext guiContext
+            Control.update this <| fun () ->
+                tn.Text <- text
+                if addDummy then tn.Nodes.Add("dummy") |> ignore
+            do! Async.SwitchToContext original
+        }
     
     let createWatchTreeNode guiContext (watch:Watch) =
         let tn = new TreeNode(Text=watch.Text, Tag=watch)
@@ -44,53 +54,61 @@ type WatchTreeView() as this =
             tn.Nodes.Add("dummy") |> ignore
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
-            tn, Some(async {
-                //let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
-                let text = info.Lazy.Value.Text
-                do! Async.SwitchToContext guiContext
-                Control.update this <| fun () ->
-                    tn.Text <- text
-                    tn.Nodes.Add("dummy") |> ignore
-                //do! Async.SwitchToContext original
-            })
+            tn, Some(loadWatchAsync guiContext tn info true)
         | CallMember(info) ->
             tn.Nodes.Add("dummy") |> ignore
             tn, None
 
-    let afterSelect (node:TreeNode) =
-        match node.Tag with
-        | :? Watch as watch ->
+    let afterSelect (tn:TreeNode) =
+        match tn.Tag with
+        | :? Watch as watch when tn.Nodes.Count = 1 && tn.Nodes.[0].Text = "dummy" ->
             match watch with
-            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
-                node.Text <- info.Lazy.Value.Text
+            | CallMember(info) ->
+                Control.update this <| fun () ->
+                    tn.Nodes.Clear() //so don't try click while still async loading
+                    tn.Text <- info.Text + " = Loading..." //need to move to model
+
+                let guiContext = System.Threading.SynchronizationContext.Current
+                loadWatchAsync guiContext tn info true |> Async.Start
             | _ -> ()
         | _ -> ()
 
+    //note:FSharpRefactor doesn't rename variables in when clause of a pattern match
     let afterExpand (node:TreeNode) =
         match node.Tag with
-        | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not
-            this.BeginUpdate()
-            node.Nodes.Clear() //clear dummy node
-            match watch with
-            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
-                node.Text <- info.Lazy.Value.Text
-            | _ -> ()
-
-            let context = System.Threading.SynchronizationContext.Current //gui thread
-            let createWatchTreeNode = createWatchTreeNode context
-            let asyncNodes = 
-                [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
+        | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not            
+            let loadWatches context (node:TreeNode) (watch:Watch) =
+                this.BeginUpdate()
+                node.Nodes.Clear() //clear dummy node
+                let createWatchTreeNode = createWatchTreeNode context
+                let asyncNodes = 
+                    [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
                         node.Nodes.Add(tn) |> ignore
                         match a with
                         | Some(a) -> yield a
                         | _ -> () |]
-            this.EndUpdate()
-            //N.B. deliberately excludeing Asyn.Start pipe-line from begin/end update 
-            //so child nodes have chance to expand before parallel updates start kicking off
-            asyncNodes
-            |> Async.Parallel 
-            |> Async.Ignore
-            |> Async.Start
+                this.EndUpdate()
+                //N.B. deliberately excludeing Asyn.Start pipe-line from begin/end update 
+                //so child nodes have chance to expand before parallel updates start kicking off
+                asyncNodes
+                |> Async.Parallel 
+                |> Async.Ignore
+                |> Async.Start
+
+            let guiContext = System.Threading.SynchronizationContext.Current //gui thread
+            match watch with
+            | CallMember(info) ->
+                node.Nodes.Clear()
+                node.Text <- info.Text + " = Loading..." //need to move to model
+                async {
+                    let original = System.Threading.SynchronizationContext.Current
+                    do! loadWatchAsync guiContext node info false
+                    do! Async.SwitchToContext guiContext
+                    do loadWatches guiContext node watch
+                    do! Async.SwitchToContext original
+                } |> Async.Start
+            | _ -> 
+                loadWatches guiContext node watch
         | _ -> () //either an Archive node or IWatchNode children already expanded
 
     let refresh (node:TreeNode) =
