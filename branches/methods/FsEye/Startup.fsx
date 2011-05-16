@@ -53,7 +53,7 @@ type SlowType() =
     member private this.Fous =work 3I
     member this.Foug = work 2I
 
-eye.Watch("test!", 23)
+eye.Watch("test!", SlowType())
 
 //Async.Parallel(
 
