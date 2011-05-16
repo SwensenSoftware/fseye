@@ -23,6 +23,8 @@ open Swensen.Utils
 //type info about IEnumerable
 //Copy / Copy Value context Menu
 
+//let (|Watch|_|) (tn:TreeNode)
+
 type WatchTreeView() as this =
     inherit TreeView()
     let rootWatchContextMenu = new ContextMenu()
@@ -125,6 +127,7 @@ type WatchTreeView() as this =
                 tn.Nodes.Clear()
                 tn.Nodes.Add("dummy") |> ignore
                 tn.Collapse()
+
         member private this.AddWatch(name, value, ty) =
             Control.update this <| fun () ->
                 createRootWatch name value ty
@@ -150,56 +153,39 @@ type WatchTreeView() as this =
         member this.Watch(name: string, value: 'a) =
             this.Watch(name, value, typeof<'a>)
 
+        ///Clear all nodes satisfying the given predicate.
+        member this.ClearAll(predicate) =
+            Control.update this <| fun () ->                
+                //N.B. can't remove node while iterating Nodes, so need to make array first
+                [| for tn in this.Nodes do if predicate tn then yield tn |]
+                |> Seq.iter (fun tn -> this.Nodes.Remove(tn))
+
         ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
             Control.update this <| fun () ->
-                let nodesToArchiveBeforeClone =
-                    this.Nodes 
-                    |> Seq.cast<TreeNode> 
-                    |> Seq.filter (fun tn -> tn.Tag :? Watch)
-                    |> Seq.toArray //need to convert to array or get lazy evaluation issues!
-
-                let nodesToArchiveCloned =
-                    nodesToArchiveBeforeClone
-                    |> Seq.map (fun tn -> tn.Clone() :?> TreeNode) 
-                    |> Seq.toArray
+                let nodesToArchiveCloned = 
+                    [| for tn in this.Nodes do
+                        if tn.Tag :? Watch then yield tn.Clone() :?> TreeNode |]
             
-                nodesToArchiveBeforeClone
-                |> Seq.iter (fun tn -> this.Nodes.Remove(tn))
+                this.ClearAll(fun tn -> tn.Tag :? Watch)
 
                 let archiveNode = TreeNode(Text = label)
-
-                nodesToArchiveCloned 
-                |> archiveNode.Nodes.AddRange
-                
-                archiveNode 
-                |> this.Nodes.Add 
-                |> ignore
-
+                archiveNode.Nodes.AddRange(nodesToArchiveCloned)
+                this.Nodes.Add(archiveNode) |> ignore
                 archiveCounter <- archiveCounter + 1
 
         ///Take archival snap shot of all current watches using a default label based on an archive count.
-        member this.Archive() = this.Archive(sprintf "Archive (%i)" archiveCounter)
+        member this.Archive() = 
+            this.Archive(sprintf "Archive (%i)" archiveCounter)
 
         ///Clear all archives and reset the archive count.
         member this.ClearArchives() =
-            Control.update this <| fun () ->
-                this.Nodes 
-                |> Seq.cast<TreeNode> 
-                |> Seq.filter (fun tn -> tn.Tag :? Watch |> not)
-                |> Seq.toArray
-                |> Array.iter (fun tn -> this.Nodes.Remove(tn))
-            
-                archiveCounter <- 0
+            this.ClearAll(fun tn -> tn.Tag :? Watch |> not)
+            archiveCounter <- 0
 
         ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() =
-            Control.update this <| fun () ->
-                this.Nodes 
-                |> Seq.cast<TreeNode> 
-                |> Seq.filter (fun tn -> tn.Tag :? Watch)
-                |> Seq.toArray
-                |> Array.iter (fun tn -> this.Nodes.Remove(tn))
+            this.ClearAll(fun tn -> tn.Tag :? Watch)
 
         ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() =
