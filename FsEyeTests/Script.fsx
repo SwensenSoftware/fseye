@@ -15,3 +15,4 @@ limitations under the License.
 *)
 #load @"C:\Users\Stephen\Documents\Visual Studio 2010\Projects\FsEye\FsEye\bin\Release\FsEye.fsx"
 open Swensen.FsEye //bring watch into scope
+
