@@ -26,6 +26,10 @@ open Swensen.Utils
 
 type WatchTreeView() as this =
     inherit TreeView()
+    static let dummyText = "dummy"
+    static let hasDummyChild (tn:TreeNode) = 
+        tn.Nodes.Count = 1 && tn.Nodes.[0].Text = dummyText
+
     let rootWatchContextMenu = new ContextMenu()
     
     let mutable archiveCounter = 0
@@ -37,7 +41,7 @@ type WatchTreeView() as this =
             do! Async.SwitchToContext guiContext
             Control.update this <| fun () ->
                 tn.Text <- text
-                if addDummy then tn.Nodes.Add("dummy") |> ignore
+                if addDummy then tn.Nodes.Add(dummyText) |> ignore
             do! Async.SwitchToContext original
         }
     
@@ -48,20 +52,20 @@ type WatchTreeView() as this =
         | Root info ->
             tn.Name <- info.Name
             tn.ContextMenu <- rootWatchContextMenu
-            tn.Nodes.Add("dummy") |> ignore
+            tn.Nodes.Add(dummyText) |> ignore
             tn, None
         | Custom _ -> 
-            tn.Nodes.Add("dummy") |> ignore
+            tn.Nodes.Add(dummyText) |> ignore
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             tn, Some(loadWatchAsync guiContext tn info true)
         | CallMember(info) ->
-            tn.Nodes.Add("dummy") |> ignore
+            tn.Nodes.Add(dummyText) |> ignore
             tn, None
 
     let afterSelect (tn:TreeNode) =
         match tn.Tag with
-        | :? Watch as watch when tn.Nodes.Count = 1 && tn.Nodes.[0].Text = "dummy" ->
+        | :? Watch as watch when hasDummyChild tn ->
             match watch with
             | CallMember(info) ->
                 Control.update this <| fun () ->
@@ -76,7 +80,7 @@ type WatchTreeView() as this =
     //note:FSharpRefactor doesn't rename variables in when clause of a pattern match
     let afterExpand (node:TreeNode) =
         match node.Tag with
-        | :? Watch as watch when node.Nodes.Count = 1 && node.Nodes.[0].Text = "dummy" -> //need to harden this check for loaded vs. not            
+        | :? Watch as watch when hasDummyChild node -> //need to harden this check for loaded vs. not            
             let loadWatches context (node:TreeNode) (watch:Watch) =
                 this.BeginUpdate()
                 node.Nodes.Clear() //clear dummy node
@@ -145,7 +149,7 @@ type WatchTreeView() as this =
                 tn.Text <- watch.Text
                 tn.Tag <- watch
                 tn.Nodes.Clear()
-                tn.Nodes.Add("dummy") |> ignore
+                tn.Nodes.Add(dummyText) |> ignore
                 tn.Collapse()
 
         member private this.AddWatch(name, value, ty) =
