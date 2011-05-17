@@ -32,7 +32,7 @@ let ``calling Watch with an existing name and different value replaces previous 
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).RootMatch.Value :?> int) = 2 @>
+    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).AsRoot.Value :?> int) = 2 @>
 
 [<Fact>]
 let ``calling Watch with an existing name and same reference does nothing`` () =
@@ -43,7 +43,7 @@ let ``calling Watch with an existing name and same reference does nothing`` () =
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).RootMatch.Value :?> string) =& value @>
+    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).AsRoot.Value :?> string) =& value @>
 
 [<Fact>]
 let ``create empty Archive with explicit label`` () =
@@ -86,8 +86,8 @@ let ``Archive two watches removes watches from root and puts them under new Arch
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.[0].Nodes.Count = 2 @>
-    test <@ (tree.Nodes.[0].Nodes.[0].Tag :?> Watch).RootMatch.Name = "w1" @>
-    test <@ (tree.Nodes.[0].Nodes.[1].Tag :?> Watch).RootMatch.Name = "w2" @>
+    test <@ (tree.Nodes.[0].Nodes.[0].Tag :?> Watch).AsRoot.Name = "w1" @>
+    test <@ (tree.Nodes.[0].Nodes.[1].Tag :?> Watch).AsRoot.Name = "w2" @>
 
 
 [<Fact>]
