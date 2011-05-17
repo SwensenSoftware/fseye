@@ -23,11 +23,12 @@ open Swensen.Utils
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 type Root = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
 and Custom = { Text: string ; Children:seq<Watch>}
-and Member = { Text:string ; Lazy: Lazy<Custom>}
+and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>}
+and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>}
 and Watch =
     | Root of Root
-    | DataMember of  Member
-    | CallMember of  Member
+    | DataMember of  DataMember
+    | CallMember of  CallMember
     | Custom of Custom
     with 
         member this.RootMatch =
@@ -36,8 +37,8 @@ and Watch =
             | _ -> failwith "Invalid Root match, Watch is actually: %A" this
         member this.Text =
             match this with
-            | Root {Text=text} | DataMember {Text=text}
-            | CallMember {Text=text} | Custom {Text=text} -> text
+            | Root {Text=text} | DataMember {LoadingText=text}
+            | CallMember {InitialText=text} | Custom {Text=text} -> text
         member this.Children =
             match this with
             | Root {Children=children} | Custom {Children=children} -> children
@@ -152,7 +153,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
                     { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({Text=(pretext  pi.PropertyType.FSharpName "Loading...") ; Lazy=delayed })
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName "Loading...") ; Lazy=delayed })
 
         let getFieldWatch (fi:FieldInfo) =
             let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi)
@@ -167,7 +168,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
                     { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({Text=pretext fi.FieldType.FSharpName "Loading..." ; Lazy=delayed })
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName "Loading..." ; Lazy=delayed })
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
@@ -182,7 +183,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
                 else
                     { Text=pretext valueTy.FSharpName (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
-            CallMember({Text=pretext  mi.ReturnType.FSharpName "" ; Lazy=delayed })
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName " = Loading..." ; Lazy=delayed })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
