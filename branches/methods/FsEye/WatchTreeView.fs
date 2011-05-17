@@ -46,7 +46,7 @@ type WatchTreeView() as this =
         }
     
     let createWatchTreeNode guiContext (watch:Watch) =
-        let tn = new TreeNode(Text=watch.Text, Tag=watch)
+        let tn = new TreeNode(Text=watch.DefaultText, Tag=watch)
 
         match watch with
         | Root info ->
@@ -117,7 +117,7 @@ type WatchTreeView() as this =
 
     let refresh (node:TreeNode) =
         let watch = node.Tag :?> Watch
-        let info = watch.RootMatch
+        let info = watch.AsRoot
         this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
 
     do
@@ -146,7 +146,7 @@ type WatchTreeView() as this =
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
                 let watch = createRootWatch tn.Name value ty
-                tn.Text <- watch.Text
+                tn.Text <- watch.DefaultText
                 tn.Tag <- watch
                 tn.Nodes.Clear()
                 tn.Nodes.Add(dummyText) |> ignore
@@ -168,7 +168,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when (tn.Tag :?> Watch).RootMatch.Value <>& value -> 
+            | Some(tn) when (tn.Tag :?> Watch).AsRoot.Value <>& value -> 
                 this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()

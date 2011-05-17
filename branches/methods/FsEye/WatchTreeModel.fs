@@ -31,14 +31,19 @@ and Watch =
     | CallMember of  CallMember
     | Custom of Custom
     with 
-        member this.RootMatch =
+        ///Try to match this Watch as a Root and extract the Root info: may fail with an exception.
+        member this.AsRoot =
             match this with
             | Root(info) -> info
             | _ -> failwith "Invalid Root match, Watch is actually: %A" this
-        member this.Text =
+
+        ///Get the "default text" of this Watch
+        member this.DefaultText =
             match this with
             | Root {Text=text} | DataMember {LoadingText=text}
             | CallMember {InitialText=text} | Custom {Text=text} -> text
+        ///Get the children of this Watch. If the children are taken from a Lazy property,
+        ///evaluation is forced.
         member this.Children =
             match this with
             | Root {Children=children} | Custom {Children=children} -> children
