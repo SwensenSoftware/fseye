@@ -34,10 +34,10 @@ type WatchTreeView() as this =
     
     let mutable archiveCounter = 0
 
-    let loadWatchAsync guiContext (tn:TreeNode) info addDummy =
+    let loadWatchAsync guiContext (tn:TreeNode) (lz:Lazy<_>) addDummy =
         async {
             let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
-            let text = info.Lazy.Value.Text
+            let text = lz.Value.Text
             do! Async.SwitchToContext guiContext
             Control.update this <| fun () ->
                 tn.Text <- text
@@ -58,7 +58,7 @@ type WatchTreeView() as this =
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
-            tn, Some(loadWatchAsync guiContext tn info true)
+            tn, Some(loadWatchAsync guiContext tn info.Lazy true)
         | CallMember(info) ->
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
@@ -70,10 +70,10 @@ type WatchTreeView() as this =
             | CallMember(info) ->
                 Control.update this <| fun () ->
                     tn.Nodes.Clear() //so don't try click while still async loading
-                    tn.Text <- info.Text + " = Loading..." //need to move to model
+                    tn.Text <- info.LoadingText
 
                 let guiContext = System.Threading.SynchronizationContext.Current
-                loadWatchAsync guiContext tn info true |> Async.Start
+                loadWatchAsync guiContext tn info.Lazy true |> Async.Start
             | _ -> ()
         | _ -> ()
 
@@ -103,10 +103,10 @@ type WatchTreeView() as this =
             match watch with
             | CallMember(info) ->
                 node.Nodes.Clear()
-                node.Text <- info.Text + " = Loading..." //need to move to model
+                node.Text <- info.LoadingText //need to move to model
                 async {
                     let original = System.Threading.SynchronizationContext.Current
-                    do! loadWatchAsync guiContext node info false
+                    do! loadWatchAsync guiContext node info.Lazy false
                     do! Async.SwitchToContext guiContext
                     do loadWatches guiContext node watch
                     do! Async.SwitchToContext original
