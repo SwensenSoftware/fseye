@@ -21,8 +21,38 @@ open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
+type Root = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
+and Custom = { Text: string ; Children:seq<Watch>}
+and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>}
+and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>}
+and Watch =
+    | Root of Root
+    | DataMember of  DataMember
+    | CallMember of  CallMember
+    | Custom of Custom
+    with 
+        ///Try to match this Watch as a Root and extract the Root info: may fail with an exception.
+        member this.AsRoot =
+            match this with
+            | Root(info) -> info
+            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
+
+        ///Get the "default text" of this Watch
+        member this.DefaultText =
+            match this with
+            | Root {Text=text} | DataMember {LoadingText=text}
+            | CallMember {InitialText=text} | Custom {Text=text} -> text
+        ///Get the children of this Watch. If the children are taken from a Lazy property,
+        ///evaluation is forced.
+        member this.Children =
+            match this with
+            | Root {Children=children} | Custom {Children=children} -> children
+            | CallMember {Lazy=l} | DataMember {Lazy=l} -> l.Value.Children
 
 let private sprintValue (value:obj) (ty:Type) =
+    if ty =& null then
+        nullArg "ty cannot be null"
+
     let cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
 
     match value with
@@ -34,56 +64,64 @@ let private sprintValue (value:obj) (ty:Type) =
         else
             sprintf "%A" value |> cleanString
 
-type RootInfo = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
-and MemberInfo = { LoadingText:string ; AsyncInfo: Lazy<string * seq<Watch>>}
-and CustomInfo = { Text: string ; Children:seq<Watch>}
-and Watch =
-    | Root of RootInfo
-    | Member of  MemberInfo
-    | Custom of CustomInfo
-    with 
-        member this.RootInfo =
-            match this with
-            | Root(info) -> info
-            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
-        member this.DefaultText =
-            match this with
-            | Root(info) -> info.Text
-            | Member(info) -> info.LoadingText
-            | Custom(info) -> info.Text
-        member this.Children =
-            match this with
-            | Root(info) -> info.Children
-            | Member(info) -> info.AsyncInfo.Value |> snd
-            | Custom(info) -> info.Children
-
 ///Create lazy seq of children s for a typical valued 
-let rec createChildren (value:obj) (ty:Type) =
-    seq {
-        yield! createType ty
-        yield! createResults value
-        yield! createMembers value
-    } //maybe |> Seq.cache
-///Type , if type info exists
-and createType ty = 
-    seq {
-        match ty with
-        | null -> ()
-        | _ -> 
-            let tyty = ty.GetType()
-            let text = sprintf "GetType() : %s = typeof<%s>" tyty.FSharpName ty.FSharpName
-            let children = createChildren ty (ty.GetType())
-            yield Custom({Text=text ; Children=children})
-    }
-///Results , if value is IEnumerable
-and createResults value =
-    seq {
-        match value with
-        | :? System.Collections.IEnumerable as value -> 
+let rec createChildren ownerValue (ownerTy:Type) =
+    if ownerValue =& null then Seq.empty
+    else
+        let getMembers bindingFlags =
+            let allMembers = seq {
+                ///yield all ownerTy members
+                yield! ownerTy.GetMembers(bindingFlags)
+            
+                let mapMembers tys = 
+                    tys 
+                    |> Seq.map (fun (ty:Type) -> ty.GetMembers(bindingFlags))
+                    |> Seq.concat
+                //yield all ownerTy interface members
+                yield! ownerTy.GetInterfaces() |> mapMembers
+                //yield all ownerTy base type (recursive) members
+                yield! 
+                    ownerTy 
+                    |> Seq.unfold(fun ty -> 
+                        let bty = ty.BaseType
+                        if bty = null then None else Some(bty, bty))
+                    |> mapMembers }
+
+            let validMemberTypes =
+                allMembers
+                |> Seq.filter (fun mi ->
+                    match mi with
+                    | :? PropertyInfo as pi -> pi.GetIndexParameters() = Array.empty
+                    | :? MethodInfo as meth -> 
+                        meth.GetParameters() = Array.empty && 
+                        meth.ReturnType <> typeof<System.Void> && 
+                        meth.ReturnType <> typeof<unit> &&
+                        meth.ContainsGenericParameters |> not &&
+                        meth.Name.StartsWith("get_") |> not
+                    | :? FieldInfo -> true
+                    | _ -> false)
+
+            let nonRedundantMembers =
+                validMemberTypes
+                |> Seq.distinctByResolve
+                    (fun mi -> mi.Name.ToLower())
+                    (fun mi1 mi2 -> 
+                        let ty1, ty2 = mi1.DeclaringType, mi2.DeclaringType
+                        if ty1.IsAssignableFrom(ty2) then -1
+                        elif ty2.IsAssignableFrom(ty1) then 1
+                        else 0)
+
+            let sortedMembers =
+                nonRedundantMembers
+                |> Seq.sortBy (fun mi -> mi.Name.ToLower())
+
+            sortedMembers
+
+        let createResultWatches (value:System.Collections.IEnumerator) = 
             let createChild index value =
                 //Would like to be able to always get the type
                 //but if is non-Custom IEnumerable, then can't
-                let ty = if value =& null then null else value.GetType()
+                let ty = if value =& null then typeof<obj> else value.GetType()
                 let text = sprintf "[%i] : %s = %s" index ty.FSharpName (sprintValue value ty)
                 let children = createChildren value ty
                 Custom({Text=text ; Children=children})
@@ -97,87 +135,78 @@ and createResults value =
                         yield Custom({Text="Rest" ; Children=rest})
                     else
                         yield nextResult;
-                        yield! calcRest (pos+1) ie
-            }
+                        yield! calcRest (pos+1) ie }
             
-            let children = seq {
-                yield! calcRest 0 (value.GetEnumerator()) //should use "use" when getting enumerator?
-            } // |> Seq.cache
-                
-            yield Custom({Text= sprintf "GetEnumerator() : IEnumerator" ; Children = children})
-        | _ -> ()
-    }
-//Create a s for fields and properites, sorted by name and sub-organized by access
-and createMembers ownerValue =
-    if ownerValue =& null then Seq.empty
-    else
-        let publicFlags = BindingFlags.Instance ||| BindingFlags.Public
-        let nonPublicFlags =BindingFlags.Instance ||| BindingFlags.NonPublic
+            seq { yield! calcRest 0 value } //should use "use" when getting enumerator?
 
-        //returns count * Watch
-        let props flags = 
-            let propInfos = ownerValue.GetType().GetProperties(flags)
-            propInfos.Length, 
-            seq {
-                for pi in propInfos do
-                    if pi.GetIndexParameters() = Array.empty then //non-indexed property
-                        let pretext = sprintf "(P) %s : %s = %s" pi.Name pi.PropertyType.FSharpName
+        let getMemberName (mi:Reflection.MemberInfo) =
+            if mi.ReflectedType <> ownerTy then
+                mi.ReflectedType.FSharpName + "." + mi.Name
+            else
+                mi.Name
 
-                        let delayed = lazy(
-                            let value, valueTy =
-                                try
-                                    pi.GetValue(ownerValue, Array.empty), pi.PropertyType
-                                with e ->
-                                    box e, e.GetType()
+        let getPropertyWatch (pi:PropertyInfo) =
+            let pretext = sprintf "(P) %s : %s = %s" (getMemberName pi)
+            let delayed = lazy(
+                let value, valueTy =
+                    try
+                        let value = pi.GetValue(ownerValue, Array.empty)
+                        value, if value <>& null then value.GetType() else pi.PropertyType //use the actual type if we can
+                    with e ->
+                        box e, e.GetType()
+                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                else
+                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName "Loading...") ; Lazy=delayed })
 
-                            pretext (sprintValue value valueTy), createChildren value valueTy
-                        )
-                        yield pi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
-            }
-          
-        //returns count * Watch  
-        let fields flags = 
-            let fieldInfos = ownerValue.GetType().GetFields(flags)
-            fieldInfos.Length, 
-            seq {
-                for fi in fieldInfos do
-                    let pretext = sprintf "(F) %s : %s = %s" fi.Name fi.FieldType.FSharpName
+        let getFieldWatch (fi:FieldInfo) =
+            let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi)
+            let delayed = lazy(
+                let value, valueTy = 
+                    try 
+                        let value = fi.GetValue(ownerValue)
+                        value, if value <>& null then value.GetType() else fi.FieldType //use the actual type if we can
+                    with e ->
+                        box e, e.GetType()
+                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                else
+                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName "Loading..." ; Lazy=delayed })
 
-                    let delayed = lazy(
-                        let value, valueTy = 
-                            try 
-                                fi.GetValue(ownerValue), fi.FieldType
-                            with e ->
-                                box e, e.GetType()
+        let getMethodWatch (mi:MethodInfo) =
+            let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
+            let delayed = lazy(
+                let value, valueTy =
+                    try
+                        let value = mi.Invoke(ownerValue, Array.empty)
+                        value, if value <>& null then value.GetType() else mi.ReturnType //use the actual type if we can
+                    with e ->
+                        box e, e.GetType()
+                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
+                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
+                else
+                    { Text=pretext valueTy.FSharpName (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName " = Loading..." ; Lazy=delayed })
 
-                        pretext (sprintValue value valueTy), createChildren value valueTy
-                    )
+        let getMemberWatches bindingFlags = seq {
+            let members = getMembers bindingFlags
+            for m in members do
+                match m with
+                | :? PropertyInfo as x -> yield getPropertyWatch x
+                | :? FieldInfo as x -> yield getFieldWatch x
+                | :? MethodInfo as x -> yield getMethodWatch x 
+                | _ -> failwith "unexpected MemberInfo type: %A" m }
 
-                    yield fi.Name, Member({LoadingText=(pretext "Loading...") ; AsyncInfo=delayed})
-            }
-
-        let getMembers flags =
-            let propCount, propSeq = props flags
-            let fieldCount, fieldSeq = fields flags
-
-            let sortedMembers =
-                Seq.append propSeq fieldSeq
-                |> Seq.sortBy (fun (name, _) -> name.ToLower())
-
-            (propCount + fieldCount), sortedMembers
-
-        let _, publicMembers = getMembers publicFlags
-        let nonPublicMembersCount, nonPublicMembers =  getMembers nonPublicFlags
+        let publicBindingFlags = BindingFlags.Instance ||| BindingFlags.Public
+        let nonPublicBindingFlags = BindingFlags.Instance ||| BindingFlags.NonPublic
 
         seq {
-            //optimization: check count instead of doing Seq.isEmpty |> not which forces
-            //full evaluation due to Seq.sortBy
-            if nonPublicMembersCount > 0 then 
-                let children = nonPublicMembers |> Seq.map snd
-                yield Custom({Text="Non-public" ; Children=children})
-            yield! publicMembers |> Seq.map snd
+            let nonPublicMemberWatches = getMemberWatches nonPublicBindingFlags
+            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches})
+            yield! getMemberWatches publicBindingFlags
         }
-
 ///Create a watch root. If value is not null, then value.GetType() is used as the watch Type instead of
 ///ty. Else if ty is not null ty is used. Else typeof<obj> is used.
 let createRootWatch (name:string) (value:obj) (ty:Type) = 
