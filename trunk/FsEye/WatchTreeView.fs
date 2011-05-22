@@ -120,9 +120,9 @@ type WatchTreeView() as this =
 
             let guiContext = System.Threading.SynchronizationContext.Current //gui thread
             match watch with
-            | CallMember(info) ->
+            | CallMember(info) when info.Lazy.IsValueCreated |> not (* not i.e. already loaded via after select event *) ->
                 node.Nodes.Clear()
-                node.Text <- info.LoadingText //need to move to model
+                node.Text <- info.LoadingText
                 async {
                     let original = System.Threading.SynchronizationContext.Current
                     do! loadWatchAsync guiContext node info.Lazy false
