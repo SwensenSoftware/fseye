@@ -16,7 +16,8 @@ limitations under the License.
 namespace Swensen.FsEye
 open Swensen.FsEye.Forms
 
-type Eye(watchForm:WatchForm) = 
+type Eye() as this = 
+    let mutable watchForm = new WatchForm()
     //value indicates whether or not FSI session listening is turned on
     let mutable listen = true
 
@@ -27,10 +28,7 @@ type Eye(watchForm:WatchForm) =
             if listen then
                 //printfn "listen is true"
                 try
-                    if watchForm.Visible |> not then
-                        watchForm.Show()
-                        watchForm.Activate()
-
+                    this.Show()
                     FsiHelper.getWatchableFsiVariables() 
                     |> Array.iter watchForm.Watch
                     //System.Threading.Timer(new TimerCallback(fun _ -> listen <- true), 0, 1000)
@@ -99,8 +97,12 @@ type Eye(watchForm:WatchForm) =
 
     ///Show the Watch form.
     member __.Show() =
-        watchForm.Show()
-        watchForm.Activate()
+        if watchForm.IsDisposed then
+            watchForm <- new WatchForm()
+
+        if watchForm.Visible |> not then
+            watchForm.Show()
+            watchForm.Activate()
 
     ///Hide the Watch form.
     member __.Hide() =
@@ -109,4 +111,4 @@ type Eye(watchForm:WatchForm) =
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Eye =
-    let eye = new Eye(new WatchForm())
+    let eye = new Eye()
