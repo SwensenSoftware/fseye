@@ -18,6 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye.Model
 open Swensen.Utils
+open Swensen.RegexUtils //from Unquote (should probably create a project for a Utils library)!
 
 //Copy / Copy Value context Menu
 
@@ -36,7 +37,33 @@ type WatchTreeView() as this =
     static let hasDummyChild (tn:TreeNode) = 
         tn.Nodes.Count = 1 && tn.Nodes.[0].Text = dummyText
 
-    let rootWatchContextMenu = new ContextMenu()
+    ///The action to perform on the given TreeNode after the "Refresh" menu item has
+    ///been clicked via the right-click context menu (which can only be performed on root TreeNode's
+    ///for Root Watches).
+    let refresh (node:TreeNode) =
+        let watch = node.Tag :?> Watch
+        let info = watch.AsRoot
+        this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
+
+    let rootWatchContextMenu = 
+        new ContextMenu [|
+            let mi = new MenuItem("Refresh") 
+            mi.Click.Add(fun args -> refresh this.SelectedNode) 
+            yield mi
+
+            let mi = new MenuItem("Remove")
+            mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
+            yield mi
+
+            yield new MenuItem("-")
+
+            let mi = new MenuItem("Copy Value")
+            mi.Click.Add(fun _ -> 
+                match this.SelectedNode.Text with
+                | CompiledMatch @"= (.*)" [_;g] ->
+                    Clipboard.SetText(g.Value)
+                | _ -> ())
+            yield mi |]
     
     let mutable archiveCounter = 0
 
@@ -133,31 +160,11 @@ type WatchTreeView() as this =
             | _ -> 
                 loadWatches guiContext node watch
         | _ -> () //either an Archive node or IWatchNode children already expanded
-
-    ///The action to perform on the given TreeNode after the "Refresh" menu item has
-    ///been clicked via the right-click context menu (which can only be performed on root TreeNode's
-    ///for Root Watches).
-    let refresh (node:TreeNode) =
-        let watch = node.Tag :?> Watch
-        let info = watch.AsRoot
-        this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
-
     do
         //set the selected node on mouse click so can use with right-click context menu
         this.MouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
-
-        (
-            let mi = new MenuItem("Refresh")
-            mi.Click.Add(fun args -> refresh this.SelectedNode)
-            rootWatchContextMenu.MenuItems.Add(mi) |> ignore
-        )
-        (   
-            let mi = new MenuItem("Remove")
-            mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
-            rootWatchContextMenu.MenuItems.Add(mi) |> ignore
-        )
 
         this.AfterSelect.Add <| fun args ->
             afterSelect args.Node
