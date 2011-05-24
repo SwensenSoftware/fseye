@@ -34,6 +34,16 @@ type WatchTreeView() as this =
         | :? Watch as w -> Watch(w)
         | _ -> Archive
 
+    static let isWatch (tn:TreeNode) =
+        match tn with
+        | Watch _ -> true
+        | _ -> false
+
+    static let isArchive (tn:TreeNode) =
+        match tn with
+        | Archive -> true
+        | _ -> false
+
     ///The text used for constructing "dummy" TreeNodes used as a place-holder until childnodes are 
     ///loaded lazily.
     static let dummyText = "dummy"
@@ -137,8 +147,8 @@ type WatchTreeView() as this =
                 this.BeginUpdate()
                 node.Nodes.Clear() //clear dummy node
                 let createWatchTreeNode = createWatchTreeNode context
-                let asyncNodes = 
-                    [| for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
+                let asyncNodes = [| 
+                    for (tn, a) in watch.Children |> Seq.map createWatchTreeNode do
                         node.Nodes.Add(tn) |> ignore
                         match a with
                         | Some(a) -> yield a
@@ -172,11 +182,8 @@ type WatchTreeView() as this =
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
 
-        this.AfterSelect.Add <| fun args ->
-            afterSelect args.Node
-
-        this.AfterExpand.Add <| fun args -> 
-            afterExpand args.Node
+        this.AfterSelect.Add (fun args -> afterSelect args.Node)
+        this.AfterExpand.Add (fun args -> afterExpand args.Node)
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
@@ -222,11 +229,12 @@ type WatchTreeView() as this =
         ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
             Control.update this <| fun () ->
-                let nodesToArchiveCloned = 
-                    [| for tn in this.Nodes do
-                        if tn.Tag :? Watch then yield tn.Clone() :?> TreeNode |]
+                let nodesToArchiveCloned = [| 
+                    for tn in this.Nodes do
+                        if tn |> isWatch then
+                            yield tn.Clone() :?> TreeNode |]
             
-                this.ClearAll(fun tn -> tn.Tag :? Watch)
+                this.ClearAll isWatch
 
                 let archiveNode = TreeNode(Text = label)
                 archiveNode.Nodes.AddRange(nodesToArchiveCloned)
@@ -239,12 +247,12 @@ type WatchTreeView() as this =
 
         ///Clear all archives and reset the archive count.
         member this.ClearArchives() =
-            this.ClearAll(fun tn -> tn.Tag :? Watch |> not)
+            this.ClearAll isArchive
             archiveCounter <- 0
 
         ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() =
-            this.ClearAll(fun tn -> tn.Tag :? Watch)
+            this.ClearAll isWatch
 
         ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() =
