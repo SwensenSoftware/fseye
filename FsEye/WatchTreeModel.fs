@@ -87,12 +87,12 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 |> Seq.filter (fun mi ->
                     match mi with
                     | :? PropertyInfo as pi -> pi.GetIndexParameters() = Array.empty
-                    | :? MethodInfo as meth -> 
+                    | :? MethodInfo as meth -> //a simple method taking no arguments and returning a value
                         meth.GetParameters() = Array.empty && 
                         meth.ReturnType <> typeof<System.Void> && 
                         meth.ReturnType <> typeof<unit> &&
                         meth.ContainsGenericParameters |> not &&
-                        meth.Name.StartsWith("get_") |> not
+                        meth.Name.StartsWith("get_") |> not //F# mark properties as having a "Special Name", so need to filter by prefix
                     | :? FieldInfo -> true
                     | _ -> false)
 
