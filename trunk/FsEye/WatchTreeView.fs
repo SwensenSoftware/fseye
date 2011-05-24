@@ -29,6 +29,11 @@ open Swensen.RegexUtils //from Unquote (should probably create a project for a U
 type WatchTreeView() as this =
     inherit TreeView()
 
+    static let (|Archive|Watch|) (tn:TreeNode) =
+        match tn.Tag with
+        | :? Watch as w -> Watch(w)
+        | _ -> Archive
+
     ///The text used for constructing "dummy" TreeNodes used as a place-holder until childnodes are 
     ///loaded lazily.
     static let dummyText = "dummy"
@@ -41,9 +46,10 @@ type WatchTreeView() as this =
     ///been clicked via the right-click context menu (which can only be performed on root TreeNode's
     ///for Root Watches).
     let refresh (node:TreeNode) =
-        let watch = node.Tag :?> Watch
-        let info = watch.AsRoot
-        this.UpdateWatch(node, info.Value , if info.Value =& null then null else info.Value.GetType())
+        match node with
+        | Watch(Root(info)) as watch ->
+            this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
+        | _ -> failwith "TreeNode was not a Root Watch"
 
     let rootWatchContextMenu = 
         new ContextMenu [|
@@ -197,7 +203,7 @@ type WatchTreeView() as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(tn) when (tn.Tag :?> Watch).AsRoot.Value <>& value -> 
+            | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
                 this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
