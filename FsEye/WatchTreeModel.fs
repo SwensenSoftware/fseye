@@ -43,13 +43,12 @@ and Watch =
             | Root {Children=children} | Custom {Children=children} -> children
             | CallMember {Lazy=l} | DataMember {Lazy=l} -> l.Value.Children
 
+open System.Text.RegularExpressions
 let private sprintValue (value:obj) (ty:Type) =
     if ty =& null then
         nullArg "ty cannot be null"
 
-    let cleanString (str:string) = 
-        //let r = System.Text.RegularExpressions.Regex("\n|"
-        str.Replace("\n","").Replace("\r","").Replace("\t","")
+    let cleanString str = Regex.Replace(str, @"[\t\r\n]", "", RegexOptions.Compiled)
 
     match value with
     | null when ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<option<_>> -> "None"
