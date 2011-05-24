@@ -25,10 +25,9 @@ type WatchForm() as this =
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
         )
     )
-    let watchPanel = new WatchPanel()
+    let watchPanel = new WatchPanel(Dock=DockStyle.Fill)
 
     do        
-        watchPanel.Dock <- DockStyle.Fill
         ///prevent form from disposing when closing
         this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
         this.Controls.Add(watchPanel)

@@ -24,6 +24,14 @@ let ``calling Watch two times with different names creates two nodes`` () =
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
     test <@ tree.Nodes.Find("w2", false).Length = 1 @>
 
+let asRoot (tn:TreeNode) = 
+    match tn.Tag with
+    | :? Watch as w -> 
+        match w with
+        | Root(info) -> info
+        | _ -> failwith "Watch is not a Root"
+    | _ -> failwith "TreeNode is not a Watch"
+
 [<Fact>]
 let ``calling Watch with an existing name and different value replaces previous watch node`` () =
     let tree = new WatchTreeView()
@@ -32,7 +40,7 @@ let ``calling Watch with an existing name and different value replaces previous 
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).AsRoot.Value :?> int) = 2 @>
+    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).Value :?> int) = 2 @>
 
 [<Fact>]
 let ``calling Watch with an existing name and same reference does nothing`` () =
@@ -43,7 +51,7 @@ let ``calling Watch with an existing name and same reference does nothing`` () =
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0].Tag :?> Watch).AsRoot.Value :?> string) =& value @>
+    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).Value :?> string) =& value @>
 
 [<Fact>]
 let ``create empty Archive with explicit label`` () =
@@ -86,8 +94,8 @@ let ``Archive two watches removes watches from root and puts them under new Arch
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.[0].Nodes.Count = 2 @>
-    test <@ (tree.Nodes.[0].Nodes.[0].Tag :?> Watch).AsRoot.Name = "w1" @>
-    test <@ (tree.Nodes.[0].Nodes.[1].Tag :?> Watch).AsRoot.Name = "w2" @>
+    test <@ (tree.Nodes.[0].Nodes.[0] |> asRoot).Name = "w1" @>
+    test <@ (tree.Nodes.[0].Nodes.[1] |> asRoot).Name = "w2" @>
 
 
 [<Fact>]

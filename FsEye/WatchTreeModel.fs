@@ -31,12 +31,6 @@ and Watch =
     | CallMember of  CallMember
     | Custom of Custom
     with 
-        ///Try to match this Watch as a Root and extract the Root info: may fail with an exception.
-        member this.AsRoot =
-            match this with
-            | Root(info) -> info
-            | _ -> failwith "Invalid Root match, Watch is actually: %A" this
-
         ///Get the "default text" of this Watch
         member this.DefaultText =
             match this with
@@ -53,7 +47,9 @@ let private sprintValue (value:obj) (ty:Type) =
     if ty =& null then
         nullArg "ty cannot be null"
 
-    let cleanString (str:string) = str.Replace("\n","").Replace("\r","").Replace("\t","")
+    let cleanString (str:string) = 
+        //let r = System.Text.RegularExpressions.Regex("\n|"
+        str.Replace("\n","").Replace("\r","").Replace("\t","")
 
     match value with
     | null when ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<option<_>> -> "None"
