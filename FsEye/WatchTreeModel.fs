@@ -20,10 +20,14 @@ open Swensen.Unquote
 open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
+let (|CreatedValue|_|) (l:'a Lazy) =
+    if l.IsValueCreated then Some(l.Value)
+    else None
+
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
-type Root = { Text: string ; Children:seq<Watch> ; Value:obj ; Name: String }
-and Custom = { Text: string ; Children:seq<Watch>}
-and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>}
+type Root = { Text: string ; Children:seq<Watch> ; ValueText:string ; Value:obj ; Name: String }
+and Custom = { Text: string ; Children:seq<Watch> ; ValueText: string option}
+and DataMember = { LoadingText: string ; Lazy: Lazy<Custom> }
 and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>}
 and Watch =
     | Root of Root
@@ -42,6 +46,11 @@ and Watch =
             match this with
             | Root {Children=children} | Custom {Children=children} -> children
             | CallMember {Lazy=l} | DataMember {Lazy=l} -> l.Value.Children
+        member this.ValueText =
+            match this with
+            | Root {ValueText=vt} -> Some(vt)
+            | DataMember {Lazy=CreatedValue({ValueText=Some(vt)})} | CallMember {Lazy=CreatedValue({ValueText=Some(vt)})} -> Some(vt)
+            | _ -> None
 
 open System.Text.RegularExpressions
 let private sprintValue (value:obj) (ty:Type) =
@@ -117,9 +126,10 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 //Would like to be able to always get the type
                 //but if is non-Custom IEnumerable, then can't
                 let ty = if value =& null then typeof<obj> else value.GetType()
-                let text = sprintf "[%i] : %s = %s" index ty.FSharpName (sprintValue value ty)
+                let valueText = sprintValue value ty
+                let text = sprintf "[%i] : %s = %s" index ty.FSharpName valueText
                 let children = createChildren value ty
-                Custom({Text=text ; Children=children})
+                Custom({Text=text ; Children=children ; ValueText=Some(valueText)})
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -127,21 +137,31 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     let nextResult = createChild pos ie.Current
                     if pos % 100 = 0 && pos <> 0 then
                         let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
-                        yield Custom({Text="Rest" ; Children=rest})
+                        yield Custom({Text="Rest" ; Children=rest ; ValueText=None})
                     else
                         yield nextResult;
                         yield! calcRest (pos+1) ie }
             
             seq { yield! calcRest 0 value } //should use "use" when getting enumerator?
 
+        //if member is inherited from base type or explicit interface, fully qualify
         let getMemberName (mi:Reflection.MemberInfo) =
             if mi.ReflectedType <> ownerTy then
                 mi.ReflectedType.FSharpName + "." + mi.Name
             else
                 mi.Name
 
+        let makeMemberLazyCustomInfo (value:obj) valueTy pretext =
+            if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
+                { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) ; ValueText=None }
+            else
+                let valueText = sprintValue value valueTy
+                { Text=pretext valueTy.FSharpName (" = " + valueText); Children=(createChildren value valueTy) ; ValueText=Some(valueText) }
+
+        let loadingText = " = Loading..."
+
         let getPropertyWatch (pi:PropertyInfo) =
-            let pretext = sprintf "(P) %s : %s = %s" (getMemberName pi)
+            let pretext = sprintf "(P) %s : %s%s" (getMemberName pi)
             let delayed = lazy(
                 let value, valueTy =
                     try
@@ -149,14 +169,11 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else pi.PropertyType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
-                else
-                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName "Loading...") ; Lazy=delayed })
+                makeMemberLazyCustomInfo value valueTy pretext)
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed })
 
         let getFieldWatch (fi:FieldInfo) =
-            let pretext = sprintf "(F) %s : %s = %s" (getMemberName fi)
+            let pretext = sprintf "(F) %s : %s%s" (getMemberName fi)
             let delayed = lazy(
                 let value, valueTy = 
                     try 
@@ -164,11 +181,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else fi.FieldType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
-                else
-                    { Text=pretext valueTy.FSharpName (sprintValue value valueTy); Children=(createChildren value valueTy) })
-            DataMember({LoadingText=pretext fi.FieldType.FSharpName "Loading..." ; Lazy=delayed })
+                makeMemberLazyCustomInfo value valueTy pretext)
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed })
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
@@ -179,11 +193,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else mi.ReturnType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                    { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) }
-                else
-                    { Text=pretext valueTy.FSharpName (" = " + (sprintValue value valueTy)); Children=(createChildren value valueTy) })
-            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName " = Loading..." ; Lazy=delayed })
+                makeMemberLazyCustomInfo value valueTy pretext)
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
@@ -199,7 +210,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         seq {
             let nonPublicMemberWatches = getMemberWatches nonPublicBindingFlags
-            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches})
+            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches ; ValueText=None})
             yield! getMemberWatches publicBindingFlags
         }
 ///Create a watch root. If value is not null, then value.GetType() is used as the watch Type instead of
@@ -210,6 +221,7 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
         elif ty <> null then ty
         else typeof<obj>
 
-    let text = sprintf "%s : %s = %s" name ty.FSharpName (sprintValue value ty)
+    let valueText = sprintValue value ty
+    let text = sprintf "%s : %s = %s" name ty.FSharpName valueText
     let children = createChildren value ty
-    Root({Text=text ; Children=children ; Value=value ; Name=name})
+    Root({Text=text ; Children=children ; Value=value ; Name=name ; ValueText=valueText})
