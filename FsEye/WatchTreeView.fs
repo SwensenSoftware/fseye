@@ -61,25 +61,38 @@ type WatchTreeView() as this =
             this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
         | _ -> failwith "TreeNode was not a Root Watch"
 
-    let rootWatchContextMenu = 
+    let createNodeContextMenu (tn:TreeNode) = 
         new ContextMenu [|
-            let mi = new MenuItem("Refresh") 
-            mi.Click.Add(fun args -> refresh this.SelectedNode) 
-            yield mi
+            match tn with
+            | Watch(Root(_)) ->
+                let mi = new MenuItem("Refresh") 
+                mi.Click.Add(fun args -> refresh tn) 
+                yield mi
+            | _ -> ()
 
-            let mi = new MenuItem("Remove")
-            mi.Click.Add(fun args -> this.Nodes.Remove(this.SelectedNode))
-            yield mi
+            match tn with
+            | Watch(Root(_)) | Archive ->
+                let mi = new MenuItem("Remove")
+                mi.Click.Add(fun args -> this.Nodes.Remove(tn))
+                yield mi
+            | _ -> ()
 
-            yield new MenuItem("-")
+            match tn with
+            | Watch(w) ->
+                let enabled = w.ValueText.IsSome
+                match w with
+                | Root _ ->
+                    yield new MenuItem("-", Enabled=enabled)
+                | _ -> ()
 
-            let mi = new MenuItem("Copy Value")
-            mi.Click.Add(fun _ -> 
-                match this.SelectedNode.Text with
-                | CompiledMatch @"= (.*)" [_;g] ->
-                    Clipboard.SetText(g.Value)
-                | _ -> ())
-            yield mi |]
+                let mi = new MenuItem("Copy Value", Enabled=enabled)
+                mi.Click.Add(fun _ -> 
+                    match this.SelectedNode with
+                    | Watch(w) when w.ValueText.IsSome ->
+                        Clipboard.SetText(w.ValueText.Value)
+                    | _ -> ())
+                yield mi 
+            | _ -> () |]
     
     let mutable archiveCounter = 0
 
@@ -105,7 +118,6 @@ type WatchTreeView() as this =
         match watch with
         | Root info ->
             tn.Name <- info.Name
-            tn.ContextMenu <- rootWatchContextMenu
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
         | Custom _ -> 
@@ -177,10 +189,13 @@ type WatchTreeView() as this =
                 loadWatches guiContext node watch
         | _ -> () //either an Archive node or IWatchNode children already expanded
     do
-        //set the selected node on mouse click so can use with right-click context menu
-        this.MouseClick.Add <| fun args ->
+        this.NodeMouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
-                this.SelectedNode <- this.GetNodeAt(args.X, args.Y)
+                this.SelectedNode <- args.Node //right click causing node to become selected is std. windows behavior
+                let nodeContextMenu = createNodeContextMenu args.Node
+                if nodeContextMenu.MenuItems.Count > 0 then
+                    nodeContextMenu.Show(this, args.Location)
+            else ()
 
         this.AfterSelect.Add (fun args -> afterSelect args.Node)
         this.AfterExpand.Add (fun args -> afterExpand args.Node)
@@ -236,7 +251,7 @@ type WatchTreeView() as this =
             
                 this.ClearAll isWatch
 
-                let archiveNode = TreeNode(Text = label)
+                let archiveNode = TreeNode(Text=label)
                 archiveNode.Nodes.AddRange(nodesToArchiveCloned)
                 this.Nodes.Add(archiveNode) |> ignore
                 archiveCounter <- archiveCounter + 1
