@@ -57,6 +57,7 @@ type SlowType() =
 eye.Watch("sl", SlowType())
 eye.Show()
 
+
 //also try to avoid display immediately seq's which are lazy (e.g. known concrete type, or perhaps having Item.[int] property lookup)
 
 //features
