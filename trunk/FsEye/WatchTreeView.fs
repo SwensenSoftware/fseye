@@ -87,7 +87,7 @@ type WatchTreeView() as this =
 
                 let mi = new MenuItem("Copy Value", Enabled=enabled)
                 mi.Click.Add(fun _ -> 
-                    match this.SelectedNode with
+                    match tn with
                     | Watch(w) when w.ValueText.IsSome ->
                         Clipboard.SetText(w.ValueText.Value)
                     | _ -> ())
