@@ -1,0 +1,19 @@
+#summary List of enhancements and bug fixes for each release.
+
+= Release Notes =
+
+== v1.0.0 beta 2, 6/02/11 == 
+
+Feature enhancements and defect fixes.
+
+  * Issue 1, Defect: Should automatically reset Eye when the underlying WatchForm becomes disposed due to an exception
+  * Issue 2, Enhancement: Include method members in addition to field and property members as children of a watch
+  * Issue 3, Enhancement: Include fields, properties, and method from inherited base-class and explicit interfaces of a watch
+  * Issue 4, Enhancement: Upon loading, watches should display and load child watches for true value type when not null
+  * Issue 5, Enhancement: Add right-click context menu Copy Value function for loaded watches
+  * Issue 6, Enhancement: Add right-click context menu Refresh function for root watches
+  * Issue 7, Enhancement: Add right-click context menu Remove function for root watches and archives
+
+== v1.0.0 beta 1, 5/07/11 == 
+
+Initial release
