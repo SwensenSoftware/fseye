@@ -49,6 +49,7 @@ and Watch =
         member this.ValueText =
             match this with
             | Root {ValueText=vt} -> Some(vt)
+            | Custom {ValueText=Some(vt)} -> Some(vt)
             | DataMember {Lazy=CreatedValue({ValueText=Some(vt)})} | CallMember {Lazy=CreatedValue({ValueText=Some(vt)})} -> Some(vt)
             | _ -> None
 
