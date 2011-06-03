@@ -1,4 +1,5 @@
 #summary List of enhancements and bug fixes for each release.
+#labels Featured
 
 = Release Notes =
 
