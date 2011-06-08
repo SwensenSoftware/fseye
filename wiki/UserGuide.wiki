@@ -15,7 +15,13 @@ Adding and updating watches is done one of two ways:
   # Send let bindings (or unnamed "it" bindings) to the F# Interactive, FsEye will automatically add, or update an existing, watch in the GUI tree view.
   # Programmatically add, or update an existing, watch using {{{eye.Watch(name:string, value:'a)}}}, e.g. {{{eye.Watch("watchName", 28.2f)}}}
 
-An existing root watch may also be refreshed (for example, if its value has been mutated) via the GUI tree right-click context menu -> Refresh
+An existing root watch may also be refreshed (for example, if its value has been mutated) via the GUI tree right-click context menu -> Refresh.
+
+== Navigating watches ==
+
+Watch sub-nodes are loaded on demand upon expanding a tree node. Loading is done asynchronously and in parallel. When a watch is fully loaded, it will display the true type of its value (as opposed to the member's reflected possibly super type) along with a text representation of its value. Zero-arg non-void method sub-nodes will not be fully loaded immediately along with field and property nodes upon expansion: they are loaded when selected or expanded.
+
+A watch's value may be copied to the Clipboard via the context menu -> Copy Value. If a watch has no value, or it's value has not completely loaded, the Copy Value menu item will be disabled.
 
 == Archiving watches ==
 
@@ -26,6 +32,8 @@ Root watches may be archived using the GUI Archive button or via {{{eye.Archive(
 == Clearing archives and watches ==
 
 Archives and watches may be cleared using the Clear Archives, Clear Watches, or Clear All (i.e. clear both watches and archives) GUI buttons as well as using {{{eye.ClearArchives()}}}, {{{eye.ClearWatches()}}} and {{{eye.ClearAll()}}}. Clear All and Clear Archives reset the internal archive count.
+
+Archives and root watches may be individually removed using the context menu -> Remove.
 
 == Async break and continue ==
 
