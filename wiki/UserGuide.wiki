@@ -19,7 +19,7 @@ An existing root watch may also be refreshed (for example, if its value has been
 
 == Navigating watches ==
 
-Watch sub-nodes are loaded on demand upon expanding a tree node. Loading is done asynchronously and in parallel. When a watch is fully loaded, it will display the true type of its value (as opposed to the member's reflected possibly super type) along with a text representation of its value. Zero-arg non-void method sub-nodes will not be fully loaded immediately along with field and property nodes upon expansion: they are loaded when selected or expanded.
+Watch sub-nodes are loaded on demand upon expanding a tree node. Loading is done asynchronously (without blocking the GUI) and in parallel. When a watch is fully loaded, it will display the true type of its value (as opposed to the member's reflected possibly super type) along with a text representation of its value. Zero-arg non-void method sub-nodes will not be fully loaded immediately along with field and property nodes upon expansion: they are loaded when selected or expanded.
 
 A watch's value may be copied to the Clipboard via the context menu -> Copy Value. If a watch has no value, or it's value has not completely loaded, the Copy Value menu item will be disabled.
 
