@@ -1,6 +1,6 @@
 #summary Overview of project and code structure meant for developers.
 
-FsEye is implemented using the .NET WinForms API in F#. From the forward facing {{{Eye}}} class, through each WinForms component, to the back-end model, FsEye was specifically designed to be flexible enough to be adopted by other projects interested in adding visual object inspectors to their .NET REPL environments. The author is very interested in accommodating such projects and implementing addition flexibility to that end (for example, the Type printing used in the model is F# specific, this may be an area where a pluggable Type printer may bring value).
+FsEye is implemented using the .NET WinForms API in F#. From the forward facing {{{Eye}}} class, through each WinForms component, to the back-end model, FsEye was specifically designed to be flexible enough to be adopted by other projects interested in adding visual object inspectors to their .NET REPL environments. The author is very interested in accommodating such projects and implementing additional flexibility to that end (for example, the Type printing used in the model is F# specific, this may be an area where a pluggable Type printer may bring value).
 
 The following table shows instance members in the public API on the left-hand side row headers, and class names in the column headers on the top listed left-to-right, outer-most-to-innermost in the delegation chain. A mark in a cell indicates that the given class exposes the given member.
 
