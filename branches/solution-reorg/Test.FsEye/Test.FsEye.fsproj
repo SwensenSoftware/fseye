@@ -10,7 +10,7 @@
     <RootNamespace>FsiWatchTests</RootNamespace>
     <AssemblyName>FsiWatchTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>FsEyeTests</Name>
+    <Name>Test.FsEye</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
