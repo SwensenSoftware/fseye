@@ -1,4 +1,4 @@
-﻿module Test.Swensen.FsEye.Forms.WatchTreeViewTests
+﻿module WatchTreeViewTests
 open Swensen.FsEye.Forms
 open Swensen.Unquote
 open Xunit
