@@ -18,7 +18,7 @@ open Swensen.FsEye.Forms
 open Swensen.Unquote
 open Xunit
 open Swensen.Utils
-open Swensen.FsEye.Model
+open Swensen.FsEye.WatchModel
 open System.Windows.Forms
 
 [<Fact>]
