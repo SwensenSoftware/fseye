@@ -49,7 +49,7 @@
     <Compile Include="Forms/WatchForm.fs" />
     <Compile Include="Fsi/FsiHelper.fs" />
     <Compile Include="Fsi/Eye.fs" />
-    <None Include="Fsi/FsEye.fsx">
+    <None Include="FsEye.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Startup.fsx" />
