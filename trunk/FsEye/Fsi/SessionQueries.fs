@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 *)
-module internal Swensen.FsEye.Fsi.FsiHelper
+///Queries against the active FSI session
+module internal Swensen.FsEye.Fsi.SessionQueries
 
 open System.Reflection
 
 //The following method for extracting FSI session variables using reflection was 
 //adapted from Tomas Petricek's (http://stackoverflow.com/users/33518/tomas-petricek) answer at
 //http://stackoverflow.com/questions/4997028/f-interactive-how-to-see-all-the-variables-defined-in-current-session/4998232#4998232
-let getRawFsiVariables =
+let getRawVariables =
     let fsiAssembly = 
         System.AppDomain.CurrentDomain.GetAssemblies() 
         |> Array.find (fun assm -> assm.GetName().Name = "FSI-ASSEMBLY")
@@ -39,9 +40,9 @@ let getRawFsiVariables =
         |]
 
 ///get all non-lambda variables, including the most recently updated "it"
-let getWatchableFsiVariables() =
+let getWatchableVariables() =
     [|
-        let fsiVars = getRawFsiVariables()
+        let fsiVars = getRawVariables()
         //last "it" should be most recent, show it first
         let it =
             seq { for i in (fsiVars.Length-1)..(-1)..0 do yield fsiVars.[i] }
