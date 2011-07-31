@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="WatchTreeModel.fs" />
+    <Compile Include="WatchModel.fs" />
     <Compile Include="WatchTreeView.fs" />
     <Compile Include="WatchPanel.fs" />
     <Compile Include="WatchForm.fs" />
