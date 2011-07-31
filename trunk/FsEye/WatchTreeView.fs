@@ -16,7 +16,7 @@ limitations under the License.
 namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
-open Swensen.FsEye.Model
+open Swensen.FsEye.WatchModel
 open Swensen.Utils
 open Swensen.Utils.RegexUtils //from Unquote (should probably create a project for a Utils library)!
 
