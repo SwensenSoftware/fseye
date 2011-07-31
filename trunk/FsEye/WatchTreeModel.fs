@@ -16,7 +16,6 @@ limitations under the License.
 module Swensen.FsEye.Model
 open System
 open System.Reflection
-open Swensen.Unquote
 open Microsoft.FSharp.Reflection
 open Swensen.Utils
 

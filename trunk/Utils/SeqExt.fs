@@ -1,6 +1,6 @@
 ﻿namespace Swensen.Utils
 
-module Seq =
+module internal Seq =
     let distinctByResolve primaryKey resolveCollision values = seq { //make lazy seq? (YES, Seq.distinct does)
         let cache = System.Collections.Generic.Dictionary<_,_>(HashIdentity.Structural)
         for canidateValue in values do
