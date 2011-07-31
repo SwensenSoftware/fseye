@@ -18,10 +18,11 @@ open Swensen.FsEye.Forms
 
 type Eye() as this = 
     let mutable watchForm = new WatchForm()
-    //value indicates whether or not FSI session listening is turned on
+    
+    ///Indicates whether or not FSI session listening is turned on
     let mutable listen = true
 
-    //the listener event handler
+    ///The listener event handler
     let listener =
         //need to figure out a way to not call repeatedly for single evaluation
         fun (_:obj) ->
@@ -110,5 +111,7 @@ type Eye() as this =
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+///Holds the Eye singleton for the active FSI session
 module Eye =
+    ///The Eye singleton for the active FSI session
     let eye = new Eye()
