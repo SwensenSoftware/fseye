@@ -203,10 +203,10 @@ type WatchTreeView() as this =
 
         let loadImageResource =
             let assm = Assembly.GetExecutingAssembly()
-            printfn "%A" (assm.GetManifestResourceNames())
             fun name -> Image.FromStream(assm.GetManifestResourceStream(name))
 
         let il = new ImageList()
+        il.TransparentColor <- Color.Magenta
         il.Images.Add(loadImageResource "VSObject_Field.bmp") //TODO: NONE
         il.Images.Add(loadImageResource "VSObject_Field.bmp")
         il.Images.Add(loadImageResource "VSObject_Properties.bmp")
