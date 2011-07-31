@@ -18,7 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye.WatchModel
 open Swensen.Utils
-open Swensen.Utils.RegexUtils //from Unquote (should probably create a project for a Utils library)!
+open System.Drawing
 
 //Copy / Copy Value context Menu
 
@@ -113,7 +113,7 @@ type WatchTreeView() as this =
     ///as the second element of the tuple. Otherwise guiContext may be null and the second 
     ///element of the tuple is None.
     let createWatchTreeNode guiContext (watch:Watch) =
-        let tn = new TreeNode(Text=watch.DefaultText, Tag=watch)
+        let tn = new TreeNode(Text=watch.DefaultText, Tag=watch, ImageIndex=int watch.Icon, SelectedImageIndex=int watch.Icon)
 
         match watch with
         | Root info ->
@@ -188,6 +188,7 @@ type WatchTreeView() as this =
             | _ -> 
                 loadWatches guiContext node watch
         | _ -> () //either an Archive node or IWatchNode children already expanded
+
     do
         this.NodeMouseClick.Add <| fun args ->
             if args.Button = MouseButtons.Right then
@@ -199,6 +200,18 @@ type WatchTreeView() as this =
 
         this.AfterSelect.Add (fun args -> afterSelect args.Node)
         this.AfterExpand.Add (fun args -> afterExpand args.Node)
+
+        let loadImageResource =
+            let assm = Assembly.GetExecutingAssembly()
+            printfn "%A" (assm.GetManifestResourceNames())
+            fun name -> Image.FromStream(assm.GetManifestResourceStream(name))
+
+        let il = new ImageList()
+        il.Images.Add(loadImageResource "VSObject_Field.bmp") //TODO: NONE
+        il.Images.Add(loadImageResource "VSObject_Field.bmp")
+        il.Images.Add(loadImageResource "VSObject_Properties.bmp")
+        il.Images.Add(loadImageResource "VSObject_Method.bmp")
+        this.ImageList <- il
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->

@@ -19,15 +19,22 @@ open System.Reflection
 open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
+type Icon =
+| None = 0
+| Field = 1
+| Property = 2
+| Method = 3
+
+
 let (|CreatedValue|_|) (l:'a Lazy) =
     if l.IsValueCreated then Some(l.Value)
     else None
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
-type Root = { Text: string ; Children:seq<Watch> ; ValueText:string ; Value:obj ; Name: String }
-and Custom = { Text: string ; Children:seq<Watch> ; ValueText: string option}
-and DataMember = { LoadingText: string ; Lazy: Lazy<Custom> }
-and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>}
+type Root = { Text: string ; Children:seq<Watch> ; ValueText:string ; Value:obj ; Name: String ; Icon: Icon }
+and Custom = { Text: string ; Children:seq<Watch> ; ValueText: string option; Icon:Icon}
+and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>; Icon:Icon }
+and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>; Icon:Icon}
 and Watch =
     | Root of Root
     | DataMember of  DataMember
@@ -51,6 +58,10 @@ and Watch =
             | Custom {ValueText=Some(vt)} -> Some(vt)
             | DataMember {Lazy=CreatedValue({ValueText=Some(vt)})} | CallMember {Lazy=CreatedValue({ValueText=Some(vt)})} -> Some(vt)
             | _ -> None
+        member this.Icon =
+            match this with
+            | Root {Icon=icon} | DataMember {Icon=icon}
+            | CallMember {Icon=icon} | Custom {Icon=icon} -> icon
 
 open System.Text.RegularExpressions
 let private sprintValue (value:obj) (ty:Type) =
@@ -129,7 +140,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 let valueText = sprintValue value ty
                 let text = sprintf "[%i] : %s = %s" index ty.FSharpName valueText
                 let children = createChildren value ty
-                Custom({Text=text ; Children=children ; ValueText=Some(valueText)})
+                Custom({Text=text ; Children=children ; ValueText=Some(valueText) ; Icon=Icon.None})
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -137,7 +148,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     let nextResult = createChild pos ie.Current
                     if pos % 100 = 0 && pos <> 0 then
                         let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
-                        yield Custom({Text="Rest" ; Children=rest ; ValueText=None})
+                        yield Custom({Text="Rest" ; Children=rest ; ValueText=None ; Icon=Icon.None})
                     else
                         yield nextResult;
                         yield! calcRest (pos+1) ie }
@@ -153,10 +164,10 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         let makeMemberLazyCustomInfo (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) ; ValueText=None }
+                { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) ; ValueText=None ; Icon=Icon.None }
             else
                 let valueText = sprintValue value valueTy
-                { Text=pretext valueTy.FSharpName (" = " + valueText); Children=(createChildren value valueTy) ; ValueText=Some(valueText) }
+                { Text=pretext valueTy.FSharpName (" = " + valueText); Children=(createChildren value valueTy) ; ValueText=Some(valueText) ; Icon=Icon.None }
 
         let loadingText = " = Loading..."
 
@@ -170,7 +181,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed })
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Icon=Icon.Property })
 
         let getFieldWatch (fi:FieldInfo) =
             let pretext = sprintf "(F) %s : %s%s" (getMemberName fi)
@@ -182,7 +193,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed })
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Icon=Icon.Field })
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
@@ -194,7 +205,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed })
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed ; Icon=Icon.Method })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
@@ -210,7 +221,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         seq {
             let nonPublicMemberWatches = getMemberWatches nonPublicBindingFlags
-            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches ; ValueText=None})
+            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches ; ValueText=None ; Icon=Icon.None})
             yield! getMemberWatches publicBindingFlags
         }
 ///Create a watch root. If value is not null, then value.GetType() is used as the watch Type instead of
@@ -224,4 +235,4 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
     let valueText = sprintValue value ty
     let text = sprintf "%s : %s = %s" name ty.FSharpName valueText
     let children = createChildren value ty
-    Root({Text=text ; Children=children ; Value=value ; Name=name ; ValueText=valueText})
+    Root({Text=text ; Children=children ; Value=value ; Name=name ; ValueText=valueText ; Icon=Icon.None})
