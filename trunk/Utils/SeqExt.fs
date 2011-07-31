@@ -41,4 +41,4 @@ module internal Seq =
                 else
                     yield None, Some(i) }
 
-        pairs |> Seq.choose (fst>>id), pairs |> Seq.choose (snd>>id)
+        pairs |> Seq.choose fst, pairs |> Seq.choose snd
