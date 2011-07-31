@@ -18,7 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye.Model
 open Swensen.Utils
-open Swensen.RegexUtils //from Unquote (should probably create a project for a Utils library)!
+open Swensen.Utils.RegexUtils //from Unquote (should probably create a project for a Utils library)!
 
 //Copy / Copy Value context Menu
 
