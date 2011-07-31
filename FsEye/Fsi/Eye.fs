@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *)
 namespace Swensen.FsEye.Fsi
-open Swensen.FsEye
 open Swensen.FsEye.Forms
 
 type Eye() as this = 
@@ -30,7 +29,7 @@ type Eye() as this =
                 //printfn "listen is true"
                 try
                     this.Show()
-                    FsiHelper.getWatchableFsiVariables() 
+                    SessionQueries.getWatchableVariables() 
                     |> Array.iter watchForm.Watch
                     //System.Threading.Timer(new TimerCallback(fun _ -> listen <- true), 0, 1000)
                     null
