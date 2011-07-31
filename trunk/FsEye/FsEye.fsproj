@@ -52,7 +52,7 @@
     <None Include="FsEye.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Startup.fsx" />
+    <None Include="Script.fsx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utils\Utils.fsproj">
