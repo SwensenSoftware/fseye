@@ -108,3 +108,8 @@ type Eye() as this =
     ///Hide the Watch form.
     member __.Hide() =
         watchForm.Hide()
+
+[<AutoOpen>]
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Eye =
+    let eye = new Eye()

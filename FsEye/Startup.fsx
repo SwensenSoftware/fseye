@@ -17,9 +17,7 @@ limitations under the License.
 #r "bin/Release/FsEye.dll"
 #load "bin/Release/FsEye.fsx"
 
-open Swensen.FsEye
-fsi.AddPrintTransformer eye.Listener //attached the listener
-let eye = eye //bring it into scope    
+//open Swensen.FsEye.Fsi
 
 //Simple example of how we can "break" during evaluation!
 async {
