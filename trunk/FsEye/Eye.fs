@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 *)
-namespace Swensen.FsEye
+namespace Swensen.FsEye.Fsi
+open Swensen.FsEye
 open Swensen.FsEye.Forms
 
 type Eye() as this = 
@@ -107,8 +108,3 @@ type Eye() as this =
     ///Hide the Watch form.
     member __.Hide() =
         watchForm.Hide()
-
-[<AutoOpen>]
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Eye =
-    let eye = new Eye()
