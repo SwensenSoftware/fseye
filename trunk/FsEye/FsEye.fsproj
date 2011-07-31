@@ -44,12 +44,12 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="WatchModel.fs" />
-    <Compile Include="WatchTreeView.fs" />
-    <Compile Include="WatchPanel.fs" />
-    <Compile Include="WatchForm.fs" />
-    <Compile Include="FsiHelper.fs" />
-    <Compile Include="Eye.fs" />
-    <None Include="FsEye.fsx">
+    <Compile Include="Forms/WatchTreeView.fs" />
+    <Compile Include="Forms/WatchPanel.fs" />
+    <Compile Include="Forms/WatchForm.fs" />
+    <Compile Include="Fsi/FsiHelper.fs" />
+    <Compile Include="Fsi/Eye.fs" />
+    <None Include="Fsi/FsEye.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Startup.fsx" />
