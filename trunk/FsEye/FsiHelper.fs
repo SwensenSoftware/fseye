@@ -16,7 +16,6 @@ limitations under the License.
 module internal Swensen.FsEye.FsiHelper
 
 open System.Reflection
-open Swensen.FsEye.Forms
 
 //The following method for extracting FSI session variables using reflection was 
 //adapted from Tomas Petricek's (http://stackoverflow.com/users/33518/tomas-petricek) answer at

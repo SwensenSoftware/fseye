@@ -24,5 +24,5 @@ module StartupScript
 
 
 open Swensen.FsEye.Fsi
-let eye = new Eye()
+let eye = eye
 fsi.AddPrintTransformer eye.Listener //attached the listener
