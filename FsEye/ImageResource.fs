@@ -12,7 +12,7 @@ type ImageResource private (name:string) =
     member __.Name = name
     member __.Image = image
 
-    static member None = ImageResource "VSObject_Field.bmp"
+    static member None = ImageResource "VSObject_Field.bmp" //VS also used "field" as default for everything!
     static member Field = ImageResource "VSObject_Field.bmp"
     static member Property = ImageResource "VSObject_Properties.bmp"
     static member Method = ImageResource "VSObject_Method.bmp"
