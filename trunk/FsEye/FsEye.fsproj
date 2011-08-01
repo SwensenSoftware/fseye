@@ -36,11 +36,11 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <EmbeddedResource Include="Resources\VSObject_Field.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties.bmp" />
     <Compile Include="ImageResource.fs" />
     <Compile Include="WatchModel.fs" />
-    <EmbeddedResource Include="Forms\Icons\VSObject_Field.bmp" />
-    <EmbeddedResource Include="Forms\Icons\VSObject_Method.bmp" />
-    <EmbeddedResource Include="Forms\Icons\VSObject_Properties.bmp" />
     <Compile Include="Forms\WatchTreeView.fs" />
     <Compile Include="Forms\WatchPanel.fs" />
     <Compile Include="Forms\WatchForm.fs" />
