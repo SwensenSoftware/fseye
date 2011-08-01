@@ -2,6 +2,7 @@
 open System
 open System.Reflection
 
+///Image resource used to identify tree view node member classifications and provide FsEye form icon.
 type ImageResource private (name:string) =
     let loadImageResource =
         let assm = Assembly.GetExecutingAssembly()
