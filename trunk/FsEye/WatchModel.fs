@@ -175,7 +175,20 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Image=ImageResource.Property })
+
+            let image =
+                let meth = pi.GetGetMethod(true)
+                if meth.IsPublic then
+                    if meth.IsFinal then
+                        ImageResource.SealedProperty
+                    else
+                        ImageResource.Property
+                elif meth.IsFamily || meth.IsFamilyAndAssembly || meth.IsFamilyOrAssembly then
+                    ImageResource.ProtectedProperty
+                else //assume private
+                    ImageResource.PrivateProperty
+
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Image=image })
 
         let getFieldWatch (fi:FieldInfo) =
             let pretext = sprintf "%s : %s%s" (getMemberName fi)
@@ -187,7 +200,16 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Image=ImageResource.Field })
+
+            let image =
+                if fi.IsPublic then
+                    ImageResource.Field //I don't think there is a such a thing as "sealed" fields
+                elif fi.IsFamily || fi.IsFamilyAndAssembly || fi.IsFamilyOrAssembly then
+                    ImageResource.ProtectedField
+                else //assume private
+                    ImageResource.PrivateField
+
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Image=image })
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "%s() : %s%s" (getMemberName mi)
@@ -199,7 +221,19 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     with e ->
                         box e, e.GetType()
                 makeMemberLazyCustomInfo value valueTy pretext)
-            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed ; Image=ImageResource.Method })
+
+            let image =
+                if mi.IsPublic then
+                    if mi.IsFinal then
+                        ImageResource.SealedMethod
+                    else
+                        ImageResource.Method
+                elif mi.IsFamily || mi.IsFamilyAndAssembly || mi.IsFamilyOrAssembly then
+                    ImageResource.ProtectedMethod
+                else //assume private
+                    ImageResource.PrivateMethod
+
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed ; Image=image })
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
