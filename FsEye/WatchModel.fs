@@ -134,7 +134,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 let valueText = sprintValue value ty
                 let text = sprintf "[%i] : %s = %s" index ty.FSharpName valueText
                 let children = createChildren value ty
-                Custom({Text=text ; Children=children ; ValueText=Some(valueText) ; Image=ImageResource.None})
+                Custom({Text=text ; Children=children ; ValueText=Some(valueText) ; Image=ImageResource.Default})
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -142,7 +142,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                     let nextResult = createChild pos ie.Current
                     if pos % 100 = 0 && pos <> 0 then
                         let rest = seq { yield nextResult; yield! calcRest (pos+1) ie }
-                        yield Custom({Text="Rest" ; Children=rest ; ValueText=None ; Image=ImageResource.None})
+                        yield Custom({Text="Rest" ; Children=rest ; ValueText=None ; Image=ImageResource.Default})
                     else
                         yield nextResult;
                         yield! calcRest (pos+1) ie }
@@ -158,10 +158,10 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         let makeMemberLazyCustomInfo (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) ; ValueText=None ; Image=ImageResource.None }
+                { Custom.Text=pretext valueTy.FSharpName ""; Children=(createResultWatches (value :?> System.Collections.IEnumerator)) ; ValueText=None ; Image=ImageResource.Default }
             else
                 let valueText = sprintValue value valueTy
-                { Text=pretext valueTy.FSharpName (" = " + valueText); Children=(createChildren value valueTy) ; ValueText=Some(valueText) ; Image=ImageResource.None }
+                { Text=pretext valueTy.FSharpName (" = " + valueText); Children=(createChildren value valueTy) ; ValueText=Some(valueText) ; Image=ImageResource.Default }
 
         let loadingText = " = Loading..."
 
@@ -215,7 +215,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         seq {
             let nonPublicMemberWatches = getMemberWatches nonPublicBindingFlags
-            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches ; ValueText=None ; Image=ImageResource.None})
+            yield Custom({Text="Non-public" ; Children=nonPublicMemberWatches ; ValueText=None ; Image=ImageResource.Default})
             yield! getMemberWatches publicBindingFlags
         }
 ///Create a watch root. If value is not null, then value.GetType() is used as the watch Type instead of
@@ -229,4 +229,4 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
     let valueText = sprintValue value ty
     let text = sprintf "%s : %s = %s" name ty.FSharpName valueText
     let children = createChildren value ty
-    Root({Text=text ; Children=children ; Value=value ; Name=name ; ValueText=valueText ; Image=ImageResource.None})
+    Root({Text=text ; Children=children ; Value=value ; Name=name ; ValueText=valueText ; Image=ImageResource.Default})

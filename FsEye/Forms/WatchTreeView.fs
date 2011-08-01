@@ -205,10 +205,10 @@ type WatchTreeView() as this =
         this.ImageList <- 
             let il = new ImageList()
             il.TransparentColor <- System.Drawing.Color.Magenta
-            il.Images.Add(ImageResource.None.Name, ImageResource.None.Image)
-            il.Images.Add(ImageResource.Field.Name, ImageResource.Field.Image)
-            il.Images.Add(ImageResource.Property.Name, ImageResource.Property.Image)
-            il.Images.Add(ImageResource.Method.Name, ImageResource.Method.Image)
+
+            for ir in ImageResource.WatchImages do 
+                il.Images.Add(ir.Name, ir.Image)
+
             il
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
