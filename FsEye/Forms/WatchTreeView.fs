@@ -137,7 +137,7 @@ type WatchTreeView() as this =
         match tn.Tag with
         | :? Watch as watch when hasDummyChild tn ->
             match watch with
-            | CallMember(info) ->
+            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
                 Control.update this <| fun () ->
                     tn.Nodes.Clear() //so don't try click while still async loading
                     tn.Text <- info.LoadingText
