@@ -166,7 +166,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
         let loadingText = " = Loading..."
 
         let getPropertyWatch (pi:PropertyInfo) =
-            let pretext = sprintf "(P) %s : %s%s" (getMemberName pi)
+            let pretext = sprintf "%s : %s%s" (getMemberName pi)
             let delayed = lazy(
                 let value, valueTy =
                     try
@@ -178,7 +178,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Image=ImageResource.Property })
 
         let getFieldWatch (fi:FieldInfo) =
-            let pretext = sprintf "(F) %s : %s%s" (getMemberName fi)
+            let pretext = sprintf "%s : %s%s" (getMemberName fi)
             let delayed = lazy(
                 let value, valueTy = 
                     try 
@@ -190,7 +190,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Image=ImageResource.Field })
 
         let getMethodWatch (mi:MethodInfo) =
-            let pretext = sprintf "(M) %s() : %s%s" (getMemberName mi)
+            let pretext = sprintf "%s() : %s%s" (getMemberName mi)
             let delayed = lazy(
                 let value, valueTy =
                     try
