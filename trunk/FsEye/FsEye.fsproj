@@ -39,6 +39,23 @@
     <EmbeddedResource Include="Resources\VSObject_Field.bmp" />
     <EmbeddedResource Include="Resources\VSObject_Method.bmp" />
     <EmbeddedResource Include="Resources\VSObject_Properties.bmp" />
+    
+    <EmbeddedResource Include="Resources\VSObject_Field_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Friend.bmp" />
+
+    <EmbeddedResource Include="Resources\VSObject_Field_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Private.bmp" />
+
+    <EmbeddedResource Include="Resources\VSObject_Field_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Protected.bmp" />
+
+    <EmbeddedResource Include="Resources\VSObject_Field_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Sealed.bmp" />
+    
     <Compile Include="ImageResource.fs" />
     <Compile Include="WatchModel.fs" />
     <Compile Include="Forms\WatchTreeView.fs" />
