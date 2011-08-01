@@ -19,21 +19,6 @@ open System.Reflection
 open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
-type ImageResource private (name:string) =
-    let loadImageResource =
-        let assm = Assembly.GetExecutingAssembly()
-        fun name -> System.Drawing.Image.FromStream(assm.GetManifestResourceStream(name))
-
-    let image = loadImageResource name
-
-    member __.Name = name
-    member __.Image = image
-
-    static member None = ImageResource "VSObject_Field.bmp"
-    static member Field = ImageResource "VSObject_Field.bmp"
-    static member Property = ImageResource "VSObject_Properties.bmp"
-    static member Method = ImageResource "VSObject_Method.bmp"
-
 
 let (|CreatedValue|_|) (l:'a Lazy) =
     if l.IsValueCreated then Some(l.Value)

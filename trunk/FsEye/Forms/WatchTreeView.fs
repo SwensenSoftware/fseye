@@ -16,9 +16,10 @@ limitations under the License.
 namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
-open Swensen.FsEye.WatchModel
+
 open Swensen.Utils
-open System.Drawing
+open Swensen.FsEye
+open Swensen.FsEye.WatchModel
 
 //Copy / Copy Value context Menu
 
@@ -200,14 +201,15 @@ type WatchTreeView() as this =
 
         this.AfterSelect.Add (fun args -> afterSelect args.Node)
         this.AfterExpand.Add (fun args -> afterExpand args.Node)
-
-        let il = new ImageList()
-        il.TransparentColor <- Color.Magenta
-        il.Images.Add(ImageResource.None.Name, ImageResource.None.Image)
-        il.Images.Add(ImageResource.Field.Name, ImageResource.Field.Image)
-        il.Images.Add(ImageResource.Property.Name, ImageResource.Property.Image)
-        il.Images.Add(ImageResource.Method.Name, ImageResource.Method.Image)
-        this.ImageList <- il
+        
+        this.ImageList <- 
+            let il = new ImageList()
+            il.TransparentColor <- System.Drawing.Color.Magenta
+            il.Images.Add(ImageResource.None.Name, ImageResource.None.Image)
+            il.Images.Add(ImageResource.Field.Name, ImageResource.Field.Image)
+            il.Images.Add(ImageResource.Property.Name, ImageResource.Property.Image)
+            il.Images.Add(ImageResource.Method.Name, ImageResource.Method.Image)
+            il
     with
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
