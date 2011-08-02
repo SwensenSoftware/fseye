@@ -147,7 +147,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         yield nextResult;
                         yield! calcRest (pos+1) ie }
             
-            seq { yield! calcRest 0 value } //should use "use" when getting enumerator?
+            //must cache the enumerator is created outside of the seq
+            seq { yield! calcRest 0 value } |> Seq.cache //should use "use" when getting enumerator?
 
         //if member is inherited from base type or explicit interface, fully qualify
         let getMemberName (mi:Reflection.MemberInfo) =
