@@ -13,7 +13,7 @@ let findChildWithStartText startText (w:Watch) = w.Children |> Seq.find (fun x -
 let tryFindChildWithStartText startText (w:Watch) = w.Children |> Seq.tryFind (fun x -> x.DefaultText.StartsWith startText)
 
 [<Fact>]
-let ``GetEnumerator may be called multiple times without exhaustion bug fix`` () =
+let ``Issue 13 Fix: GetEnumerator may be called multiple times without exhaustion bug fix`` () =
     let w = watch {1..100} |> findChildWithStartText "GetEnumerator"
     test <@ w.Children |> Seq.length = 100 @>
     test <@ w.Children |> Seq.isEmpty |> not @>
