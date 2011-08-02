@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WatchTreeViewTests.fs" />
+    <Compile Include="WatchModelTests.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
