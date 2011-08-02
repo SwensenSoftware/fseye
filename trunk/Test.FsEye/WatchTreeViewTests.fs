@@ -14,11 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *)
 module WatchTreeViewTests
-open Swensen.FsEye.Forms
+
 open Swensen.Unquote
 open Xunit
-open Swensen.Utils
+
 open Swensen.FsEye.WatchModel
+open Swensen.FsEye.Forms
+
+open Swensen.Utils
 open System.Windows.Forms
 
 [<Fact>]
