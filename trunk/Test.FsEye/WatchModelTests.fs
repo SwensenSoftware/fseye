@@ -77,13 +77,42 @@ let ``when there is a conflict, the generic most member is displayed``() =
     test <@ w.MemberInfo.Value.DeclaringType = typeof<seq<int>> @>
 
 [<Fact>]
-let ``when not overriden the member is qualified by the base class name``() =    
+let ``when not overriden the member is qualified by the base class name``() = 
     let w = watch (fun () -> ()) |> findChildByName "ToString"
     test <@ w.MemberInfo.Value.DeclaringType = typeof<obj> @>
     test <@ w.DefaultText.StartsWith("obj.ToString()") @>
     
 [<Fact>]
-let ``when overriden the member is not qualified``() =    
+let ``when overriden the member is not qualified``() =
     let w = watch [1..5] |> findChildByName "ToString"
     test <@ w.MemberInfo.Value.DeclaringType = typeof<int list> @>
     test <@ w.DefaultText.StartsWith("ToString()") @>
+
+open System.Diagnostics
+type Foo =
+    [<DefaultValue>]
+    val mutable public showField : int 
+
+    [<DefaultValue>]
+    [<DebuggerBrowsable(DebuggerBrowsableState.Never)>]
+    val mutable public hideField : int 
+
+    new() = {}
+
+    member public __.ShowProperty = ()
+    [<DebuggerBrowsable(DebuggerBrowsableState.Never)>]
+    member public __.HideProperty = ()
+
+[<Fact>]
+let ``do not show properties marked with DebuggerBrowsableState.Never attribute``() =
+    let foo = Foo()
+    
+    let hideProperty = watch foo |> tryFindChildByName "HideProperty"
+    test <@ hideProperty.IsNone @>
+
+[<Fact>]
+let ``do not show fields marked with DebuggerBrowsableState.Never attribute``() =
+    let foo = Foo()
+
+    let hideField = watch foo |> tryFindChildByName "hideField"
+    test <@ hideField.IsNone @>
