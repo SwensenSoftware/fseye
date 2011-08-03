@@ -55,3 +55,18 @@ let ``infinate sequences are handled lazily without problem`` () =
 
     test <@ w.Children |> Seq.length = 101 @>
     test <@ (((w.Children |> last).Children |> last).Children |> last).DefaultText = "Rest" @>
+
+[<Fact>]
+let ``child watches are ordered by case-insensitive name`` () =
+    let w = watch [1..5]
+    let getWatchNames (w:Watch) = w.Children |> Seq.choose (fun x -> x.MemberInfo) |> Seq.map (fun x -> x.Name) |> Seq.toList
+    let publicWatchNames = getWatchNames w
+    let nonPublicWatchNames = w.Children |> Seq.head |> getWatchNames
+    test <@ publicWatchNames = (publicWatchNames |> List.sortBy (fun x -> x.ToLower())) @>
+    test <@ nonPublicWatchNames = (nonPublicWatchNames |> List.sortBy (fun x -> x.ToLower())) @>
+
+[<Fact>]
+let ``base class member is qualified by it's F# name`` () =
+    let w = watch [1..5] |> findChildByName "GetEnumerator"
+    <@ w.DefaultText.StartsWith("seq<int>.GetEnumerator()") @>
+
