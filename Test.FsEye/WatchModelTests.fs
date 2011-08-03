@@ -65,8 +65,25 @@ let ``child watches are ordered by case-insensitive name`` () =
     test <@ publicWatchNames = (publicWatchNames |> List.sortBy (fun x -> x.ToLower())) @>
     test <@ nonPublicWatchNames = (nonPublicWatchNames |> List.sortBy (fun x -> x.ToLower())) @>
 
+open System.Collections
+open System.Collections.Generic
 [<Fact>]
-let ``base class member is qualified by it's F# name`` () =
+let ``when there is a conflict, the generic most member is displayed``() =
+    let xl = [1..5]
+    test <@ box xl :? IEnumerable @>
+    test <@ box xl :? IEnumerable<int> @>
+    
     let w = watch [1..5] |> findChildByName "GetEnumerator"
-    <@ w.DefaultText.StartsWith("seq<int>.GetEnumerator()") @>
+    test <@ w.MemberInfo.Value.DeclaringType = typeof<seq<int>> @>
 
+[<Fact>]
+let ``when not overriden the member is qualified by the base class name``() =    
+    let w = watch (fun () -> ()) |> findChildByName "ToString"
+    test <@ w.MemberInfo.Value.DeclaringType = typeof<obj> @>
+    test <@ w.DefaultText.StartsWith("obj.ToString()") @>
+    
+[<Fact>]
+let ``when overriden the member is not qualified``() =    
+    let w = watch [1..5] |> findChildByName "ToString"
+    test <@ w.MemberInfo.Value.DeclaringType = typeof<int list> @>
+    test <@ w.DefaultText.StartsWith("ToString()") @>
