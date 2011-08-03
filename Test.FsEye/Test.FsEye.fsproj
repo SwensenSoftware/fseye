@@ -48,8 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WatchTreeViewTests.fs" />
     <Compile Include="WatchModelTests.fs" />
+    <Compile Include="WatchTreeViewTests.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
