@@ -26,9 +26,9 @@ let (|CreatedValue|_|) (l:'a Lazy) =
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 type Root = { Text: string ; Children:seq<Watch> ; ValueText:string ; Value:obj ; Name: String ; Image: ImageResource }
-and Custom = { Text: string ; Children:seq<Watch> ; ValueText: string option; Image:ImageResource}
-and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>; Image:ImageResource }
-and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>; Image:ImageResource}
+and Custom = { Text: string ; Children:seq<Watch> ; ValueText: string option; Image:ImageResource }
+and DataMember = { LoadingText: string ; Lazy: Lazy<Custom>; Image:ImageResource ; MemberInfo:MemberInfo }
+and CallMember = { InitialText: string ; LoadingText: string ; Lazy: Lazy<Custom>; Image:ImageResource ; MemberInfo:MemberInfo }
 and Watch =
     | Root of Root
     | DataMember of  DataMember
@@ -56,6 +56,10 @@ and Watch =
             match this with
             | Root {Image=image} | DataMember {Image=image}
             | CallMember {Image=image} | Custom {Image=image} -> image
+        member this.MemberInfo =
+            match this with
+            | DataMember { MemberInfo=mi } | CallMember { MemberInfo=mi } -> Some(mi)
+            | Custom _  | Root _ -> None
 
 open System.Text.RegularExpressions
 let private sprintValue (value:obj) (ty:Type) =
@@ -189,7 +193,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateProperty
 
-            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Image=image })
+            DataMember({LoadingText=(pretext  pi.PropertyType.FSharpName loadingText) ; Lazy=delayed ; Image=image ; MemberInfo=pi})
 
         let getFieldWatch (fi:FieldInfo) =
             let pretext = sprintf "%s : %s%s" (getMemberName fi)
@@ -210,7 +214,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateField
 
-            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Image=image })
+            DataMember({LoadingText=pretext fi.FieldType.FSharpName loadingText ; Lazy=delayed ; Image=image ; MemberInfo=fi})
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "%s() : %s%s" (getMemberName mi)
@@ -234,7 +238,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateMethod
 
-            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed ; Image=image })
+            CallMember({InitialText=pretext  mi.ReturnType.FSharpName "" ; LoadingText=pretext  mi.ReturnType.FSharpName loadingText ; Lazy=delayed ; Image=image ;  MemberInfo=mi})
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
