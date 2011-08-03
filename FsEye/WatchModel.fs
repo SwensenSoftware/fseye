@@ -100,18 +100,26 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         if bty = null then None else Some(bty, bty))
                     |> mapMembers }
 
+            let isDebuggerBrowserNeverAttribute (x:obj) =
+                match x with
+                | :? System.Diagnostics.DebuggerBrowsableAttribute as db -> db.State = System.Diagnostics.DebuggerBrowsableState.Never
+                | _ -> false
+
             let validMemberTypes =
                 allMembers
                 |> Seq.filter (fun mi ->
                     match mi with
-                    | :? PropertyInfo as pi -> pi.GetIndexParameters() = Array.empty
+                    | :? PropertyInfo as pi -> 
+                        pi.GetIndexParameters() = Array.empty &&
+                        pi.GetCustomAttributes(false) |> Array.exists isDebuggerBrowserNeverAttribute |> not
                     | :? MethodInfo as meth -> //a simple method taking no arguments and returning a value
                         meth.GetParameters() = Array.empty && 
                         meth.ReturnType <> typeof<System.Void> && 
                         meth.ReturnType <> typeof<unit> &&
                         meth.ContainsGenericParameters |> not &&
                         meth.Name.StartsWith("get_") |> not //F# mark properties as having a "Special Name", so need to filter by prefix
-                    | :? FieldInfo -> true
+                    | :? FieldInfo as fi -> 
+                        fi.GetCustomAttributes(false) |> Array.exists isDebuggerBrowserNeverAttribute |> not
                     | _ -> false)
 
             let nonRedundantMembers =
