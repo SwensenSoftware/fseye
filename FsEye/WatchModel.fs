@@ -117,7 +117,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         meth.ReturnType <> typeof<System.Void> && 
                         meth.ReturnType <> typeof<unit> &&
                         meth.ContainsGenericParameters |> not &&
-                        meth.Name.StartsWith("get_") |> not //F# mark properties as having a "Special Name", so need to filter by prefix
+                        meth.Name.StartsWith("get_") |> not //F# does not mark properties as having a "Special Name", so need to filter by prefix
                     | :? FieldInfo as fi -> 
                         fi.GetCustomAttributes(false) |> Array.exists isDebuggerBrowserNeverAttribute |> not
                     | _ -> false)
