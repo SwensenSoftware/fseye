@@ -27,16 +27,28 @@ type Eye() as this =
         //need to figure out a way to not call repeatedly for single evaluation
         fun (_:obj) ->
             if listen then
-                //printfn "listen is true"
-                try
-                    this.Show()
-                    SessionQueries.getWatchableVariables() 
-                    |> Array.iter watchForm.Watch
-                    //System.Threading.Timer(new TimerCallback(fun _ -> listen <- true), 0, 1000)
-                    null
-                with e ->
-                    printfn "%A" (e.InnerException)
-                    null
+                listen <- false //we are going to try to not fire every time a 100 item list for example is entered into FSI
+                let gui = System.Threading.SynchronizationContext.Current
+                async {
+                    try
+                        let original = System.Threading.SynchronizationContext.Current
+                        
+                        let watchVars = SessionQueries.getWatchableVariables() 
+                        
+                        do! Async.SwitchToContext gui
+                        
+                        this.Show()
+                        watchVars |> Array.iter watchForm.Watch
+
+                        do! Async.SwitchToContext original
+                        do! Async.Sleep 100
+                        do! Async.SwitchToContext gui
+                        listen <- true
+                        do! Async.SwitchToContext original
+                    with e ->
+                        printfn "%A" (e.InnerException)
+                } |> Async.Start
+                null
             else
                 //printfn "listen is false"
                 null
