@@ -19,6 +19,15 @@ limitations under the License.
 
 //open Swensen.FsEye.Fsi
 
+//----NEW FEATURE IDEAS
+//add "Refresh Watches" button to top left
+//file menu?
+//drag and drop root nodes to archives
+//add Archive Watches... which will prompt for archive name
+//right click context menu on archive node allows you to change archive name
+//data visualization: simple graph, or plug into existing visualization tools
+//multi-select nodes (for drag-drop, archiving, etc.)
+
 //Simple example of how we can "break" during evaluation!
 async {
     for i in 1..40 do
