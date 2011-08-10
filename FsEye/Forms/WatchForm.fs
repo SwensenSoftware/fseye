@@ -14,20 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *)
 namespace Swensen.FsEye.Forms
+open Swensen.FsEye
 open System.Windows.Forms
 open System.Reflection
 
 type WatchForm() as this =
     inherit Form(
-        Text="FsEye, by Stephen Swensen", 
+        Icon = IconResource.FsEye.Icon,
+        Text = "FsEye, by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
         )
     )
+    
+    
+    
     let watchPanel = new WatchPanel(Dock=DockStyle.Fill)
 
-    do        
+    do
         ///prevent form from disposing when closing
         this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
         this.Controls.Add(watchPanel)
