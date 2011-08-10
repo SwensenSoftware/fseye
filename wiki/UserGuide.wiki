@@ -5,7 +5,7 @@
 
   * Download and unzip featured release of FsEye from the [http://code.google.com/p/fseye/downloads/list Downloads] page
   * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}}. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches.
-  * Open Swensen.FsEye within .fs files in order to gain intellisense to the open {{{eye}}} instance.
+  * Open Swensen.FsEye.Fsi within .fs files in order to gain intellisense to the open {{{eye}}} instance.
 
 = Manual =
 
