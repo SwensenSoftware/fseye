@@ -3,6 +3,16 @@
 
 = Release Notes =
 
+== v1.0.0 final, 8/10/11 ==
+
+  * Issue 8, Implement Babel Icons
+  * Issue 9, Honor DebuggerBrowsable(DebuggerBrowsableState.Never)
+  * Issue 10, Remove Unquote dependency
+  * Issue 11, XML doc file missing
+  * Issue 12, Call Member nodes should only refresh the first time they are selected
+  * Issue 13, IEnumerator valued Watch.Children may only be enumerated once
+  * Issue 14, Performance slow when objects that require complex printing are submitted to FSI
+
 == v1.0.0 beta 2, 6/02/11 == 
 
 Feature enhancements and defect fixes.
