@@ -46,7 +46,11 @@ type Eye() as this =
                         listen <- true
                         do! Async.SwitchToContext original
                     with e ->
+                        let original = System.Threading.SynchronizationContext.Current
+                        do! Async.SwitchToContext gui
+                        listen <- true //want to make sure we don't leave this as false if there is a problem!
                         printfn "%A" (e.InnerException)
+                        do! Async.SwitchToContext original
                 } |> Async.Start
                 null
             else

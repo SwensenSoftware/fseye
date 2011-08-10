@@ -89,6 +89,10 @@ type WatchPanel() as this =
         member this.ClearAll() = 
             treeView.ClearAll()
 
+        //note: would like to use [<DebuggerBrowsable(DebuggerBrowsableState.Never)>]
+        //on the following two Async methods but the attribute is not valid on methods
+        //maybe we should introduce our own "MethodDebuggerAttribute"
+
         ///<summary>
         ///Use this in a sync block with do!, e.g.
         ///<para></para>
