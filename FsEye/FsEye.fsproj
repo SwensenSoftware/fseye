@@ -64,7 +64,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Script.fsx" />
-    <Compile Include="ImageResource.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
