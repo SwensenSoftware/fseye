@@ -21,15 +21,13 @@ open System.Reflection
 type WatchForm() as this =
     inherit Form(
         Icon = IconResource.FsEye.Icon,
-        Text = "FsEye, by Stephen Swensen", 
+        Text = "FsEye by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
         )
     )
-    
-    
-    
+
     let watchPanel = new WatchPanel(Dock=DockStyle.Fill)
 
     do
