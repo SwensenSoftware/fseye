@@ -1,0 +1,7 @@
+#summary Overview of Silverlight support
+
+Development for Silverlight 4 support is currently underway. 
+
+Due to certain issues and limitations of the reduced Silverlight runtime, certain features and performance are lost.
+
+Due to reflection security restrictions, certain features are lost. Note that Unquote's custom evaluation engine is Reflection based while PowerPack's evaluation engine is Reflection Emit based, but similarly constrained by security restrictions (see http://msdn.microsoft.com/en-us/library/stfy7tfc(v=vs.95).aspx and http://msdn.microsoft.com/en-us/library/9syytdak(v=vs.95).aspx).
