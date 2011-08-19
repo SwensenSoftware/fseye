@@ -17,9 +17,20 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 
+type WatchTabPage(headerText:string) as this =
+    inherit TabPage(headerText)
+    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
+    do
+        this.Controls.Add treeView
+    with
+        member this.TreeView = treeView
+
+
+
+
 type WatchPanel() as this =
     inherit Panel()
-    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
+    let tabControl = new TabControl(Dock=DockStyle.Fill)
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
     let asyncBreak = async {
         let! _ = Async.AwaitEvent continueButton.Click
@@ -27,67 +38,69 @@ type WatchPanel() as this =
     }
 
     do        
+        tabControl.TabPages.Add(new WatchTabPage("FSI"))
+
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
-        this.Controls.Add(treeView)
+        this.Controls.Add(tabControl)
+
+        let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
         (
-            let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
-            (
-                let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
-                archiveButton.Click.Add(fun _ -> this.Archive()) 
-                buttonPanel.Controls.Add(archiveButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear Archives", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear Watches", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearWatches()) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                let clearButton = new Button(Text="Clear All", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearAll()) 
-                buttonPanel.Controls.Add(clearButton)
-            )
-            (
-                continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
-                buttonPanel.Controls.Add(continueButton)
-            )
-            this.Controls.Add(buttonPanel)
+            let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
+            archiveButton.Click.Add(fun _ -> this.Archive()) 
+            buttonPanel.Controls.Add(archiveButton)
         )
+        (
+            let clearButton = new Button(Text="Clear Archives", AutoSize=true)
+            clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
+            buttonPanel.Controls.Add(clearButton)
+        )
+        (
+            let clearButton = new Button(Text="Clear Watches", AutoSize=true)
+            clearButton.Click.Add(fun _ -> this.ClearWatches()) 
+            buttonPanel.Controls.Add(clearButton)
+        )
+        (
+            let clearButton = new Button(Text="Clear All", AutoSize=true)
+            clearButton.Click.Add(fun _ -> this.ClearAll()) 
+            buttonPanel.Controls.Add(clearButton)
+        )
+        (
+            continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
+            buttonPanel.Controls.Add(continueButton)
+        )
+        this.Controls.Add(buttonPanel)
     with
+        member this.SelectedTab = (tabControl.SelectedTab :?> WatchTabPage)
         //a lot of delegation to treeView below -- not sure how to do this better
 
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
-            treeView.Watch(name, value, ty)
+            this.SelectedTab.TreeView.Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value.
         member this.Watch(name, value) =
-            treeView.Watch(name,value)
+            this.SelectedTab.TreeView.Watch(name,value)
 
         ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
-            treeView.Archive(label)
+            this.SelectedTab.TreeView.Archive(label)
 
         ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = 
-            treeView.Archive()
+            this.SelectedTab.TreeView.Archive()
 
         ///Clear all archives and reset the archive count.        
         member this.ClearArchives() = 
-            treeView.ClearArchives()
+            this.SelectedTab.TreeView.ClearArchives()
 
         ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() = 
-            treeView.ClearWatches()
+            this.SelectedTab.TreeView.ClearWatches()
 
         ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
-            treeView.ClearAll()
+            this.SelectedTab.TreeView.ClearAll()
 
         //note: would like to use [<DebuggerBrowsable(DebuggerBrowsableState.Never)>]
         //on the following two Async methods but the attribute is not valid on methods
