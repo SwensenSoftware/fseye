@@ -25,9 +25,6 @@ type WatchTabPage(headerText:string) as this =
     with
         member this.TreeView = treeView
 
-
-
-
 type WatchPanel() as this =
     inherit Panel()
     let tabControl = new TabControl(Dock=DockStyle.Fill)
@@ -45,30 +42,25 @@ type WatchPanel() as this =
         this.Controls.Add(tabControl)
 
         let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
-        (
+        do
             let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
             archiveButton.Click.Add(fun _ -> this.Archive()) 
             buttonPanel.Controls.Add(archiveButton)
-        )
-        (
+        do
             let clearButton = new Button(Text="Clear Archives", AutoSize=true)
             clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
             buttonPanel.Controls.Add(clearButton)
-        )
-        (
+        do
             let clearButton = new Button(Text="Clear Watches", AutoSize=true)
             clearButton.Click.Add(fun _ -> this.ClearWatches()) 
             buttonPanel.Controls.Add(clearButton)
-        )
-        (
+        do
             let clearButton = new Button(Text="Clear All", AutoSize=true)
             clearButton.Click.Add(fun _ -> this.ClearAll()) 
             buttonPanel.Controls.Add(clearButton)
-        )
-        (
+        do
             continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
             buttonPanel.Controls.Add(continueButton)
-        )
         this.Controls.Add(buttonPanel)
     with
         member this.SelectedTab = (tabControl.SelectedTab :?> WatchTabPage)
