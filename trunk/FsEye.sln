@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Utils", "Utils\Utils.fsproj
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test.FsEye", "Test.FsEye\Test.FsEye.fsproj", "{5F774BCF-2BED-428E-B2F5-2165EB7862E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FsEye.VSAddin", "FsEye.VSAddin\FsEye.VSAddin.csproj", "{7F1B7F90-9274-49E8-960C-599C6487778C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{5F774BCF-2BED-428E-B2F5-2165EB7862E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F774BCF-2BED-428E-B2F5-2165EB7862E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F774BCF-2BED-428E-B2F5-2165EB7862E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F1B7F90-9274-49E8-960C-599C6487778C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F1B7F90-9274-49E8-960C-599C6487778C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F1B7F90-9274-49E8-960C-599C6487778C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F1B7F90-9274-49E8-960C-599C6487778C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
