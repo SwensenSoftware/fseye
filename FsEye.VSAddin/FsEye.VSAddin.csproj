@@ -112,10 +112,12 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\..\Addins\FsEye.VSAddin - For Testing.AddIn">
-      <Link>FsEye.VSAddin - For Testing.AddIn</Link>
+    <Content Include="FsEye.Addin - For Testing.AddIn">
+      <Link>FsEye.Addin - For Testing.AddIn</Link>
     </Content>
-    <Content Include="FsEye.VSAddin.AddIn" />
+    <Content Include="FsEye.VSAddin.AddIn">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <PropertyGroup>
