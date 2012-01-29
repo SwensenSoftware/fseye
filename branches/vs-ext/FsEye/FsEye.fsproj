@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Swensen.FsEye</RootNamespace>
+    <AssemblyName>FsEye</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Name>FsEye</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Debug\FsEye.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\FsEye.XML</DocumentationFile>
+    <OtherFlags>--staticlink:Utils</OtherFlags>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <EmbeddedResource Include="Resources\FsEye.ico" />
+    <EmbeddedResource Include="Resources\VSObject_Field.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Sealed.bmp" />
+    <Compile Include="IconResource.fs" />
+    <Compile Include="ImageResource.fs" />
+    <Compile Include="WatchModel.fs" />
+    <Compile Include="Forms\WatchTreeView.fs" />
+    <Compile Include="Forms\WatchPanel.fs" />
+    <Compile Include="Forms\WatchForm.fs" />
+    <Compile Include="Fsi\SessionQueries.fs" />
+    <Compile Include="Fsi\Eye.fs" />
+    <None Include="FsEye.fsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Script.fsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
+    <ProjectReference Include="..\Utils\Utils.fsproj">
+      <Name>Utils</Name>
+      <Project>{46b72fed-e4b4-4ce3-ae7b-97e43837ba2b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	     Other similar extension points exist, see Microsoft.Common.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>
