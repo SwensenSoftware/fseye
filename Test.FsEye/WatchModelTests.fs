@@ -116,3 +116,8 @@ let ``do not show fields marked with DebuggerBrowsableState.Never attribute``() 
 
     let hideField = watch foo |> tryFindChildByName "hideField"
     test <@ hideField.IsNone @>
+
+[<Fact>]
+let ``Issue 19: Crashes when trying to see details of WebBrowser``() =
+    let w = watch (new System.Windows.Forms.WebBrowser())
+    test <@ w.Children |> Seq.iter ignore ; true @>
