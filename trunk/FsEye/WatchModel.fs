@@ -62,10 +62,12 @@ and Watch =
             | Custom _  | Root _ -> None
 
 open System.Text.RegularExpressions
+///Sprint the given value with the given Type. Precondition: Type cannot be null.
 let private sprintValue (value:obj) (ty:Type) =
     if ty =& null then
         nullArg "ty cannot be null"
 
+    //remove white space since e.g. sprint "%A" uses a lot of whitespace for deeply nested records and DUs.
     let cleanString str = Regex.Replace(str, @"[\t\r\n]", "", RegexOptions.Compiled)
 
     match value with
@@ -178,6 +180,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         let loadingText = " = Loading..."
 
+        ///Create a Watch node from the given PropertyInfo. Precondition: PropertyInfo.CanRead is true.
         let getPropertyWatch (pi:PropertyInfo) =
             let pretext = sprintf "%s : %s%s" (getMemberName pi)
             let delayed = lazy(
@@ -252,10 +255,10 @@ let rec createChildren ownerValue (ownerTy:Type) =
             let members = getMembers bindingFlags
             for m in members do
                 match m with
-                | :? PropertyInfo as x -> yield getPropertyWatch x
+                | :? PropertyInfo as x when x.CanRead -> yield getPropertyWatch x
                 | :? FieldInfo as x -> yield getFieldWatch x
                 | :? MethodInfo as x -> yield getMethodWatch x 
-                | _ -> failwith "unexpected MemberInfo type: %A" m }
+                | _ -> () }
 
         let publicBindingFlags = BindingFlags.Instance ||| BindingFlags.Public
         let nonPublicBindingFlags = BindingFlags.Instance ||| BindingFlags.NonPublic
