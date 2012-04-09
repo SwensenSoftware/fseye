@@ -112,6 +112,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 |> Seq.filter (fun mi ->
                     match mi with
                     | :? PropertyInfo as pi -> 
+                        pi.CanRead && //issue 19
                         pi.GetIndexParameters() = Array.empty &&
                         pi.GetCustomAttributes(false) |> Array.exists isDebuggerBrowserNeverAttribute |> not
                     | :? MethodInfo as meth -> //a simple method taking no arguments and returning a value
@@ -255,7 +256,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             let members = getMembers bindingFlags
             for m in members do
                 match m with
-                | :? PropertyInfo as x when x.CanRead -> yield getPropertyWatch x
+                | :? PropertyInfo as x -> yield getPropertyWatch x
                 | :? FieldInfo as x -> yield getFieldWatch x
                 | :? MethodInfo as x -> yield getMethodWatch x 
                 | _ -> () }
