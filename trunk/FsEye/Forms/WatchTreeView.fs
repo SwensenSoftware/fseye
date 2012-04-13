@@ -30,6 +30,11 @@ open Swensen.FsEye.WatchModel
 type WatchTreeView() as this =
     inherit TreeView()
 
+    static let requiresUIThread (ty:System.Type) =
+        [typeof<System.Windows.Forms.Control>
+         typeof<System.Windows.UIElement>] 
+        |> Seq.exists ty.IsAssignableFrom
+
     static let (|Archive|Watch|) (tn:TreeNode) =
         match tn.Tag with
         | :? Watch as w -> Watch(w)
@@ -125,7 +130,12 @@ type WatchTreeView() as this =
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
-            tn, Some(loadWatchAsync guiContext tn info.Lazy true)
+            if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
+                tn.Text <- info.Lazy.Value.Text
+                tn.Nodes.Add(dummyText) |> ignore
+                tn, None
+            else
+                tn, Some(loadWatchAsync guiContext tn info.Lazy true)
         | CallMember(info) ->
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
@@ -138,12 +148,17 @@ type WatchTreeView() as this =
         | :? Watch as watch when hasDummyChild tn ->
             match watch with
             | CallMember(info) when info.Lazy.IsValueCreated |> not ->
-                Control.update this <| fun () ->
-                    tn.Nodes.Clear() //so don't try click while still async loading
-                    tn.Text <- info.LoadingText
+                if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
+                    Control.update this <| fun () ->
+                        tn.Text <- info.Lazy.Value.Text
+                        //note that the dummy node is already added
+                else
+                    Control.update this <| fun () ->
+                        tn.Nodes.Clear() //so don't try click while still async loading
+                        tn.Text <- info.LoadingText
 
-                let guiContext = System.Threading.SynchronizationContext.Current
-                loadWatchAsync guiContext tn info.Lazy true |> Async.Start
+                    let guiContext = System.Threading.SynchronizationContext.Current
+                    loadWatchAsync guiContext tn info.Lazy true |> Async.Start
             | _ -> ()
         | _ -> ()
 

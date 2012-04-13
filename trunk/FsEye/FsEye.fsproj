@@ -70,6 +70,7 @@
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -80,6 +81,7 @@
       <Project>{46b72fed-e4b4-4ce3-ae7b-97e43837ba2b}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
