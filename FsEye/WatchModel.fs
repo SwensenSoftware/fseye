@@ -90,11 +90,6 @@ and Watch =
             | Custom _  
             | Root _ -> None
 
-//let requiresUIThread (ty:System.Type) =
-//    [typeof<System.Windows.Forms.Control>
-//     typeof<System.Windows.UIElement>] 
-//    |> Seq.exists ty.IsAssignableFrom
-
 open System.Text.RegularExpressions
 ///Sprint the given value with the given Type. Precondition: Type cannot be null.
 let private sprintValue (value:obj) (ty:Type) =
