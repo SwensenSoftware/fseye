@@ -3,6 +3,13 @@
 
 = Release Notes =
 
+== v1.0.1, 4/13/12 ==
+
+Maintenance release.
+
+  * Issue 19, Crashes when trying to see details of System.Windows.Forms.WebBrowser
+  * Issue 20, Bug: exception loading nodes for Ole object
+
 == v1.0.0 final, 8/10/11 ==
 
   * Issue 8, Implement Babel Icons
