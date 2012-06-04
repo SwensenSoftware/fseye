@@ -15,7 +15,7 @@ limitations under the License.
 *)
 //#r "FsEye.dll" //release deployment expects this file next to the dll
 //#r "bin/Release/FsEye.dll"
-#load "bin/Release/FsEye.fsx"
+#load "bin\Release\FsEye.fsx"
 
 //open Swensen.FsEye.Fsi
 
