@@ -56,6 +56,7 @@
     <EmbeddedResource Include="Resources\VSObject_Properties_Sealed.bmp" />
     <Compile Include="IconResource.fs" />
     <Compile Include="ImageResource.fs" />
+    <Compile Include="Settings.fs" />
     <Compile Include="WatchModel.fs" />
     <Compile Include="Forms\WatchTreeView.fs" />
     <Compile Include="Forms\WatchPanel.fs" />
