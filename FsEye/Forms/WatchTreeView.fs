@@ -91,13 +91,17 @@ type WatchTreeView() as this =
                     yield new MenuItem("-", Enabled=enabled)
                 | _ -> ()
 
-                let mi = new MenuItem("Copy Value", Enabled=enabled)
-                mi.Click.Add(fun _ -> 
-                    match tn with
-                    | Watch(w) when w.ValueText.IsSome ->
-                        Clipboard.SetText(w.ValueText.Value)
-                    | _ -> ())
-                yield mi 
+                match w with
+                | Custom x when x.Text = "Non-public" -> //issue 27
+                    ()
+                | _ ->
+                    let mi = new MenuItem("Copy Value", Enabled=enabled)
+                    mi.Click.Add(fun _ -> 
+                        match tn with
+                        | Watch(w) when w.ValueText.IsSome ->
+                            Clipboard.SetText(w.ValueText.Value)
+                        | _ -> ())
+                    yield mi 
             | _ -> () |]
     
     let mutable archiveCounter = 0
