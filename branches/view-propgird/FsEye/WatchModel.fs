@@ -36,7 +36,10 @@ type Root = { Text: string
 and Custom = { Text: string
                Children:seq<Watch>
                ValueText: string option
+               Value: obj option
                Image:ImageResource }
+
+//TODO: create a "NonValued" watch type
 
 and DataMember = { LoadingText: string
                    Lazy: Lazy<Custom>
@@ -76,6 +79,20 @@ and Watch =
             | Custom {ValueText=Some(vt)} -> Some(vt)
             | DataMember {Lazy=CreatedValue({ValueText=Some(vt)})} 
             | CallMember {Lazy=CreatedValue({ValueText=Some(vt)})} -> Some(vt)
+            | _ -> None
+        member this.Text =
+            match this with
+            | Root {Text=t} -> Some(t)
+            | Custom {Text=t} -> Some(t)
+            | DataMember {Lazy=CreatedValue({Text=t})} 
+            | CallMember {Lazy=CreatedValue({Text=t})} -> Some(t)
+            | _ -> None
+        member this.Value =
+            match this with
+            | Root {Value=v} -> Some(v)
+            | Custom {Value=Some(v)} -> Some(v)
+            | DataMember {Lazy=CreatedValue({Value=Some(v)})} 
+            | CallMember {Lazy=CreatedValue({Value=Some(v)})} -> Some(v)
             | _ -> None
         member this.Image =
             match this with
@@ -181,6 +198,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 Custom { Text=text
                          Children=children
                          ValueText=Some(valueText)
+                         Value=Some(value)
                          Image=ImageResource.Default }
             
             //yield 100  chunks
@@ -192,6 +210,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         yield Custom { Text="Rest"
                                        Children=rest
                                        ValueText=None
+                                       Value=None
                                        Image=ImageResource.Default }
                     else
                         yield nextResult;
@@ -212,12 +231,14 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 { Custom.Text=pretext valueTy.FSharpName ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
                   ValueText=None
+                  Value=None
                   Image=ImageResource.Default }
             else
                 let valueText = sprintValue value valueTy
                 { Text=pretext valueTy.FSharpName (" = " + valueText)
                   Children=(createChildren value valueTy)
                   ValueText=Some(valueText)
+                  Value=Some(value)
                   Image=ImageResource.Default }
 
         let loadingText = " = Loading..."
@@ -320,6 +341,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             yield Custom { Text="Non-public"
                            Children=nonPublicMemberWatches
                            ValueText=None
+                           Value=None
                            Image=ImageResource.Default }
             yield! getMemberWatches publicBindingFlags
         }
