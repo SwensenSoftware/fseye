@@ -215,7 +215,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
             else
                 mi.Name
 
-        let makeMemberLazyCustomInfo (value:obj) valueTy pretext =
+        let makeMemberValue (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
                 { MemberValue.Text=pretext valueTy.FSharpName ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
@@ -238,7 +238,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else pi.PropertyType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                makeMemberLazyCustomInfo value valueTy pretext)
+                makeMemberValue value valueTy pretext)
 
             let image =
                 let meth = pi.GetGetMethod(true)
@@ -266,7 +266,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else fi.FieldType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                makeMemberLazyCustomInfo value valueTy pretext)
+                makeMemberValue value valueTy pretext)
 
             let image =
                 if fi.IsPublic then
@@ -290,7 +290,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                         value, if value <>& null then value.GetType() else mi.ReturnType //use the actual type if we can
                     with e ->
                         box e, e.GetType()
-                makeMemberLazyCustomInfo value valueTy pretext)
+                makeMemberValue value valueTy pretext)
 
             let image =
                 if mi.IsPublic then
