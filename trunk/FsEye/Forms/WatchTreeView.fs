@@ -170,8 +170,8 @@ type WatchTreeView() as this =
     ///yet been loaded and displayed (via previous selection), asycronously load and display it's value,
     ///and then load all of it's children as normal.
     let afterExpand (node:TreeNode) =
-        match node.Tag with
-        | :? Watch as watch when hasDummyChild node -> //need to harden this check for loaded vs. not            
+        match node with
+        | Watch(watch) when hasDummyChild node -> //need to harden this check for loaded vs. not            
             let loadWatches context (node:TreeNode) (watch:Watch) =
                 this.BeginUpdate()
                 node.Nodes.Clear() //clear dummy node
