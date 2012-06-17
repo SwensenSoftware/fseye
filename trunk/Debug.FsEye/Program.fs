@@ -7,7 +7,8 @@ open System.Windows.Forms
 module Main =
     let initEye() =
         let eye = new Swensen.FsEye.Forms.WatchForm()
-        eye.Watch("x", 3)        
+        eye.Watch("x", 3)  
+        eye.Watch("y", [1;2;3;4;5;6;7])      
         eye
 
 
