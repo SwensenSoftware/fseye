@@ -26,6 +26,129 @@ let (|CreatedValue|_|) (l:'a Lazy) =
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
+module Experiment =
+    type IWatch =
+        ///Get the "default text" of this Watch
+        abstract DefaultText : string
+        ///Get the children of this Watch. If the children are taken from a Lazy property,
+        ///evaluation is forced.
+        abstract Children : seq<IWatch>
+        ///Get the text representation of the value of this watch (e.g. for "Copy to clip-board")
+        abstract ValueText : string option
+        abstract Image : ImageResource
+        abstract MemberInfo : MemberInfo option
+
+    type Root = {
+        Text: string
+        ValueText:string
+        Value:obj
+        Name: string
+        Image: ImageResource
+        Members: PartitionedMembers
+    } with 
+        interface IWatch with
+            member this.DefaultText = this.Text
+            member this.Children = Seq.empty
+            member this.ValueText = Some(this.ValueText)
+            member this.Image = this.Image
+            member this.MemberInfo = None
+    
+    and Member = 
+        | DataMember of DataMember
+        | CallMember of CallMember
+        | GetEnumeratorMember of GetEnumeratorMember
+
+    and PartitionedMembers = {
+        NonPublic: NonPublic; Public: seq<Member>
+    }
+    
+    ///Text is "Non-public" implemented in interface, likely.
+    and NonPublic = {
+        Members: seq<Member>
+    }with
+        interface IWatch with
+            member this.DefaultText = "Non-public"
+            member this.Children = Seq.empty
+            member this.ValueText = None
+            member this.Image = ImageResource.Default
+            member this.MemberInfo = None
+    
+    and DataMember = {
+        LoadingText: string
+        Image:ImageResource
+        MemberInfo:MemberInfo
+        LazyMemberValue: Lazy<MemberValue>
+    } with       
+        interface IWatch with
+            member this.DefaultText = this.LoadingText
+            member this.Children = Seq.empty
+            member this.ValueText = 
+                if this.LazyMemberValue.IsValueCreated then
+                    Some(this.LazyMemberValue.Value.ValueText)
+                else
+                    None
+            member this.Image = this.Image
+            member this.MemberInfo = Some(this.MemberInfo)
+
+    and CallMember = {
+        InitialText: string
+        LoadingText: string
+        Image:ImageResource
+        MemberInfo:MemberInfo
+        LazyMemberValue: Lazy<MemberValue>
+    } with       
+        interface IWatch with
+            member this.DefaultText = this.InitialText
+            member this.Children = Seq.empty
+            member this.ValueText = 
+                if this.LazyMemberValue.IsValueCreated then
+                    Some(this.LazyMemberValue.Value.ValueText)
+                else
+                    None
+            member this.Image = this.Image
+            member this.MemberInfo = Some(this.MemberInfo)
+    
+    and MemberValue = {
+        Text: string
+        ValueText: string
+        Members: PartitionedMembers
+    }
+    
+    and GetEnumeratorMember = {
+        Elements: seq<EnumeratorElement>; Rest:EnumeratorRest
+    } with       
+        interface IWatch with
+            member this.DefaultText = this.InitialText
+            member this.Children = Seq.empty
+            member this.ValueText = 
+                if this.LazyMemberValue.IsValueCreated then
+                    Some(this.LazyMemberValue.Value.ValueText)
+                else
+                    None
+            member this.Image = this.Image
+            member this.MemberInfo = Some(this.MemberInfo)
+    and EnumeratorElement = {
+        Text:string
+        ValueText:string
+        Members:PartitionedMembers
+    } with       
+        interface IWatch with
+            member this.DefaultText = this.Text
+            member this.Children = Seq.empty
+            member this.ValueText = Some(this.ValueText)
+            member this.Image = ImageResource.Default
+            member this.MemberInfo = None
+    and EnumeratorRest = {
+        Elements: seq<EnumeratorElement>; Rest:EnumeratorRest
+    } with       
+        interface IWatch with
+            member this.DefaultText = "Rest"
+            member this.Children = seq {yield! Seq.cast<IWatch> this.Elements; yield this.Rest :> IWatch}
+            member this.ValueText = None
+            member this.Image = ImageResource.Default
+            member this.MemberInfo = None
+
+
 type Root = { Text: string
               Children:seq<Watch>
               ValueText:string
