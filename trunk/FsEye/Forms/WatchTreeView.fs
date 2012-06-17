@@ -92,7 +92,7 @@ type WatchTreeView() as this =
                 | _ -> ()
 
                 match w with
-                | Custom x when x.Text = "Non-public" -> //issue 27
+                | Organizer _ -> //issue 27
                     ()
                 | _ ->
                     let mi = new MenuItem("Copy Value", Enabled=enabled)
@@ -130,17 +130,14 @@ type WatchTreeView() as this =
             tn.Name <- info.Name
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
-        | Custom _ -> 
-            tn.Nodes.Add(dummyText) |> ignore
-            tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
-                tn.Text <- info.Lazy.Value.Text
+                tn.Text <- info.LazyMemberValue.Value.Text
                 tn.Nodes.Add(dummyText) |> ignore
                 tn, None
             else
-                tn, Some(loadWatchAsync guiContext tn info.Lazy true)
-        | CallMember(info) ->
+                tn, Some(loadWatchAsync guiContext tn info.LazyMemberValue true)
+        | _ ->
             tn.Nodes.Add(dummyText) |> ignore
             tn, None
 
@@ -151,10 +148,10 @@ type WatchTreeView() as this =
         match tn.Tag with
         | :? Watch as watch when hasDummyChild tn ->
             match watch with
-            | CallMember(info) when info.Lazy.IsValueCreated |> not ->
+            | CallMember(info) when info.LazyMemberValue.IsValueCreated |> not ->
                 if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
                     Control.update this <| fun () ->
-                        tn.Text <- info.Lazy.Value.Text
+                        tn.Text <- info.LazyMemberValue.Value.Text
                         //note that the dummy node is already added
                 else
                     Control.update this <| fun () ->
@@ -162,7 +159,7 @@ type WatchTreeView() as this =
                         tn.Text <- info.LoadingText
 
                     let guiContext = System.Threading.SynchronizationContext.Current
-                    loadWatchAsync guiContext tn info.Lazy true |> Async.Start
+                    loadWatchAsync guiContext tn info.LazyMemberValue true |> Async.Start
             | _ -> ()
         | _ -> ()
 
@@ -195,12 +192,12 @@ type WatchTreeView() as this =
 
             let guiContext = System.Threading.SynchronizationContext.Current //gui thread
             match watch with
-            | CallMember(info) when info.Lazy.IsValueCreated |> not (* not i.e. already loaded via after select event *) ->
+            | CallMember(info) when info.LazyMemberValue.IsValueCreated |> not (* not i.e. already loaded via after select event *) ->
                 node.Nodes.Clear()
                 node.Text <- info.LoadingText
                 async {
                     let original = System.Threading.SynchronizationContext.Current
-                    do! loadWatchAsync guiContext node info.Lazy false
+                    do! loadWatchAsync guiContext node info.LazyMemberValue false
                     do! Async.SwitchToContext guiContext
                     do loadWatches guiContext node watch
                     do! Async.SwitchToContext original
