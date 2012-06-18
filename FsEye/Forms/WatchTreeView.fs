@@ -67,6 +67,13 @@ type WatchTreeView() as this =
             this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
         | _ -> failwith "TreeNode was not a Root Watch"
 
+    let createPropertyGridForm(value:obj, valueText:string) =
+        let pgForm = new Form(Text=valueText)
+        do
+            let pg = new PropertyGrid(Dock=DockStyle.Fill, SelectedObject=value)
+            pgForm.Controls.Add(pg)
+        pgForm
+
     let createNodeContextMenu (tn:TreeNode) = 
         new ContextMenu [|
             match tn with
@@ -100,6 +107,15 @@ type WatchTreeView() as this =
                         match tn with
                         | Watch(w) when w.ValueText.IsSome ->
                             Clipboard.SetText(w.ValueText.Value)
+                        | _ -> ())
+                    yield mi 
+
+                    let mi = new MenuItem("View PropertyGrid...", Enabled=enabled)
+                    mi.Click.Add(fun _ -> 
+                        match tn with
+                        | Watch(w) when w.Value.IsSome ->
+                            let pgForm = createPropertyGridForm(w.Value.Value, tn.Text)
+                            pgForm.Show(this.TopLevelControl) //control is on top of parent most form, but not modal.
                         | _ -> ())
                     yield mi 
             | _ -> () |]

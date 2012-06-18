@@ -56,7 +56,8 @@ and CallMember = { InitialText: string
 
 and MemberValue = { Text: string
                     Children:seq<Watch>
-                    ValueText: string option }
+                    ValueText: string option 
+                    Value: obj option }
 
 and Watch =
     | Root              of Root
@@ -89,6 +90,12 @@ and Watch =
             | DataMember {LazyMemberValue=CreatedValue({ValueText=Some(vt)})} 
             | CallMember {LazyMemberValue=CreatedValue({ValueText=Some(vt)})} 
             | EnumeratorElement {ValueText=vt}-> Some(vt)
+            | _ -> None
+        member this.Value =
+            match this with
+            | Root {Value=v} -> Some(v)
+            | DataMember {LazyMemberValue=CreatedValue({Value=Some(v)})} 
+            | CallMember {LazyMemberValue=CreatedValue({Value=Some(v)})} -> Some(v)
             | _ -> None
         member this.Image =
             match this with
@@ -219,12 +226,14 @@ let rec createChildren ownerValue (ownerTy:Type) =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
                 { MemberValue.Text=pretext valueTy.FSharpName ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
-                  ValueText=None }
+                  ValueText=None 
+                  Value=None }
             else
                 let valueText = sprintValue value valueTy
                 { Text=pretext valueTy.FSharpName (" = " + valueText)
                   Children=(createChildren value valueTy)
-                  ValueText=Some(valueText) }
+                  ValueText=Some(valueText) 
+                  Value=Some(value) }
 
         let loadingText = " = Loading..."
 
