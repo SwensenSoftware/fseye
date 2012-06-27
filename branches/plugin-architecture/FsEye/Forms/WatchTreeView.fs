@@ -21,13 +21,6 @@ open Swensen.Utils
 open Swensen.FsEye
 open Swensen.FsEye.WatchModel
 
-type IWatchView =
-    ///Add or update a watch with the given name, value, and type.
-    abstract Watch : string * 'a * System.Type -> unit
-    ///Add or update a watch with the given name, and value.
-    abstract Watch : string * 'a -> unit
-    ///Get the underlying Control of this watch view
-    abstract AsControl : unit -> Control
 
 //Copy / Copy Value context Menu
 
@@ -66,6 +59,9 @@ type WatchTreeView() as this =
     static let hasDummyChild (tn:TreeNode) = 
         tn.Nodes.Count = 1 && tn.Nodes.[0].Text = dummyText
 
+    //todo: temp hack, shouldn't be here
+    let pluginManager = new Swensen.FsEye.PluginManager()
+
     ///The action to perform on the given TreeNode after the "Refresh" menu item has
     ///been clicked via the right-click context menu (which can only be performed on root TreeNode's
     ///for Root Watches).
@@ -74,13 +70,6 @@ type WatchTreeView() as this =
         | Watch(Root(info)) as watch ->
             this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
         | _ -> failwith "TreeNode was not a Root Watch"
-
-    let createPropertyGridForm(value:obj, valueText:string) =
-        let pgForm = new Form(Text=valueText)
-        do
-            let pg = new PropertyGrid(Dock=DockStyle.Fill, SelectedObject=value)
-            pgForm.Controls.Add(pg)
-        pgForm
 
     let createNodeContextMenu (tn:TreeNode) = 
         new ContextMenu [|
@@ -118,13 +107,33 @@ type WatchTreeView() as this =
                         | _ -> ())
                     yield mi 
 
-                    let mi = new MenuItem("View PropertyGrid...", Enabled=enabled)
-                    mi.Click.Add(fun _ -> 
-                        match tn with
-                        | Watch(w) when w.Value.IsSome ->
-                            let pgForm = createPropertyGridForm(w.Value.Value, tn.Text)
-                            pgForm.Show(this.TopLevelControl) //control is on top of parent most form, but not modal.
-                        | _ -> ())
+                    let mi = new MenuItem("Send To", Enabled=enabled)
+                    for KeyValue(_,pt) in pluginManager.PluginTracking do
+                        let ptmi = new MenuItem(pt.Plugin.Name)
+                        do
+                            let ptmiNew = new MenuItem("New")
+                            ptmiNew.Click.Add <| fun _ ->
+                                //todo: should SendTo be on the PluginTracking itself? probably...
+                                pluginManager.SendTo(pt.Plugin.Name, New, tn.Text, w.Value.Value)
+
+                            ptmi.MenuItems.Add(ptmiNew) |> ignore
+                        if pt.WatchViewInstances.Count > 0 then
+                            mi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
+                            for KeyValue(pwvTitle,pwv) in pt.WatchViewInstances do
+                                let ptmiExisting = new MenuItem(pwvTitle)
+                                ptmiExisting.Click.Add <| fun _ ->
+                                    //todo: should SendTo be on the PluginTracking itself? probably...
+                                    pluginManager.SendTo(pt.Plugin.Name, Existing(pwvTitle), tn.Text, w.Value.Value)
+
+                                ptmi.MenuItems.Add(ptmiExisting) |> ignore
+                        mi.MenuItems.Add(ptmi) |> ignore
+                    
+//                    mi.Click.Add(fun _ -> 
+//                        match tn with
+//                        | Watch(w) when w.Value.IsSome ->
+//                            let pgForm = createPropertyGridForm(w.Value.Value, tn.Text)
+//                            pgForm.Show(this.TopLevelControl) //control is on top of parent most form, but not modal.
+//                        | _ -> ())
                     yield mi 
             | _ -> () |]
     
@@ -336,3 +345,8 @@ type WatchTreeView() as this =
         member this.ClearAll() =
             this.Nodes.Clear()
             archiveCounter <- 0
+
+type TreeViewPlugin() =
+    interface IWatchViewPlugin with
+        member this.Name = "Tree View"
+        member this.CreateWatchView() = new WatchTreeView() :> IWatchView
