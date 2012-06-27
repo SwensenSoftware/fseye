@@ -17,53 +17,6 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 
-type IWatchViewPlugin =
-    ///display text * object value -> watch view control
-    abstract CreateWatchView: unit -> IWatchView
-    abstract Name : string
-
-type WatchPropertyGrid() =
-    inherit PropertyGrid()
-    interface IWatchView with
-        ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
-            this.SelectedObject <- value
-
-        ///Add or update a watch with the given name and value.
-        member this.Watch(name: string, value: 'a) =
-            this.SelectedObject <- value
-            
-        ///Get the underlying Control of this watch view
-        member this.AsControl() = this :> Control
-
-type TreeViewPlugin() =
-    interface IWatchViewPlugin with
-        member this.Name = "Tree View"
-        member this.CreateWatchView() = new WatchTreeView() :> IWatchView
-
-type PropertyGridPlugin() =
-    interface IWatchViewPlugin with
-        member this.Name = "Property Grid"
-        member this.CreateWatchView() = new WatchPropertyGrid() :> IWatchView
-
-
-
-type PluginTracking = { Plugin: IWatchViewPlugin; mutable WatchViewInstances : Map<string,IWatchView>}
-
-type PluginManager() =
-    //todo: load dynamically from settings (possibly load all, even those that are disabled,
-    //supposing they are enabled / disabled during the life of an FsEye session)
-    let plugins = [TreeViewPlugin() :> IWatchViewPlugin; PropertyGridPlugin() :> IWatchViewPlugin]
-
-    let pluginTracking =
-        plugins
-        |> List.map (fun x -> (x.Name, {Plugin=x; WatchViewInstances=Map.empty})) 
-        |> Map.ofList
-    
-    //rmember to set x.Dock<-DockStyle.Fill on controls when we create them
-    
-    member this.Plugins = plugins
-
 type WatchPanel() as this =
     inherit Panel()
     let treeView = new WatchTreeView(Dock=DockStyle.Fill)
@@ -73,9 +26,7 @@ type WatchPanel() as this =
         ()
     }
 
-    do        
-
-
+    do
         //must tree view (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
         this.Controls.Add(treeView)

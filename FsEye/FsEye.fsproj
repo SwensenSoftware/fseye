@@ -58,6 +58,7 @@
     <Compile Include="ImageResource.fs" />
     <Compile Include="Settings.fs" />
     <Compile Include="WatchModel.fs" />
+    <Compile Include="PluginClasses.fs" />
     <Compile Include="Forms\WatchTreeView.fs" />
     <Compile Include="Forms\WatchPanel.fs" />
     <Compile Include="Forms\WatchForm.fs" />
