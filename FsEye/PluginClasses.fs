@@ -76,7 +76,9 @@ type PluginManager() =
             //todo: we may not want to reuse count numbers when e.g. a plugin view is close, in which case we need to keep that count on the PluginTracking object
             //todo: we need this on pt itself for showing in the context menue
             let title = sprintf "%s %i" pt.Plugin.Name (pt.WatchViewInstances.Count + 1) 
-            let container = new Form(Text=title)
+            let container = 
+                new Form(Text=title, Size = (let size = SystemInformation.PrimaryMonitorSize
+                                             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)))
             container.Closing.Add <| fun _ -> 
                 //the price we pay for keep an immutable interface.
                 pluginTracking <- 
@@ -91,6 +93,9 @@ type PluginManager() =
                 |> Map.add pluginName { pt with WatchViewInstances=pt.WatchViewInstances |> Map.add container.Text watchView}
 
             watchView.Watch(displayText, value)
+            let watchViewControl = watchView.AsControl()
+            watchViewControl.Dock <- DockStyle.Fill
+            container.Controls.Add(watchView.AsControl())
             //todo: temp hack
             let mainForm = Application.OpenForms |> Seq.cast<Form> |> Seq.find (fun x -> x.Text = "FsEye v1.0.1 by Stephen Swensen")
             container.Show(mainForm)

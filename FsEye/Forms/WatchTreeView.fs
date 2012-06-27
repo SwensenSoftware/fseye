@@ -118,7 +118,7 @@ type WatchTreeView() as this =
 
                             ptmi.MenuItems.Add(ptmiNew) |> ignore
                         if pt.WatchViewInstances.Count > 0 then
-                            mi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
+                            ptmi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
                             for KeyValue(pwvTitle,pwv) in pt.WatchViewInstances do
                                 let ptmiExisting = new MenuItem(pwvTitle)
                                 ptmiExisting.Click.Add <| fun _ ->
