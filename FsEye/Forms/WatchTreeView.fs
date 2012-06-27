@@ -21,6 +21,14 @@ open Swensen.Utils
 open Swensen.FsEye
 open Swensen.FsEye.WatchModel
 
+type IWatchView =
+    ///Add or update a watch with the given name, value, and type.
+    abstract Watch : string * 'a * System.Type -> unit
+    ///Add or update a watch with the given name, and value.
+    abstract Watch : string * 'a -> unit
+    ///Get the underlying Control of this watch view
+    abstract AsControl : unit -> Control
+
 //Copy / Copy Value context Menu
 
 //for thoughts on cancellation:
@@ -260,22 +268,34 @@ type WatchTreeView() as this =
                 |> this.Nodes.Add
                 |> ignore
 
+        interface IWatchView with
+            ///Add or update a watch with the given name, value, and type.
+            member this.Watch(name, value, ty) =
+                let objNode =
+                    this.Nodes
+                    |> Seq.cast<TreeNode>
+                    |> Seq.tryFind (fun tn -> tn.Name = name)
+
+                match objNode with
+                | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
+                    this.UpdateWatch(tn, value, ty)
+                | None -> this.AddWatch(name, value, ty)
+                | _ -> ()
+
+            ///Add or update a watch with the given name and value.
+            member this.Watch(name: string, value: 'a) =
+                (this :> IWatchView).Watch(name, value, typeof<'a>)
+            
+            ///Get the underlying Control of this watch view
+            member this.AsControl() = this :> Control
+
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
-            let objNode =
-                this.Nodes
-                |> Seq.cast<TreeNode>
-                |> Seq.tryFind (fun tn -> tn.Name = name)
-
-            match objNode with
-            | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
-                this.UpdateWatch(tn, value, ty)
-            | None -> this.AddWatch(name, value, ty)
-            | _ -> ()
+            (this :> IWatchView).Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value.
         member this.Watch(name: string, value: 'a) =
-            this.Watch(name, value, typeof<'a>)
+            (this :> IWatchView).Watch(name, value)
 
         ///Clear all nodes satisfying the given predicate.
         member this.ClearAll(predicate) =
