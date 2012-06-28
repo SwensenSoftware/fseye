@@ -108,7 +108,9 @@ type PluginManager() =
         Directory.GetFiles(pluginDir)
         |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
         |> Seq.collect (fun assembly -> assembly.GetTypes())
-        |> Seq.filter (fun ty -> ty.GetInterface("Swensen.FsEye.Plugins.IPlugin") <> null)
+        |> Seq.filter (fun ty -> 
+            //System.Windows.Forms.MessageBox.Show(ty.Name + " " + (string <| ty.IsAssignableFrom(typeof<IPlugin>))) |> ignore
+            typeof<IPlugin>.IsAssignableFrom(ty))
         |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
         |> Seq.map (fun plugin -> ManagedPlugin(plugin))
         |> Seq.toList
