@@ -107,33 +107,24 @@ type WatchTreeView() as this =
                         | _ -> ())
                     yield mi 
 
+                    //issues 25 and 26 (plugin architecture and view property grid)
                     let mi = new MenuItem("Send To", Enabled=enabled)
-                    for KeyValue(_,pt) in pluginManager.PluginTracking do
-                        let ptmi = new MenuItem(pt.Plugin.Name)
+                    for managedPlugin in pluginManager.ManagedPlugins do
+                        let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
+                        mi.MenuItems.Add(pluginMi) |> ignore
+
                         do
-                            let ptmiNew = new MenuItem("New")
-                            ptmiNew.Click.Add <| fun _ ->
-                                //todo: should SendTo be on the PluginTracking itself? probably...
-                                pluginManager.SendTo(pt.Plugin.Name, New, tn.Text, w.Value.Value)
-
-                            ptmi.MenuItems.Add(ptmiNew) |> ignore
-                        if pt.WatchViewInstances.Count > 0 then
-                            ptmi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
-                            for KeyValue(pwvTitle,pwv) in pt.WatchViewInstances do
-                                let ptmiExisting = new MenuItem(pwvTitle)
-                                ptmiExisting.Click.Add <| fun _ ->
-                                    //todo: should SendTo be on the PluginTracking itself? probably...
-                                    pluginManager.SendTo(pt.Plugin.Name, Existing(pwvTitle), tn.Text, w.Value.Value)
-
-                                ptmi.MenuItems.Add(ptmiExisting) |> ignore
-                        mi.MenuItems.Add(ptmi) |> ignore
-                    
-//                    mi.Click.Add(fun _ -> 
-//                        match tn with
-//                        | Watch(w) when w.Value.IsSome ->
-//                            let pgForm = createPropertyGridForm(w.Value.Value, tn.Text)
-//                            pgForm.Show(this.TopLevelControl) //control is on top of parent most form, but not modal.
-//                        | _ -> ())
+                            let watchViewerMi = new MenuItem("New")
+                            watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(None, tn.Text, w.Value.Value, null))
+                            pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                        do
+                            if managedPlugin.ManagedWatchViewers.Count > 0 then
+                                pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
+                                for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                    let watchViewerMi = new MenuItem(managedWatchViewer.ID)
+                                    watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(Some(managedWatchViewer.ID), tn.Text, w.Value.Value, null))
+                                    pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                        
                     yield mi 
             | _ -> () |]
     
@@ -277,7 +268,7 @@ type WatchTreeView() as this =
                 |> this.Nodes.Add
                 |> ignore
 
-        interface IWatchView with
+        interface IWatchViewer with
             ///Add or update a watch with the given name, value, and type.
             member this.Watch(name, value, ty) =
                 let objNode =
@@ -290,21 +281,17 @@ type WatchTreeView() as this =
                     this.UpdateWatch(tn, value, ty)
                 | None -> this.AddWatch(name, value, ty)
                 | _ -> ()
-
-            ///Add or update a watch with the given name and value.
-            member this.Watch(name: string, value: 'a) =
-                (this :> IWatchView).Watch(name, value, typeof<'a>)
             
             ///Get the underlying Control of this watch view
-            member this.AsControl() = this :> Control
+            member this.Control = this :> Control
 
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
-            (this :> IWatchView).Watch(name, value, ty)
+            (this :> IWatchViewer).Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value.
         member this.Watch(name: string, value: 'a) =
-            (this :> IWatchView).Watch(name, value)
+            (this :> IWatchViewer).Watch(name, value, typeof<'a>)
 
         ///Clear all nodes satisfying the given predicate.
         member this.ClearAll(predicate) =
@@ -347,6 +334,7 @@ type WatchTreeView() as this =
             archiveCounter <- 0
 
 type TreeViewPlugin() =
-    interface IWatchViewPlugin with
+    interface IPlugin with
+        member this.Version = "1.0"
         member this.Name = "Tree View"
-        member this.CreateWatchView() = new WatchTreeView() :> IWatchView
+        member this.CreateWatchViewer() = new WatchTreeView() :> IWatchViewer
