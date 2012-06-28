@@ -17,90 +17,109 @@ namespace Swensen.FsEye
 open System.Windows.Forms
 open System.Reflection
 
-type IWatchView =
+///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
+///a custom watch viewer control
+type IWatchViewer =
     ///Add or update a watch with the given name, value, and type.
     abstract Watch : string * 'a * System.Type -> unit
-    ///Add or update a watch with the given name, and value.
-    abstract Watch : string * 'a -> unit
-    ///Get the underlying Control of this watch view
-    abstract AsControl : unit -> Control
+    ///The underlying watch viewer control. Exists as a property of IWatchViewer 
+    ///since you may or may not own the control (i.e. you cannot directly implement IWatchViewer on the control).
+    abstract Control : Control
 
-type IWatchViewPlugin =
-    ///display text * object value -> watch view control
-    abstract CreateWatchView: unit -> IWatchView
+///Specificies a watch view plugin, capable of creating watch viewer instances
+type IPlugin =    
+    //The name of the plugin
     abstract Name : string
+    //The version of the plugin
+    abstract Version : string
+    ///Create an instance of this plugin's watch viewer
+    abstract CreateWatchViewer : unit -> IWatchViewer
 
-type WatchPropertyGrid() =
+///A PropertyGrid-based watch viewer
+type PropertyGridWatchViewer() =
     inherit PropertyGrid()
-    interface IWatchView with
-        ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
+    interface IWatchViewer with
+        ///Set or refresh the selected object with the given value (the name and tpe are not used).
+        member this.Watch(_, value, _) =
             this.SelectedObject <- value
-
-        ///Add or update a watch with the given name and value.
-        member this.Watch(name: string, value: 'a) =
-            this.SelectedObject <- value
-            
         ///Get the underlying Control of this watch view
-        member this.AsControl() = this :> Control
+        member this.Control = this :> Control
 
+///A Plugin that creates PropertyGridWatchViewers
 type PropertyGridPlugin() =
-    interface IWatchViewPlugin with
-        member this.Name = "Property Grid"
-        member this.CreateWatchView() = new WatchPropertyGrid() :> IWatchView
+    interface IPlugin with
+        member __.Name = "Property Grid"
+        member __.Version = "1.0"
+        ///Create a new instance of a PropertyGridWatchViewer
+        member __.CreateWatchViewer() = new PropertyGridWatchViewer() :> IWatchViewer
 
-type PluginTracking = { Plugin: IWatchViewPlugin; WatchViewInstances : Map<string,IWatchView>}
+///Represents a plugin watchviewer being managed by the PluginManager
+type ManagedWatchViewer(id:string, watchViewer:IWatchViewer, containerControl:Control) =
+    ///The unique ID of the watch viewer instance 
+    //todo: (this may be redundant if we just want to use the TabControl.Text, but that may be an implementation detail, and indeed we could implement it as such)
+    member __.ID = containerControl.Text
+    ///The watch viewer instance which is being managed
+    member __.WatchViewer = watchViewer
+    ///The tab control containing the watch viewer control
+    //todo: consider naming it "Container" so that the implementation detail is not so coupled. indeed, we could make this return Control and cast to known type if we want to support multiple watch viewer container modes)
+    member __.ContainerControl = containerControl
 
-type SendToTarget =
-    | New
-    | Existing of string
+///Represents a plugin being managed by the PluginManager
+type ManagedPlugin(plugin: IPlugin) =
+    ///The absolute number of watch viewer instances which have been created by the plugin manager (i.e. we want to keep incrementing to make unique managed watch viewer ID's even when managed watch viewers may have been removed).
+    let mutable curIncrement = 0
 
+    let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
+    
+    ///The plugin being managed
+    member __.Plugin = plugin
+
+    ///The list of active watch viewers (i.e. watch viewers may be added and removed by the plugin manager)
+    //todo: would be best if we could avoid having this be an array (i.e. avoid mutability)
+    member __.ManagedWatchViewers = managedWatchViewers
+
+    ///To the given target, where None is a new instance and Some(instanceId) indicates an existing instance with the given id,
+    ///send the given valueText, value, and valueType.
+    member this.SendTo(target: option<string>, valueText: string, value: obj, valueTy:System.Type) =
+        match target with
+        | None -> //"new"
+            //create the new watch viewer
+            let watchViewer = plugin.CreateWatchViewer()
+            watchViewer.Watch(valueText, value, valueTy)
+
+            //create the container control
+            let title = sprintf "%s %i" plugin.Name (curIncrement <- curIncrement + 1 ; curIncrement)
+            let containerControl = 
+                new Form(Text=title, Size = (let size = SystemInformation.PrimaryMonitorSize in System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)))
+            
+            //create the managed watch viewer and add it to this managed plugin's collection
+            let managedWatchViewer = ManagedWatchViewer(title, watchViewer, containerControl)
+            this.ManagedWatchViewers.Add(managedWatchViewer)
+            
+            //when the managed watch viewer's container control is closed, remove it from this plugin's collection
+            containerControl.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
+            
+            //display the watch viewer
+            let watchViewerControl = managedWatchViewer.WatchViewer.Control
+            watchViewerControl.Dock <- DockStyle.Fill
+            containerControl.Controls.Add(watchViewerControl)
+            //todo: temp hack
+            let mainForm = Application.OpenForms |> Seq.cast<Form> |> Seq.find (fun x -> x.Text = "FsEye v1.0.1 by Stephen Swensen")
+            containerControl.Show(mainForm)
+            ()
+        | Some(targetName) ->
+            let targetManagedWatchViewer = this.ManagedWatchViewers |> Seq.find (fun x -> x.ID = targetName)
+            targetManagedWatchViewer.WatchViewer.Watch(valueText, value, valueTy)
+            targetManagedWatchViewer.WatchViewer.Control.Focus() |> ignore 
+
+///Manages FsEye watch viewer plugins
 type PluginManager() =
     //todo: load dynamically from settings (possibly load all, even those that are disabled,
     //supposing they are enabled / disabled during the life of an FsEye session)
-    let plugins = [System.Activator.CreateInstance(System.Type.GetType("Swensen.FsEye.Forms.TreeViewPlugin")) :?> IWatchViewPlugin; PropertyGridPlugin() :> IWatchViewPlugin]
-
-    let mutable pluginTracking =
-        plugins
-        |> List.map (fun x -> (x.Name, {Plugin=x; WatchViewInstances=Map.empty})) 
-        |> Map.ofList
+    let managedPlugins = 
+        [
+            System.Activator.CreateInstance(System.Type.GetType("Swensen.FsEye.Forms.TreeViewPlugin")) :?> IPlugin
+            PropertyGridPlugin() :> IPlugin
+        ] |> List.map (fun x -> ManagedPlugin(x))
     
-    //rmember to set x.Dock<-DockStyle.Fill on controls when we create them
-    
-    member this.Plugins = plugins
-    member this.PluginTracking = pluginTracking
-    member this.SendTo(pluginName:string, target: SendToTarget, displayText: string, value: obj) =
-        let pt = pluginTracking |> Map.find pluginName
-        match target with
-        | New ->
-            //todo: we may not want to reuse count numbers when e.g. a plugin view is close, in which case we need to keep that count on the PluginTracking object
-            //todo: we need this on pt itself for showing in the context menue
-            let title = sprintf "%s %i" pt.Plugin.Name (pt.WatchViewInstances.Count + 1) 
-            let container = 
-                new Form(Text=title, Size = (let size = SystemInformation.PrimaryMonitorSize
-                                             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)))
-            container.Closing.Add <| fun _ -> 
-                //the price we pay for keep an immutable interface.
-                pluginTracking <- 
-                    pluginTracking 
-                    //|> Map.remove pluginName
-                    |> Map.add pluginName { pt with WatchViewInstances=pt.WatchViewInstances |> Map.remove container.Text }
-            
-            let watchView = pt.Plugin.CreateWatchView()
-            pluginTracking <- 
-                pluginTracking 
-                //|> Map.remove pluginName
-                |> Map.add pluginName { pt with WatchViewInstances=pt.WatchViewInstances |> Map.add container.Text watchView}
-
-            watchView.Watch(displayText, value)
-            let watchViewControl = watchView.AsControl()
-            watchViewControl.Dock <- DockStyle.Fill
-            container.Controls.Add(watchView.AsControl())
-            //todo: temp hack
-            let mainForm = Application.OpenForms |> Seq.cast<Form> |> Seq.find (fun x -> x.Text = "FsEye v1.0.1 by Stephen Swensen")
-            container.Show(mainForm)
-            ()
-        | Existing(targetName) ->
-            let t = pt.WatchViewInstances |> Map.find targetName
-            t.Watch(displayText, value)
-            t.AsControl().Focus() |> ignore //experimental
+    member this.ManagedPlugins = managedPlugins
