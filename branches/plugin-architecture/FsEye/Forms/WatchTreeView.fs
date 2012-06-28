@@ -108,7 +108,7 @@ type WatchTreeView() as this =
                     yield mi 
 
                     //issues 25 and 26 (plugin architecture and view property grid)
-                    let mi = new MenuItem("Send To", Enabled=enabled)
+                    let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                     for managedPlugin in pluginManager.ManagedPlugins do
                         let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
                         mi.MenuItems.Add(pluginMi) |> ignore
@@ -268,30 +268,22 @@ type WatchTreeView() as this =
                 |> this.Nodes.Add
                 |> ignore
 
-        interface IWatchViewer with
-            ///Add or update a watch with the given name, value, and type.
-            member this.Watch(name, value, ty) =
-                let objNode =
-                    this.Nodes
-                    |> Seq.cast<TreeNode>
-                    |> Seq.tryFind (fun tn -> tn.Name = name)
-
-                match objNode with
-                | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
-                    this.UpdateWatch(tn, value, ty)
-                | None -> this.AddWatch(name, value, ty)
-                | _ -> ()
-            
-            ///Get the underlying Control of this watch view
-            member this.Control = this :> Control
-
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
-            (this :> IWatchViewer).Watch(name, value, ty)
+            let objNode =
+                this.Nodes
+                |> Seq.cast<TreeNode>
+                |> Seq.tryFind (fun tn -> tn.Name = name)
+
+            match objNode with
+            | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
+                this.UpdateWatch(tn, value, ty)
+            | None -> this.AddWatch(name, value, ty)
+            | _ -> ()
 
         ///Add or update a watch with the given name and value.
         member this.Watch(name: string, value: 'a) =
-            (this :> IWatchViewer).Watch(name, value, typeof<'a>)
+            this.Watch(name, value, typeof<'a>)
 
         ///Clear all nodes satisfying the given predicate.
         member this.ClearAll(predicate) =
@@ -332,9 +324,3 @@ type WatchTreeView() as this =
         member this.ClearAll() =
             this.Nodes.Clear()
             archiveCounter <- 0
-
-type TreeViewPlugin() =
-    interface IPlugin with
-        member this.Version = "1.0"
-        member this.Name = "Tree View"
-        member this.CreateWatchViewer() = new WatchTreeView() :> IWatchViewer
