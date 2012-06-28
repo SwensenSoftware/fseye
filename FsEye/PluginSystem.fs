@@ -16,6 +16,8 @@ limitations under the License.
 namespace Swensen.FsEye
 open System.Windows.Forms
 open System.Reflection
+open System.IO
+open System
 
 ///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
 ///a custom watch viewer control
@@ -34,24 +36,6 @@ type IPlugin =
     abstract Version : string
     ///Create an instance of this plugin's watch viewer
     abstract CreateWatchViewer : unit -> IWatchViewer
-
-///A PropertyGrid-based watch viewer
-type PropertyGridWatchViewer() =
-    inherit PropertyGrid()
-    interface IWatchViewer with
-        ///Set or refresh the selected object with the given value (the name and tpe are not used).
-        member this.Watch(_, value, _) =
-            this.SelectedObject <- value
-        ///Get the underlying Control of this watch view
-        member this.Control = this :> Control
-
-///A Plugin that creates PropertyGridWatchViewers
-type PropertyGridPlugin() =
-    interface IPlugin with
-        member __.Name = "Property Grid"
-        member __.Version = "1.0"
-        ///Create a new instance of a PropertyGridWatchViewer
-        member __.CreateWatchViewer() = new PropertyGridWatchViewer() :> IWatchViewer
 
 ///Represents a plugin watchviewer being managed by the PluginManager
 type ManagedWatchViewer(id:string, watchViewer:IWatchViewer, containerControl:Control) =
@@ -114,12 +98,19 @@ type ManagedPlugin(plugin: IPlugin) =
 
 ///Manages FsEye watch viewer plugins
 type PluginManager() =
-    //todo: load dynamically from settings (possibly load all, even those that are disabled,
-    //supposing they are enabled / disabled during the life of an FsEye session)
+//    List<Assembly> allAssemblies = new List<Assembly>();
+//    string path = Assembly.GetExecutingAssembly().Location;
+//
+//    foreach (string dll in Directory.GetFiles(path, "*.dll"))
+//        allAssemblies.Add(Assembly.LoadFile(dll));
     let managedPlugins = 
-        [
-            System.Activator.CreateInstance(System.Type.GetType("Swensen.FsEye.Forms.TreeViewPlugin")) :?> IPlugin
-            PropertyGridPlugin() :> IPlugin
-        ] |> List.map (fun x -> ManagedPlugin(x))
-    
+        let pluginDir = Path.GetDirectoryName(Assembly.GetAssembly(typeof<PluginManager>).Location) + "\\" + "plugins"
+        Directory.GetFiles(pluginDir)
+        |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
+        |> Seq.collect (fun assembly -> assembly.GetTypes())
+        |> Seq.filter (fun ty -> ty.GetInterface("Swensen.FsEye.Plugins.IPlugin") <> null)
+        |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
+        |> Seq.map (fun plugin -> ManagedPlugin(plugin))
+        |> Seq.toList
+                                        
     member this.ManagedPlugins = managedPlugins
