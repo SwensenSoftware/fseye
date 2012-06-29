@@ -53,6 +53,10 @@ type ManagedPlugin(plugin: IPlugin) =
     ///The absolute number of watch viewer instances which have been created by the plugin manager (i.e. we want to keep incrementing to make unique managed watch viewer ID's even when managed watch viewers may have been removed).
     let mutable curIncrement = 0
 
+    //todo: make this a mutable variable pointing to an immutable F# list
+    //and expose Add and Remove methods on this which trigger an event which
+    //the plugin manager subscribes to (when total count goes to 0, hide plugin panel,
+    //when goes > 0, show it.
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
     
     ///The plugin being managed
