@@ -16,10 +16,12 @@ limitations under the License.
 namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
+open Swensen.FsEye
 
 type WatchPanel() as this =
     inherit Panel()
-    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
+    let pluginManager = new PluginManager()
+    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
     let asyncBreak = async {
         let! _ = Async.AwaitEvent continueButton.Click
