@@ -28,9 +28,11 @@ open Swensen.FsEye.WatchModel
 //http://stackoverflow.com/questions/5852317/how-to-cancel-individual-async-computation-being-run-in-parallel-with-others-fr
 
 ///A TreeView which binds to and manipulates a Watch model.
-type WatchTreeView() as this =
+///The PluginManager argument is only used for the primary FsEye WatchTreeView,
+///it should be None for WatchTreeViews hosted as plugins.
+type WatchTreeView(pluginManager: PluginManager option) as this =
     inherit TreeView()
-
+    
     static let requiresUIThread (ty:System.Type) =
         [typeof<System.Windows.Forms.Control>
          typeof<System.Windows.UIElement>] 
@@ -58,9 +60,6 @@ type WatchTreeView() as this =
     ///Checks whether the given TreeNode contains the default "dummy" TreeNode as it's only child.
     static let hasDummyChild (tn:TreeNode) = 
         tn.Nodes.Count = 1 && tn.Nodes.[0].Text = dummyText
-
-    //todo: temp hack, shouldn't be here
-    let pluginManager = new Swensen.FsEye.PluginManager()
 
     ///The action to perform on the given TreeNode after the "Refresh" menu item has
     ///been clicked via the right-click context menu (which can only be performed on root TreeNode's
@@ -107,25 +106,28 @@ type WatchTreeView() as this =
                         | _ -> ())
                     yield mi 
 
-                    //issues 25 and 26 (plugin architecture and view property grid)
-                    let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
-                    for managedPlugin in pluginManager.ManagedPlugins do
-                        let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
-                        mi.MenuItems.Add(pluginMi) |> ignore
+                    match pluginManager with
+                    | Some(pluginManager) ->
+                        //issues 25 and 26 (plugin architecture and view property grid)
+                        let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
+                        for managedPlugin in pluginManager.ManagedPlugins do
+                            let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
+                            mi.MenuItems.Add(pluginMi) |> ignore
 
-                        do
-                            let watchViewerMi = new MenuItem("New")
-                            watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(None, tn.Text, w.Value.Value, null))
-                            pluginMi.MenuItems.Add(watchViewerMi) |> ignore
-                        do
-                            if managedPlugin.ManagedWatchViewers.Count > 0 then
-                                pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
-                                for managedWatchViewer in managedPlugin.ManagedWatchViewers do
-                                    let watchViewerMi = new MenuItem(managedWatchViewer.ID)
-                                    watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(Some(managedWatchViewer.ID), tn.Text, w.Value.Value, null))
-                                    pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                            do
+                                let watchViewerMi = new MenuItem("New")
+                                watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(None, tn.Text, w.Value.Value, null))
+                                pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                            do
+                                if managedPlugin.ManagedWatchViewers.Count > 0 then
+                                    pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
+                                    for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                        let watchViewerMi = new MenuItem(managedWatchViewer.ID)
+                                        watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(Some(managedWatchViewer.ID), tn.Text, w.Value.Value, null))
+                                        pluginMi.MenuItems.Add(watchViewerMi) |> ignore
                         
-                    yield mi 
+                        yield mi 
+                    | None -> ()
             | _ -> () |]
     
     let mutable archiveCounter = 0
@@ -251,6 +253,7 @@ type WatchTreeView() as this =
 
             il
     with
+        new() = new WatchTreeView(None)
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
                 let watch = createRootWatch tn.Name value ty
