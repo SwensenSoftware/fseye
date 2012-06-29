@@ -104,7 +104,7 @@ type PluginManager() =
 //    foreach (string dll in Directory.GetFiles(path, "*.dll"))
 //        allAssemblies.Add(Assembly.LoadFile(dll));
     let managedPlugins = 
-        let pluginDir = Path.GetDirectoryName(Assembly.GetAssembly(typeof<PluginManager>).Location) + "\\" + "plugins"
+        let pluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "plugins"
         Directory.GetFiles(pluginDir)
         |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
         |> Seq.collect (fun assembly -> assembly.GetTypes())
