@@ -7,11 +7,9 @@ open System.Windows.Forms
 type TreeViewWatchViewer() =
     let watchTreeView = new WatchTreeView()
     interface IWatchViewer with
-        ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
-            watchTreeView.Watch(name, value, ty)
+        member this.Watch(label, value, ty) =
+            watchTreeView.Watch(label, value, ty)
             
-        ///Get the underlying Control of this watch view
         member this.Control = watchTreeView :> Control
 
 type TreeViewPlugin() =

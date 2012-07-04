@@ -108,6 +108,23 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                     match pluginManager with
                     | Some(pluginManager) ->
+                        //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
+                        //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
+                        //if the children take longer to load than the first force).
+                        ///Calculated source path TreeNode.Text sequence of the current node through its parents (the root being the head).
+                        ///If this is the root node, just give the name of the node (e.g. "x" instead of "x:int")
+                        let label = lazy(
+                            match w with
+                            | Root {Name=name} -> [name]
+                            | _ ->
+                                let rec loop acc (cur:TreeNode) = 
+                                    match cur with
+                                    | null -> acc //no need to rev since we want the list to start with the parent
+                                    | _ -> loop (cur.Text::acc) cur.Parent
+                                loop [] tn
+                            |> String.concat " | ")
+                            
+
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
@@ -116,14 +133,14 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                             do
                                 let watchViewerMi = new MenuItem("New")
-                                watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(None, tn.Text, w.Value.Value, null))
+                                watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(None, label.Value, w.Value.Value, null)) //todo: pass in value type
                                 pluginMi.MenuItems.Add(watchViewerMi) |> ignore
                             do
                                 if managedPlugin.ManagedWatchViewers.Count > 0 then
                                     pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
                                     for managedWatchViewer in managedPlugin.ManagedWatchViewers do
                                         let watchViewerMi = new MenuItem(managedWatchViewer.ID)
-                                        watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(Some(managedWatchViewer.ID), tn.Text, w.Value.Value, null))
+                                        watchViewerMi.Click.Add(fun _ -> managedPlugin.SendTo(Some(managedWatchViewer.ID), label.Value, w.Value.Value, null)) //todo: pass in value type 
                                         pluginMi.MenuItems.Add(watchViewerMi) |> ignore
                         
                         yield mi 
@@ -209,7 +226,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         | Some(a) -> yield a
                         | _ -> () |]
                 this.EndUpdate()
-                //N.B. deliberately excludeing Asyn.Start pipe-line from begin/end update 
+                //N.B. deliberately excluding Asyn.Start pipe-line from begin/end update 
                 //so child nodes have chance to expand before parallel updates start kicking off
                 asyncNodes
                 |> Async.Parallel 
