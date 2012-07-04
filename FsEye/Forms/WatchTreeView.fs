@@ -108,23 +108,54 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                     match pluginManager with
                     | Some(pluginManager) ->
+
                         //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
                         //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
                         //if the children take longer to load than the first force).
-                        ///Calculated source path TreeNode.Text sequence of the current node through its parents (the root being the head).
-                        ///If this is the root node, just give the name of the node (e.g. "x" instead of "x:int")
-                        let label = lazy(
-                            match w with
-                            | Root {Name=name} -> [name]
-                            | _ ->
-                                let rec loop acc (cur:TreeNode) = 
-                                    match cur with
-                                    | null -> acc //no need to rev since we want the list to start with the parent
-                                    | _ -> loop (cur.Text::acc) cur.Parent
-                                loop [] tn
-                            |> String.concat " | ")
-                            
+                        ///Calculate an label which is informative about the tree path of the watch being sent to a plugin watch viewer.
+                        let label =
+                            let rec loop (cur:TreeNode) = 
+                                match cur with
+                                | null -> "" //no need to rev since we want the list to start with the parent
+                                | Archive -> sprintf "[%s] " tn.Text
+                                | Watch watch -> 
+                                    match watch with
+                                    | Root {Name=name} -> name
+                                    | _ ->
+                                        //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
+                                        let separator =
+                                            match cur.Parent with
+                                            | Watch parentWatch -> 
+                                                match parentWatch with
+                                                | Organizer {OrganizerKind=OrganizerKind.NonPublic} -> "?"
+                                                | _ -> "."
+                                            | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
 
+                                        //don't treat Organizer or EnumeratorElements as parents
+                                        let parent =
+                                            let rec loop (cur:TreeNode) =
+                                                match cur with
+                                                | null -> cur
+                                                | Watch parentWatch -> 
+                                                    match parentWatch with
+                                                    | Organizer _ | EnumeratorElement _ -> loop cur.Parent
+                                                    | _ -> cur
+                                                | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+                                            loop cur.Parent
+
+                                        match cur.Text with
+                                        | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[x;iface;memberExpr]} -> //only intefaces need to be down casted
+                                            sprintf "(%s%s%s :> %s)" (loop parent) separator memberExpr iface
+                                        | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[x;y;memberExpr]} -> //base classes don't need to be down casted and may not be present
+                                            sprintf "%s%s%s" (loop parent) separator memberExpr
+                                        | _ -> 
+                                            invalidArg "Unexpected node case" "cur"
+                                            
+                                | _ -> invalidArg "Unexpected node case" "cur"
+                            lazy(loop tn)
+
+                        let forceLabel = label.Value
+                            
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
