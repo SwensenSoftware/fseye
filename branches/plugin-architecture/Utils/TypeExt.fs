@@ -37,8 +37,7 @@ module internal Impl =
                 | _ -> None)
         |> (function | Some(sourceName) -> sourceName | None -> mi.Name)
 
-    //used by both sprintSig and sprint
-    let applyParensForPrecInContext context prec s = if prec > context then s else sprintf "(%s)" s
+    let inline private applyParensForPrecInContext context prec s = if prec > context then s else sprintf "(%s)" s
 
     //the usefullness of this function makes me think to open up Sprint module (currently just added TypeExt with this feature)
     ///Sprint the F#-style type signature of the given Type.  Handles known type abbreviations,
@@ -79,7 +78,7 @@ module internal Impl =
             | "Microsoft.FSharp.Collections.FSharpList" -> "list"
             | "Microsoft.FSharp.Collections.FSharpMap"  -> "Map"
             | "System.Collections.Generic.IEnumerable"  -> "seq"
-            | CompiledMatch @"[\.\+]?([^\.\+]*)$" [_;nameMatch] -> nameMatch.Value //short name
+            | Regex.Compiled.Match @"[\.\+]?([^\.\+]*)$" { GroupValues=[name] }-> name //short name
             | cleanName -> failwith "failed to lookup type display name from it's \"clean\" name: " + cleanName
 
         let rec sprintSig context (ty:Type) =
@@ -87,8 +86,8 @@ module internal Impl =
             let cleanName, arrSig = 
                 //if is generic type, then doesn't have FullName, need to use just Name
                 match (if String.IsNullOrEmpty(ty.FullName) then ty.Name else ty.FullName) with
-                | CompiledMatch @"^([^`\[]*)`?.*?(\[[\[\],]*\])?$" [_;cleanNameMatch;arrSigMatch] -> //long name type encoding left of `, array encoding at end
-                    cleanNameMatch.Value, arrSigMatch.Value
+                | Regex.Compiled.Match @"^([^`\[]*)`?.*?(\[[\[\],]*\])?$" { GroupValues=[cleanName;arrSig] }-> //long name type encoding left of `, array encoding at end
+                    cleanName, arrSig
                 | _ -> 
                     failwith ("failed to parse type name: " + ty.FullName)
 
