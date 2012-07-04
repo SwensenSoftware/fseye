@@ -164,7 +164,8 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                             do
                                 let watchViewerMi = new MenuItem("New")
-                                watchViewerMi.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, null)) //todo: pass in value type
+                                watchViewerMi.Click.Add(fun _ -> 
+                                    pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, null)) //todo: pass in value type
                                 pluginMi.MenuItems.Add(watchViewerMi) |> ignore
                             do
                                 if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
