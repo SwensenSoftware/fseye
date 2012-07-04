@@ -88,7 +88,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
             match tn with
             | Watch(w) ->
-                let enabled = w.ValueText.IsSome
+                let enabled = w.ValueText.IsSome && w.Value.IsSome //should just group these together as one property
                 match w with
                 | Root _ ->
                     yield new MenuItem("-", Enabled=enabled)
