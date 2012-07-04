@@ -69,39 +69,8 @@ type ManagedPlugin(plugin: IPlugin, tabControl:TabControl) =
     //todo: would be best if we could avoid having this be an array (i.e. avoid mutability)
     member __.ManagedWatchViewers = managedWatchViewers
 
-    ///To the given target, where None is a new instance and Some(instanceId) indicates an existing instance with the given id,
-    ///send the given label, value, and type.
-    member this.SendTo(target: option<string>, label: string, value: obj, valueTy:System.Type) =
-        match target with
-        | None -> //"new"
-            //create the new watch viewer
-            let watchViewer = plugin.CreateWatchViewer()
-            watchViewer.Watch(label, value, valueTy)
-
-            //create the container control
-            let title = sprintf "%s %i" plugin.Name (curIncrement <- curIncrement + 1 ; curIncrement)
-            
-            let tabPage = new TabPage(title, Name=title)
-            do            
-                //create the managed watch viewer and add it to this managed plugin's collection
-                let managedWatchViewer = ManagedWatchViewer(title, watchViewer)
-                this.ManagedWatchViewers.Add(managedWatchViewer)
-            
-                //when the managed watch viewer's container control is closed, remove it from this plugin's collection
-                //todo winforms tabs don't support native closing!
-                //tabPage.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
-            
-                //display the watch viewer
-                let watchViewerControl = managedWatchViewer.WatchViewer.Control
-                watchViewerControl.Dock <- DockStyle.Fill
-                tabPage.Controls.Add(watchViewerControl)
-            tabControl.TabPages.Add(tabPage)
-            tabControl.SelectTab(tabPage)
-            ()
-        | Some(targetName) ->
-            let targetManagedWatchViewer = this.ManagedWatchViewers |> Seq.find (fun x -> x.ID = targetName)
-            targetManagedWatchViewer.WatchViewer.Watch(label, value, valueTy)
-            tabControl.SelectTab(targetManagedWatchViewer.ID)
+    member __.GetNextID() = sprintf "%s %i" plugin.Name (curIncrement <- curIncrement + 1 ; curIncrement)
+        
 
 ///Manages FsEye watch viewer plugins
 type PluginManager(tabControl:TabControl) =
@@ -123,3 +92,35 @@ type PluginManager(tabControl:TabControl) =
             []
                                         
     member this.ManagedPlugins = managedPlugins
+
+    ///Create a new watch viewer for the given managed plugin, sending the given label, value and type
+    member this.SendTo(managedPlugin:ManagedPlugin, label: string, value: obj, valueTy:System.Type) =
+        //create the new watch viewer
+        let watchViewer = managedPlugin.Plugin.CreateWatchViewer()
+        watchViewer.Watch(label, value, valueTy)
+
+        //create the container control
+        let id = managedPlugin.GetNextID()
+            
+        let tabPage = new TabPage(id, Name=id)
+        do            
+            //create the managed watch viewer and add it to this managed plugin's collection
+            let managedWatchViewer = ManagedWatchViewer(id, watchViewer)
+            managedPlugin.ManagedWatchViewers.Add(managedWatchViewer)
+            
+            //when the managed watch viewer's container control is closed, remove it from this plugin's collection
+            //todo winforms tabs don't support native closing!
+            //tabPage.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
+            
+            //display the watch viewer
+            let watchViewerControl = managedWatchViewer.WatchViewer.Control
+            watchViewerControl.Dock <- DockStyle.Fill
+            tabPage.Controls.Add(watchViewerControl)
+        tabControl.TabPages.Add(tabPage)
+        tabControl.SelectTab(tabPage)
+        ()
+
+    ///Send the given label, value and type to the given, existing managed watch viewer.
+    member this.SendTo(managedWatchViewer:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
+        managedWatchViewer.WatchViewer.Watch(label, value, valueTy)
+        tabControl.SelectTab(managedWatchViewer.ID)
