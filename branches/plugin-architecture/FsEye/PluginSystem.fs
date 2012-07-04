@@ -39,54 +39,28 @@ type IPlugin =
     ///Create an instance of this plugin's watch viewer
     abstract CreateWatchViewer : unit -> IWatchViewer
 
-///Represents a plugin watchviewer being managed by the PluginManager
-type ManagedWatchViewer(id: string, watchViewer:IWatchViewer, managedPlugin:ManagedPlugin) =
+///Represents a plugin watch viewer being managed by the PluginManager
+type ManagedWatchViewer = {
     ///The unique ID of the watch viewer instance 
-    //todo: (this may be redundant if we just want to use the TabControl.Text, but that may be an implementation detail, and indeed we could implement it as such)
-    member __.ID = id
+    ID:string
     ///The watch viewer instance which is being managed
-    member __.WatchViewer = watchViewer
-
+    WatchViewer:IWatchViewer
     ///The owning ManagedPlugin
-    member __.ManagedPlugin = managedPlugin
-    ///The tab control containing the watch viewer control
-    //todo: consider naming it "Container" so that the implementation detail is not so coupled. indeed, we could make this return Control and cast to known type if we want to support multiple watch viewer container modes)
-    //todo: do we know we need this here?
-    //member __.ContainerControl = containerControl
-    override this.ToString() = this.ID
-    override this.Equals(other:obj) =
-        match other with
-        | :? ManagedWatchViewer as other -> this.ID = other.ID
-        | _ -> false
-    override this.GetHashCode() = this.ID.GetHashCode()
-    interface IComparable with
-        member this.CompareTo(other) =
-            match other with
-            | :? ManagedWatchViewer as other ->
-                this.ID.CompareTo(other.ID)
-            | _ -> invalidArg "Cannot compare a ManagedWatchViewer to an object of a differnt type" "other"
+    ManagedPlugin:ManagedPlugin
+}
 
 //todo: refactor so we don't expose mutable properties and methods that could result in invalid state.
 ///Represents a plugin being managed by the PluginManager
-and ManagedPlugin(plugin: IPlugin, tabControl:TabControl, pluginManager: PluginManager) =    
+and ManagedPlugin = {
     ///The plugin being managed
-    member __.Plugin = plugin
+    Plugin:IPlugin
+    ///The owning plugin manager
+    PluginManager:PluginManager
+}
+    with
+        ///The list of active watch viewers (i.e. watch viewers may be added and removed by the plugin manager)
+        member this.ManagedWatchViewers = this.PluginManager.ManagedWatchViewers |> Seq.filter (fun (x:ManagedWatchViewer) -> x.ManagedPlugin = this)
 
-    ///The list of active watch viewers (i.e. watch viewers may be added and removed by the plugin manager)
-    member this.ManagedWatchViewers = pluginManager.ManagedWatchViewers |> Seq.filter (fun (x:ManagedWatchViewer) -> x.ManagedPlugin = this)
-
-    override __.ToString() = plugin.Name + ", Version " + plugin.Version
-    override this.Equals(other:obj) =
-        match other with
-        | :? ManagedPlugin as other -> this.Plugin.Name = other.Plugin.Name
-        | _ -> false
-    override this.GetHashCode() = this.Plugin.Name.GetHashCode()
-    interface IComparable with
-        member this.CompareTo(other) =
-            match other with
-            | :? ManagedPlugin as other ->
-                this.Plugin.Name.CompareTo(other.Plugin.Name)
-            | _ -> invalidArg "Cannot compare a ManagedPlugin to an object of a differnt type" "other"
 
 ///Manages FsEye watch viewer plugins
 and PluginManager(tabControl:TabControl) as this =
@@ -101,7 +75,7 @@ and PluginManager(tabControl:TabControl) as this =
             |> Seq.collect (fun assembly -> assembly.GetTypes())
             |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
             |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
-            |> Seq.map (fun plugin -> ManagedPlugin(plugin, tabControl, this))
+            |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
             |> Seq.toList
         with x ->
             showErrorDialog tabControl.TopLevelControl x.Message "FsEye Plugin Loading Error"
@@ -127,7 +101,7 @@ and PluginManager(tabControl:TabControl) as this =
         let tabPage = new TabPage(id, Name=id)
         do            
             //create the managed watch viewer and add it to this managed plugin's collection
-            let managedWatchViewer = ManagedWatchViewer(id, watchViewer, managedPlugin)
+            let managedWatchViewer = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
             managedWatchViewers.Add(managedWatchViewer)
             
             //when the managed watch viewer's container control is closed, remove it from this plugin's collection
