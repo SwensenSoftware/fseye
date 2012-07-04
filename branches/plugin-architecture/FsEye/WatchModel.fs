@@ -32,10 +32,10 @@ type Root = { Text: string
               Value:obj
               Name: String }
 
-and Organizer = { OrganizerKind: Organizerkind
+and Organizer = { OrganizerKind: OrganizerKind
                   Children:seq<Watch> }
 
-and Organizerkind = 
+and OrganizerKind = 
     | Rest
     | NonPublic
 
