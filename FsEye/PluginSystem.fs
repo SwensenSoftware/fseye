@@ -19,10 +19,12 @@ open System.Reflection
 open System.IO
 open System
 
+//todo: rename IEye?
 ///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
 ///a custom watch viewer control
 type IWatchViewer =
-    ///Add or update a watch with the given name, value, and type.
+    ///Add or update a watch with the given label, value, and type. Note: you can choose to 
+    ///disregard the label and type if desired, but will almost certainly need the value.
     abstract Watch : string * 'a * System.Type -> unit
     ///The underlying watch viewer control. Exists as a property of IWatchViewer 
     ///since you may or may not own the control (i.e. you cannot directly implement IWatchViewer on the control).
@@ -68,13 +70,13 @@ type ManagedPlugin(plugin: IPlugin, tabControl:TabControl) =
     member __.ManagedWatchViewers = managedWatchViewers
 
     ///To the given target, where None is a new instance and Some(instanceId) indicates an existing instance with the given id,
-    ///send the given valueText, value, and valueType.
-    member this.SendTo(target: option<string>, valueText: string, value: obj, valueTy:System.Type) =
+    ///send the given label, value, and type.
+    member this.SendTo(target: option<string>, label: string, value: obj, valueTy:System.Type) =
         match target with
         | None -> //"new"
             //create the new watch viewer
             let watchViewer = plugin.CreateWatchViewer()
-            watchViewer.Watch(valueText, value, valueTy)
+            watchViewer.Watch(label, value, valueTy)
 
             //create the container control
             let title = sprintf "%s %i" plugin.Name (curIncrement <- curIncrement + 1 ; curIncrement)
@@ -98,19 +100,26 @@ type ManagedPlugin(plugin: IPlugin, tabControl:TabControl) =
             ()
         | Some(targetName) ->
             let targetManagedWatchViewer = this.ManagedWatchViewers |> Seq.find (fun x -> x.ID = targetName)
-            targetManagedWatchViewer.WatchViewer.Watch(valueText, value, valueTy)
+            targetManagedWatchViewer.WatchViewer.Watch(label, value, valueTy)
             tabControl.SelectTab(targetManagedWatchViewer.ID)
 
 ///Manages FsEye watch viewer plugins
 type PluginManager(tabControl:TabControl) =
+    let showErrorDialog (owner:IWin32Window) (text:string) (caption:string) =
+        MessageBox.Show(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
+    
     let managedPlugins = 
-        let pluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "plugins"
-        Directory.GetFiles(pluginDir)
-        |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
-        |> Seq.collect (fun assembly -> assembly.GetTypes())
-        |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
-        |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
-        |> Seq.map (fun plugin -> ManagedPlugin(plugin, tabControl))
-        |> Seq.toList
+        try
+            let pluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "plugins"
+            Directory.GetFiles(pluginDir)
+            |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
+            |> Seq.collect (fun assembly -> assembly.GetTypes())
+            |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
+            |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
+            |> Seq.map (fun plugin -> ManagedPlugin(plugin, tabControl))
+            |> Seq.toList
+        with x ->
+            showErrorDialog tabControl.TopLevelControl x.Message "FsEye Plugin Loading Error"
+            []
                                         
     member this.ManagedPlugins = managedPlugins

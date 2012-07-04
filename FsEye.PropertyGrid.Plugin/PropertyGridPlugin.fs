@@ -7,7 +7,7 @@ open System.Windows.Forms
 type PropertyGridWatchViewer() =
     inherit PropertyGrid()
     interface IWatchViewer with
-        ///Set or refresh the selected object with the given value (the name and tpe are not used).
+        ///Set or refresh the PropertyGride SelectedObject with the given value (the label and type are not currently used).
         member this.Watch(_, value, _) =
             this.SelectedObject <- value
         ///Get the underlying Control of this watch view
