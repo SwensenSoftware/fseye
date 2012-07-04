@@ -8,7 +8,7 @@ module Main =
     let initEye() =
         let eye = new Swensen.FsEye.Forms.WatchForm()
         eye.Watch("x", 3)  
-        eye.Watch("y", [1;2;3;4;5;6;7])      
+        eye.Watch("y", new System.Collections.Generic.List<int>(Seq.init 200 id))      
         eye
 
 
