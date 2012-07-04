@@ -51,6 +51,7 @@ type ManagedWatchViewer(id:string, watchViewer:IWatchViewer) =
     //todo: do we know we need this here?
     //member __.ContainerControl = containerControl
 
+//todo: refactor so we don't expose mutable properties and methods that could result in invalid state.
 ///Represents a plugin being managed by the PluginManager
 type ManagedPlugin(plugin: IPlugin, tabControl:TabControl) =
     ///The absolute number of watch viewer instances which have been created by the plugin manager (i.e. we want to keep incrementing to make unique managed watch viewer ID's even when managed watch viewers may have been removed).
