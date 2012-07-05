@@ -143,10 +143,11 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                                 | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
                                             loop cur.Parent
 
+                                        //todo: these regexes will fail if the member expression has spaces in it
                                         match cur.Text with
-                                        | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[x;iface;memberExpr]} -> //only intefaces need to be down casted
-                                            sprintf "(%s%s%s :> %s)" (loop parent) separator memberExpr iface
-                                        | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[x;y;memberExpr]} -> //base classes don't need to be down casted and may not be present
+                                        | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
+                                            sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
+                                        | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
                                             sprintf "%s%s%s" (loop parent) separator memberExpr
                                         | _ -> 
                                             invalidArg "Unexpected node case" "cur"
