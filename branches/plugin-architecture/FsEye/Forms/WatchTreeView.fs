@@ -157,9 +157,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                             
                                 | _ -> invalidArg "Unexpected node case" "cur"
                             lazy(loop tn)
-
-                        let forceLabel = label.Value
-                            
+    
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
