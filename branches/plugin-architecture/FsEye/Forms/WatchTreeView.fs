@@ -114,6 +114,8 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         //if the children take longer to load than the first force).
                         ///Calculate an label which is informative about the tree path of the watch being sent to a plugin watch viewer.
                         let label =
+                            //todo: should not fail hard in unexpected node cases, instead return something like "!error!" and write detailed message to a local log file 
+                            //use Trace API for now to help keep 3rd party libs out for now.
                             let rec loop (cur:TreeNode) = 
                                 match cur with
                                 | null -> "" //no need to rev since we want the list to start with the parent
@@ -131,17 +133,18 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                                 | _ -> "."
                                             | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
 
-                                        //don't treat Organizer or EnumeratorElements as parents
+                                        //don't treat Organizer or EnumeratorElements as parents (unless the EnumeratorElement is the immediate parent
                                         let parent =
-                                            let rec loop (cur:TreeNode) =
+                                            let rec loop (cur:TreeNode) depth =
                                                 match cur with
                                                 | null -> cur
                                                 | Watch parentWatch -> 
                                                     match parentWatch with
-                                                    | Organizer _ | EnumeratorElement _ -> loop cur.Parent
+                                                    | EnumeratorElement _ when depth = 0 -> cur
+                                                    | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
                                                     | _ -> cur
                                                 | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
-                                            loop cur.Parent
+                                            loop cur.Parent 0
 
                                         //todo: these regexes will fail if the member expression has spaces in it
                                         match cur.Text with
