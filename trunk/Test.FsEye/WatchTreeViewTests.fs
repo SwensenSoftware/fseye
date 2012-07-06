@@ -204,7 +204,6 @@ let ``new Watch initially adds dummy child node for lazy loading`` () =
 
 open ImpromptuInterface.FSharp
 
-//can't do this, we've gone too far (raises events, other very GUI stuff).
 [<Fact>]
 let ``after expanded, dummy watch child replaced with real children`` () =
     let tree = new WatchTreeView()
