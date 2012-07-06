@@ -21,15 +21,18 @@ open Swensen.Utils
 open Swensen.FsEye
 open Swensen.FsEye.WatchModel
 
+
 //Copy / Copy Value context Menu
 
 //for thoughts on cancellation:
 //http://stackoverflow.com/questions/5852317/how-to-cancel-individual-async-computation-being-run-in-parallel-with-others-fr
 
 ///A TreeView which binds to and manipulates a Watch model.
-type WatchTreeView() as this =
+///The PluginManager argument is only used for the primary FsEye WatchTreeView,
+///it should be None for WatchTreeViews hosted as plugins.
+type WatchTreeView(pluginManager: PluginManager option) as this =
     inherit TreeView()
-
+    
     static let requiresUIThread (ty:System.Type) =
         [typeof<System.Windows.Forms.Control>
          typeof<System.Windows.UIElement>] 
@@ -67,13 +70,6 @@ type WatchTreeView() as this =
             this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
         | _ -> failwith "TreeNode was not a Root Watch"
 
-    let createPropertyGridForm(value:obj, valueText:string) =
-        let pgForm = new Form(Text=valueText)
-        do
-            let pg = new PropertyGrid(Dock=DockStyle.Fill, SelectedObject=value)
-            pgForm.Controls.Add(pg)
-        pgForm
-
     let createNodeContextMenu (tn:TreeNode) = 
         new ContextMenu [|
             match tn with
@@ -92,7 +88,7 @@ type WatchTreeView() as this =
 
             match tn with
             | Watch(w) ->
-                let enabled = w.ValueText.IsSome
+                let enabled = w.ValueText.IsSome && w.Value.IsSome //should just group these together as one property
                 match w with
                 | Root _ ->
                     yield new MenuItem("-", Enabled=enabled)
@@ -110,14 +106,79 @@ type WatchTreeView() as this =
                         | _ -> ())
                     yield mi 
 
-                    let mi = new MenuItem("View PropertyGrid...", Enabled=enabled)
-                    mi.Click.Add(fun _ -> 
-                        match tn with
-                        | Watch(w) when w.Value.IsSome ->
-                            let pgForm = createPropertyGridForm(w.Value.Value, tn.Text)
-                            pgForm.Show(this.TopLevelControl) //control is on top of parent most form, but not modal.
-                        | _ -> ())
-                    yield mi 
+                    match pluginManager with
+                    | Some(pluginManager) ->
+
+                        //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
+                        //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
+                        //if the children take longer to load than the first force).
+                        ///Calculate an label which is informative about the tree path of the watch being sent to a plugin watch viewer.
+                        let label =
+                            //todo: should not fail hard in unexpected node cases, instead return something like "!error!" and write detailed message to a local log file 
+                            //use Trace API for now to help keep 3rd party libs out for now.
+                            let rec loop (cur:TreeNode) = 
+                                match cur with
+                                | null -> "" //no need to rev since we want the list to start with the parent
+                                | Archive -> sprintf "[%s] " tn.Text
+                                | Watch watch -> 
+                                    match watch with
+                                    | Root {Name=name} -> name
+                                    | _ ->
+                                        //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
+                                        let separator =
+                                            match cur.Parent with
+                                            | Watch parentWatch -> 
+                                                match parentWatch with
+                                                | Organizer {OrganizerKind=OrganizerKind.NonPublic} -> "?"
+                                                | _ -> "."
+                                            | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+
+                                        //don't treat Organizer or EnumeratorElements as parents (unless the EnumeratorElement is the immediate parent
+                                        let parent =
+                                            let rec loop (cur:TreeNode) depth =
+                                                match cur with
+                                                | null -> cur
+                                                | Watch parentWatch -> 
+                                                    match parentWatch with
+                                                    | EnumeratorElement _ when depth = 0 -> cur
+                                                    | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
+                                                    | _ -> cur
+                                                | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+                                            loop cur.Parent 0
+
+                                        //todo: these regexes will fail if the member expression has spaces in it
+                                        match cur.Text with
+                                        | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
+                                            sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
+                                        | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
+                                            sprintf "%s%s%s" (loop parent) separator memberExpr
+                                        | _ -> 
+                                            invalidArg "Unexpected node case" "cur"
+                                            
+                                | _ -> invalidArg "Unexpected node case" "cur"
+                            lazy(loop tn)
+    
+                        //issues 25 and 26 (plugin architecture and view property grid)
+                        let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
+                        for managedPlugin in pluginManager.ManagedPlugins do
+                            let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
+                            mi.MenuItems.Add(pluginMi) |> ignore
+
+                            do
+                                let watchViewerMi = new MenuItem("New")
+                                watchViewerMi.Click.Add(fun _ -> 
+                                    pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, null)) //todo: pass in value type
+                                pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                            do
+                                if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
+                                    pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
+                                    for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                        let watchViewerMi = new MenuItem(managedWatchViewer.ID)
+                                        watchViewerMi.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, w.Value.Value, null)) //todo: pass in value type 
+                                        pluginMi.MenuItems.Add(watchViewerMi) |> ignore
+                        
+                        yield mi 
+                    | None -> ()
             | _ -> () |]
     
     let mutable archiveCounter = 0
@@ -199,7 +260,7 @@ type WatchTreeView() as this =
                         | Some(a) -> yield a
                         | _ -> () |]
                 this.EndUpdate()
-                //N.B. deliberately excludeing Asyn.Start pipe-line from begin/end update 
+                //N.B. deliberately excluding Asyn.Start pipe-line from begin/end update 
                 //so child nodes have chance to expand before parallel updates start kicking off
                 asyncNodes
                 |> Async.Parallel 
@@ -243,6 +304,7 @@ type WatchTreeView() as this =
 
             il
     with
+        new() = new WatchTreeView(None)
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
                 let watch = createRootWatch tn.Name value ty

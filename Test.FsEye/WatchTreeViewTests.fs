@@ -202,14 +202,18 @@ let ``new Watch initially adds dummy child node for lazy loading`` () =
     test <@ tree.Nodes.[0].Nodes.Count = 1 @>
     test <@ tree.Nodes.[0].Nodes.[0].Text = dummyNodeText @>
 
+open ImpromptuInterface.FSharp
+
 //can't do this, we've gone too far (raises events, other very GUI stuff).
-//[<Fact>]
-//let ``after expanded, dummy watch child replaced with real children`` () =
-//    let tree = new WatchTreeView()
-//    tree.Watch("watch", [1;2;3;4;5])
-//    let button = new Button()
-//
-//    test <@ tree.Nodes.[0].Nodes.Count >= 1 @>
-//    test <@ tree.Nodes.[0].Nodes.[0].Text <> dummyNodeText @>
-//    test <@ tree.Nodes.[0].Nodes |> Seq.cast<TreeNode> |> Seq.forall (fun tn -> tn.Tag :? Watch) @>
+[<Fact>]
+let ``after expanded, dummy watch child replaced with real children`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", [1;2;3;4;5])
+
+    tree?OnAfterSelect(new TreeViewEventArgs(tree.Nodes.[0]))
+    tree?OnAfterExpand(new TreeViewEventArgs(tree.Nodes.[0]))
+    
+    test <@ tree.Nodes.[0].Nodes.Count >= 1 @>
+    test <@ tree.Nodes.[0].Nodes.[0].Text <> dummyNodeText @>
+    test <@ tree.Nodes.[0].Nodes |> Seq.cast<TreeNode> |> Seq.forall (fun tn -> tn.Tag :? Watch) @>
 

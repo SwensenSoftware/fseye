@@ -32,15 +32,16 @@ type Root = { Text: string
               Value:obj
               Name: String }
 
-and Organizer = { OrganizerKind: Organizerkind
+and Organizer = { OrganizerKind: OrganizerKind
                   Children:seq<Watch> }
 
-and Organizerkind = 
+and OrganizerKind = 
     | Rest
     | NonPublic
 
 and EnumeratorElement = { Text:string
                           Children:seq<Watch>
+                          Value:obj
                           ValueText:string}
 
 and DataMember = { LoadingText: string
@@ -96,6 +97,7 @@ and Watch =
             | Root {Value=v} -> Some(v)
             | DataMember {LazyMemberValue=CreatedValue({Value=Some(v)})} 
             | CallMember {LazyMemberValue=CreatedValue({Value=Some(v)})} -> Some(v)
+            | EnumeratorElement {Value=v}-> Some(v)
             | _ -> None
         member this.Image =
             match this with
@@ -198,6 +200,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 let children = createChildren value ty
                 EnumeratorElement { Text=text
                                     Children=children
+                                    Value = value
                                     ValueText=valueText }
             
             //yield 100  chunks
