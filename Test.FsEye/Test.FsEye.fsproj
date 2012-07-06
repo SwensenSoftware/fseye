@@ -61,8 +61,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WatchModelTests.fs" />
-    <Compile Include="WatchTreeViewTests.fs" />
+    <Compile Include="PluginManagerTests.fs" />
     <None Include="packages.config" />
+    <Compile Include="WatchTreeViewTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsEye\FsEye.fsproj">
