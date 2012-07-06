@@ -2,47 +2,40 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5f774bcf-2bed-428e-b2f5-2165eb7862e0}</ProjectGuid>
+    <ProjectGuid>{669bc59d-958a-4096-affe-7776cf68b46e}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Test.FsEye</RootNamespace>
-    <AssemblyName>Test.FsEye</AssemblyName>
+    <RootNamespace>FsEye.TreeView.Plugin</RootNamespace>
+    <AssemblyName>FsEye.TreeView.Plugin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>Test.FsEye</Name>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\code\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <Name>FsEye.TreeView.Plugin</Name>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\plugins</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Test.FsEye.XML</DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile>bin\Debug\FsEye.TreeView.Plugin.XML</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release\plugins</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Test.FsEye.XML</DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile>bin\Release\FsEye.TreeView.Plugin.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ImpromptuInterface">
-      <HintPath>..\packages\ImpromptuInterface.5.6.7\lib\net40\ImpromptuInterface.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ImpromptuInterface.FSharp">
-      <HintPath>..\packages\ImpromptuInterface.FSharp.1.1.0\lib\net40\ImpromptuInterface.FSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
@@ -50,19 +43,11 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="Unquote">
-      <HintPath>..\packages\Unquote.2.2.2\lib\net40\Unquote.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit">
-      <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WatchModelTests.fs" />
-    <Compile Include="WatchTreeViewTests.fs" />
-    <None Include="packages.config" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="TreeViewPlugin.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsEye\FsEye.fsproj">
@@ -70,15 +55,9 @@
       <Project>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Utils\Utils.fsproj">
-      <Name>Utils</Name>
-      <Project>{46b72fed-e4b4-4ce3-ae7b-97e43837ba2b}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">

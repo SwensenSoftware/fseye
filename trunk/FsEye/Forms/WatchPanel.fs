@@ -16,20 +16,30 @@ limitations under the License.
 namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
+open Swensen.FsEye
 
 type WatchPanel() as this =
-    inherit Panel()
-    let treeView = new WatchTreeView(Dock=DockStyle.Fill)
+    inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
     let asyncBreak = async {
         let! _ = Async.AwaitEvent continueButton.Click
         ()
     }
 
-    do        
-        //must tree view (with dockstyle fill) first in order for it to be flush with button panel
+    let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)        
+    let tabControl = new TabControl(Dock=DockStyle.Fill)
+    let pluginManager = new PluginManager(tabControl)
+    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
+    
+
+    do
+
+        splitContainer.Panel1.Controls.Add(treeView)
+        splitContainer.Panel2.Controls.Add(tabControl)
+
+        //must splitContainer (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
-        this.Controls.Add(treeView)
+        this.Controls.Add(splitContainer)
         do
             let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
             do
