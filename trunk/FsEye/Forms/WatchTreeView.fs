@@ -70,6 +70,52 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
         | _ -> failwith "TreeNode was not a Root Watch"
 
+    ///Calculate the "label" for the given node. i.e., the expression, starting from the root, from which the current node value is obtained. Used by the SendTo plugin.
+    let calcNodeLabel (tn:TreeNode) =
+        //todo: should not fail hard in unexpected node cases, instead return something like "!error!" and write detailed message to a local log file 
+        //use Trace API for now to help keep 3rd party libs out for now.
+        let rec loop (cur:TreeNode) = 
+            match cur with
+            | null -> "" //no need to rev since we want the list to start with the parent
+            | Archive -> sprintf "[%s] " tn.Text
+            | Watch watch -> 
+                match watch with
+                | Root {Name=name} -> name
+                | _ ->
+                    //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
+                    let separator =
+                        match cur.Parent with
+                        | Watch parentWatch -> 
+                            match parentWatch with
+                            | Organizer {OrganizerKind=OrganizerKind.NonPublic} -> "?"
+                            | _ -> "."
+                        | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+
+                    //don't treat Organizer or EnumeratorElements as parents (unless the EnumeratorElement is the immediate parent)
+                    let parent =
+                        let rec loop (cur:TreeNode) depth =
+                            match cur with
+                            | null -> cur
+                            | Watch parentWatch -> 
+                                match parentWatch with
+                                | EnumeratorElement _ when depth = 0 -> cur
+                                | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
+                                | _ -> cur
+                            | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+                        loop cur.Parent 0
+
+                    //todo: these regexes will fail if the member expression has spaces in it
+                    match cur.Text with
+                    | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
+                        sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
+                    | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
+                        sprintf "%s%s%s" (loop parent) separator memberExpr
+                    | _ -> 
+                        invalidArg "Unexpected node case" "cur"
+                                            
+            | _ -> invalidArg "Unexpected node case" "cur"
+        loop tn
+
     let createNodeContextMenu (tn:TreeNode) = 
         new ContextMenu [|
             match tn with
@@ -108,56 +154,11 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                     match pluginManager with
                     | Some(pluginManager) ->
-
                         //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
                         //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
                         //if the children take longer to load than the first force).
-                        ///Calculate an label which is informative about the tree path of the watch being sent to a plugin watch viewer.
-                        let label =
-                            //todo: should not fail hard in unexpected node cases, instead return something like "!error!" and write detailed message to a local log file 
-                            //use Trace API for now to help keep 3rd party libs out for now.
-                            let rec loop (cur:TreeNode) = 
-                                match cur with
-                                | null -> "" //no need to rev since we want the list to start with the parent
-                                | Archive -> sprintf "[%s] " tn.Text
-                                | Watch watch -> 
-                                    match watch with
-                                    | Root {Name=name} -> name
-                                    | _ ->
-                                        //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
-                                        let separator =
-                                            match cur.Parent with
-                                            | Watch parentWatch -> 
-                                                match parentWatch with
-                                                | Organizer {OrganizerKind=OrganizerKind.NonPublic} -> "?"
-                                                | _ -> "."
-                                            | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
+                        let label = lazy(calcNodeLabel tn)
 
-                                        //don't treat Organizer or EnumeratorElements as parents (unless the EnumeratorElement is the immediate parent
-                                        let parent =
-                                            let rec loop (cur:TreeNode) depth =
-                                                match cur with
-                                                | null -> cur
-                                                | Watch parentWatch -> 
-                                                    match parentWatch with
-                                                    | EnumeratorElement _ when depth = 0 -> cur
-                                                    | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
-                                                    | _ -> cur
-                                                | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
-                                            loop cur.Parent 0
-
-                                        //todo: these regexes will fail if the member expression has spaces in it
-                                        match cur.Text with
-                                        | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
-                                            sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
-                                        | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
-                                            sprintf "%s%s%s" (loop parent) separator memberExpr
-                                        | _ -> 
-                                            invalidArg "Unexpected node case" "cur"
-                                            
-                                | _ -> invalidArg "Unexpected node case" "cur"
-                            lazy(loop tn)
-    
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
