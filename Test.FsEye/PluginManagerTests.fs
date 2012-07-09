@@ -44,3 +44,11 @@ open ImpromptuInterface.FSharp
 //    pm.SendTo(
 //
 //    test <@ sendToLabel tn <> null @>
+
+[<Fact>]
+let ``root watch SendTo label value`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", [1;2;3;4;5])
+    let tn = tree.Nodes.[0]
+
+    test <@ tree?calcNodeLabel(tn) = "watch" @>
