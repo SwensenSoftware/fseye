@@ -69,14 +69,17 @@ and PluginManager(tabControl:TabControl) as this =
     
     let managedPlugins = 
         try
-            let pluginDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "plugins"
-            Directory.GetFiles(pluginDir)
-            |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
-            |> Seq.collect (fun assembly -> assembly.GetTypes())
-            |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
-            |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
-            |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
-            |> Seq.toList
+            let pluginDir = sprintf "%s%cplugins" (Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) Path.DirectorySeparatorChar
+            if Directory.Exists(pluginDir) then
+                Directory.GetFiles(pluginDir)
+                |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
+                |> Seq.collect (fun assembly -> assembly.GetTypes())
+                |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
+                |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
+                |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
+                |> Seq.toList
+            else
+                []
         with x ->
             showErrorDialog tabControl.TopLevelControl x.Message "FsEye Plugin Loading Error"
             []
