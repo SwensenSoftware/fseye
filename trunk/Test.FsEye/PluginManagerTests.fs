@@ -72,11 +72,31 @@ let findTreeNode (tree:TreeView) (path:string) =
             loop tn' parts'
             
     loop null parts
-        
 
 [<Fact>]
 let ``non virtual method SendTo label value`` () =
     let tree = new WatchTreeView()
     tree.Watch("watch", ResizeArray({1..5}))
-    let tn = findTreeNode tree "watch/ToArray"
+    let tn = findTreeNode tree "watch/ToArray()"
     test <@ tree?calcNodeLabel(tn) = "watch.ToArray()" @>
+
+[<Fact>]
+let ``base class virtual method SendTo label value`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..5}))
+    let tn = findTreeNode tree "watch/obj.ToString()"
+    test <@ tree?calcNodeLabel(tn) = "watch.ToString()" @>
+
+[<Fact>]
+let ``non virtual property SendTo label value`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..5}))
+    let tn = findTreeNode tree "watch/Count"
+    test <@ tree?calcNodeLabel(tn) = "watch.Count" @>
+
+[<Fact>]
+let ``interface virtual property SendTo label value`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..5}))
+    let tn = findTreeNode tree "watch/IList.IsFixedSize"
+    test <@ tree?calcNodeLabel(tn) = "(watch :> IList).IsFixedSize" @>
