@@ -67,7 +67,7 @@ type WatchForm() as this =
             watchPanel.ClearAll()
 
         ///<summary>
-        ///Use this in a sync block with do!, e.g.
+        ///Use this in an async block with do! to pause execution and activate the watch viewer, e.g.
         ///<para></para>
         ///<para>async { </para>
         ///<para>&#160;&#160;&#160;&#160;for i in 1..100 do</para>
