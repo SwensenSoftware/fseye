@@ -31,9 +31,6 @@ type WatchForm() as this =
     let watchPanel = new WatchPanel(Dock=DockStyle.Fill)
 
     do
-        //todo: this may be better added by the owning control...
-        ///prevent form from disposing when closing
-        this.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
         this.Controls.Add(watchPanel)
     with
         //a lot of delegation to treeView below -- not sure how to do this better

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *)
 //#r "FsEye.dll" //release deployment expects this file next to the dll
-//#r "bin/Release/FsEye.dll"
-//#load "bin\Release\FsEye.fsx"
+#r "bin/Release/FsEye.dll"
+#load "bin\Release\FsEye.fsx"
 #time
 #load "bin\Debug\FsEye.fsx"
 

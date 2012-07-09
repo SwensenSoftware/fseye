@@ -16,8 +16,12 @@ limitations under the License.
 namespace Swensen.FsEye.Fsi
 open Swensen.FsEye.Forms
 
+///Manages a WatchForm in the context of an FSI session listening for watch additions and updates and reflecting those in the WatchForm.
 type Eye() as this = 
     let mutable watchForm = new WatchForm()
+    do
+        ///prevent form from disposing when closing
+        watchForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
     
     ///Indicates whether or not FSI session listening is turned on
     let mutable listen = true
