@@ -26,7 +26,17 @@ type WatchPanel() as this =
         ()
     }
 
+    
     let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)        
+    //Auto-update splitter distance to a percentage on resize
+    let mutable splitterDistancePercentage = 0.5
+    do     
+        let updateSplitterDistancePercentage() = splitterDistancePercentage <- (float splitContainer.SplitterDistance) / (float splitContainer.Width)
+        let updateSplitterDistance() = splitContainer.SplitterDistance <- int ((float splitContainer.Width) * splitterDistancePercentage)
+        updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
+        splitContainer.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
+        this.SizeChanged.Add(fun _ -> updateSplitterDistance())
+
     let tabControl = new TabControl(Dock=DockStyle.Fill)
     let pluginManager = new PluginManager(tabControl)
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
