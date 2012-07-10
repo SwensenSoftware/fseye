@@ -209,6 +209,7 @@ let ``after expanded, dummy watch child replaced with real children`` () =
     let tree = new WatchTreeView()
     tree.Watch("watch", [1;2;3;4;5])
 
+    tree?OnAfterSelect(new TreeViewEventArgs(tree.Nodes.[0]))
     tree?OnAfterExpand(new TreeViewEventArgs(tree.Nodes.[0]))
     
     test <@ tree.Nodes.[0].Nodes.Count >= 1 @>
