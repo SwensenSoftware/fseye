@@ -56,8 +56,9 @@ let findTreeNode (tree:TreeView) (path:string) =
         match parts with
         | [] -> tn
         | p::parts' when tn = null -> //the root
-            let tn' = tryFind tree.Nodes p
-            loop tn'.Value parts'
+            match tryFind tree.Nodes p with
+            | Some(tn') -> loop tn' parts'
+            | None -> failwith "unexpected condition"
         | p::parts' ->
             //expand tn nodes in another thread so thread sleeping on this thread doesn't block loading work
             async {
@@ -65,13 +66,14 @@ let findTreeNode (tree:TreeView) (path:string) =
                 tree?OnAfterExpand(new TreeViewEventArgs(tn))
             } |> Async.RunSynchronously
 
-            //what for children to load
-            let mutable tn' = None : TreeNode option
-            while tn'.IsNone do
-                System.Threading.Thread.Sleep(120)    
-                tn' <- tryFind tn.Nodes p
-            
-            loop tn'.Value parts'
+            let rec waitLoop = function
+                | None ->
+                    System.Threading.Thread.Sleep(120)
+                    waitLoop (tryFind tn.Nodes p)
+                | Some(tn') -> tn'
+                    
+            let tn' = waitLoop None
+            loop tn' parts'
             
     loop null parts
 
