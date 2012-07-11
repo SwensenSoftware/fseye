@@ -43,11 +43,34 @@ type WatchPanel() as this =
     do
         let closeTab (tab:TabPage) = 
             pluginManager.RemoveManagedWatchViewer(tab.Name)
+
+        let closeOtherTabs (tab:TabPage) =
+            tabControl.TabPages
+            |> Seq.cast<TabPage>
+            |> Seq.filter (fun x -> x.Name <> tab.Name)
+            |> Seq.map (fun x -> x.Name)
+            |> Seq.toList
+            |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
+
+        let closeAllTabs () =
+            tabControl.TabPages
+            |> Seq.cast<TabPage>
+            |> Seq.map (fun x -> x.Name)
+            |> Seq.toList
+            |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
         
         let createTabContextMenu (tab:TabPage) =
             new ContextMenu [|
-                let mi = new MenuItem("Close") 
+                let mi = new MenuItem("Close Tab") 
                 mi.Click.Add(fun _ -> closeTab tab) 
+                yield mi
+
+                let mi = new MenuItem("Close Other Tabs") 
+                mi.Click.Add(fun _ -> closeOtherTabs tab) 
+                yield mi
+
+                let mi = new MenuItem("Close All Tabs") 
+                mi.Click.Add(fun _ -> closeAllTabs ()) 
                 yield mi
             |]
         
