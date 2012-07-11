@@ -123,3 +123,8 @@ and PluginManager(tabControl:TabControl) as this =
     member this.SendTo(managedWatchViewer:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
         managedWatchViewer.WatchViewer.Watch(label, value, valueTy)
         tabControl.SelectTab(managedWatchViewer.ID)
+
+    ///Remove the managed watch viewer by id
+    member this.RemoveManagedWatchViewer(id:string) =
+        managedWatchViewers.RemoveAll(fun x -> x.ID = id) |> ignore
+        tabControl.TabPages.RemoveByKey(id)

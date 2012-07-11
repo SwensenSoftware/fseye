@@ -39,6 +39,29 @@ type WatchPanel() as this =
 
     let tabControl = new TabControl(Dock=DockStyle.Fill)
     let pluginManager = new PluginManager(tabControl)
+    //wire up tab closing, coordinating with the plugin manager.
+    do
+        let closeTab (tab:TabPage) = 
+            pluginManager.RemoveManagedWatchViewer(tab.Name)
+        
+        let createTabContextMenu (tab:TabPage) =
+            new ContextMenu [|
+                let mi = new MenuItem("Close") 
+                mi.Click.Add(fun _ -> closeTab tab) 
+                yield mi
+            |]
+        
+        tabControl.MouseClick.Add (fun e -> 
+            if e.Button = MouseButtons.Right then                                                 
+                let clickedTab = 
+                    tabControl.TabPages 
+                    |> Seq.cast<TabPage> 
+                    |> Seq.mapi (fun i tab -> (i,tab)) 
+                    |> Seq.find (fun (i,tab) -> tabControl.GetTabRect(i).Contains(e.Location))
+                    |> snd
+                (createTabContextMenu clickedTab).Show(tabControl, e.Location))
+
+    
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
     
 
