@@ -100,9 +100,9 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                 //todo: these regexes will fail if the member expression has spaces in it
                 match cur.Text with
-                | Swensen.Utils.Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
+                | Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
                     sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
-                | Swensen.Utils.Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
+                | Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
                     sprintf "%s%s%s" (loop parent) separator memberExpr
                 | _ -> 
                     sprintf "%s%s%s" (loop parent) separator "[error]"
