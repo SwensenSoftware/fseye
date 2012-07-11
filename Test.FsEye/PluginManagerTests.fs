@@ -139,3 +139,11 @@ let ``watch label: private method`` () =
     tree.Watch("watch", ResizeArray({1..110}))
     let tn = findTreeNode tree "watch/GetEnumerator()/Rest/[103]"
     test <@ tree?calcNodeLabel(tn) = "watch.GetEnumerator().[103]" @>
+
+[<Fact>]
+let ``watch label: archive`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..5}))
+    tree.Archive()
+    let tn = findTreeNode tree "Archive (0)/watch"
+    test <@ tree?calcNodeLabel(tn) = "[Archive (0)] watch" @>

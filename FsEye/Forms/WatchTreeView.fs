@@ -77,10 +77,10 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
         let rec loop (cur:TreeNode) = 
             match cur with
             | null -> "" //no need to rev since we want the list to start with the parent
-            | Archive -> sprintf "[%s] " tn.Text
+            | Archive -> sprintf "[%s] " cur.Text
             | Watch watch -> 
                 match watch with
-                | Root {Name=name} -> name
+                | Root {Name=name} -> sprintf "%s%s" (loop cur.Parent) name
                 | _ ->
                     //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
                     let separator =
@@ -101,6 +101,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                 | EnumeratorElement _ when depth = 0 -> cur
                                 | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
                                 | _ -> cur
+                            | Archive _ -> cur
                             | _ -> invalidArg "Unexpected node case" "cur" //we know the parent is not null or an archive since we know cur is not a Root node
                         loop cur.Parent 0
 
