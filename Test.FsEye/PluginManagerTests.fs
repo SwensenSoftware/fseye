@@ -14,6 +14,9 @@ open System
 open System.Reflection
 open ImpromptuInterface.FSharp
 
+//todo: so far this is turning into a "tree view label tests" suite of tests. rename as appropriate. may find new applications for labels, 
+//like: Copy context menu option (as opposed to just Copy Value)
+
 //type MockWatchViewer() =
 //    let mutable result = "", new obj(), typeof<MockWatchViewer>
 //    interface IWatchViewer with
