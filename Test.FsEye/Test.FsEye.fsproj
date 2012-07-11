@@ -60,8 +60,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WatchModelTests.fs" />
     <None Include="packages.config" />
+    <Compile Include="WatchModelTests.fs" />
     <Compile Include="PluginManagerTests.fs" />
     <Compile Include="WatchTreeViewTests.fs" />
   </ItemGroup>
