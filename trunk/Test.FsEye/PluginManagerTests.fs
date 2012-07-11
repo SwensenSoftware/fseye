@@ -118,3 +118,24 @@ let ``watch label: non virtual method of interface virtual property`` () =
     tree.Watch("watch", ResizeArray({1..5}))
     let tn = findTreeNode tree "watch/IList.IsFixedSize/GetHashCode()"
     test <@ tree?calcNodeLabel(tn) = "(watch :> IList).IsFixedSize.GetHashCode()" @>
+
+[<Fact>]
+let ``watch label: enumerator element`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..5}))
+    let tn = findTreeNode tree "watch/Non-public/obj.MemberwiseClone()"
+    test <@ tree?calcNodeLabel(tn) = "watch?MemberwiseClone()" @>
+
+[<Fact>]
+let ``watch label: enumerator rest element`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..110}))
+    let tn = findTreeNode tree "watch/GetEnumerator()/Rest/[103]"
+    test <@ tree?calcNodeLabel(tn) = "watch.GetEnumerator().[103]" @>
+
+[<Fact>]
+let ``watch label: private method`` () =
+    let tree = new WatchTreeView()
+    tree.Watch("watch", ResizeArray({1..110}))
+    let tn = findTreeNode tree "watch/GetEnumerator()/Rest/[103]"
+    test <@ tree?calcNodeLabel(tn) = "watch.GetEnumerator().[103]" @>
