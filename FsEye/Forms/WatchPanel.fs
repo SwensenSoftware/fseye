@@ -26,8 +26,16 @@ type WatchPanel() as this =
         ()
     }
 
-    
     let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)        
+
+    let hidePanel2 () =
+        splitContainer.Panel2Collapsed <- true
+        splitContainer.Panel2.Hide()
+
+    let showPanel2 () =
+        splitContainer.Panel2Collapsed <- false
+        splitContainer.Panel2.Show()
+
     //Auto-update splitter distance to a percentage on resize
     let mutable splitterDistancePercentage = 0.5
     do     
@@ -36,6 +44,8 @@ type WatchPanel() as this =
         updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
         splitContainer.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
         this.SizeChanged.Add(fun _ -> updateSplitterDistance())
+
+        hidePanel2()
 
     let tabControl = new TabControl(Dock=DockStyle.Fill)
     let pluginManager = new PluginManager(tabControl)
@@ -58,6 +68,16 @@ type WatchPanel() as this =
             |> Seq.map (fun x -> x.Name)
             |> Seq.toList
             |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
+
+        pluginManager.WatchAdded.Add (fun _ -> 
+            if tabControl.TabCount > 0 && splitContainer.Panel2Collapsed then
+                showPanel2()
+        )
+        
+        pluginManager.WatchRemoved.Add (fun _ ->
+            if tabControl.TabCount = 0 && not splitContainer.Panel2Collapsed then
+                hidePanel2()
+        )
         
         let createTabContextMenu (tab:TabPage) =
             new ContextMenu [|

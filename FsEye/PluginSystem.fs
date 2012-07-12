@@ -64,6 +64,10 @@ and ManagedPlugin = {
 
 ///Manages FsEye watch viewer plugins
 and PluginManager(tabControl:TabControl) as this =
+    let watchAdded = new Event<ManagedWatchViewer>()
+    let watchUpdated = new Event<ManagedWatchViewer>()
+    let watchRemoved = new Event<ManagedWatchViewer>()
+
     let showErrorDialog (owner:IWin32Window) (text:string) (caption:string) =
         MessageBox.Show(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
     
@@ -85,10 +89,13 @@ and PluginManager(tabControl:TabControl) as this =
             []
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
-    
-    member this.ManagedPlugins = managedPlugins
-    member this.ManagedWatchViewers = managedWatchViewers |> Seq.readonly
 
+    member __.WatchAdded = watchAdded.Publish
+    member __.WatchUpdated = watchUpdated.Publish
+    member __.WatchRemoved = watchRemoved.Publish
+    
+    member __.ManagedPlugins = managedPlugins
+    member __.ManagedWatchViewers = managedWatchViewers |> Seq.readonly
 
     ///Create a new watch viewer for the given managed plugin, sending the given label, value and type
     member this.SendTo(managedPlugin:ManagedPlugin, label: string, value: obj, valueTy:System.Type) =
@@ -102,29 +109,33 @@ and PluginManager(tabControl:TabControl) as this =
             sprintf "%s %i" managedPlugin.Plugin.Name (count+1)
             
         let tabPage = new TabPage(id, Name=id)
-        do            
-            //create the managed watch viewer and add it to this managed plugin's collection
-            let managedWatchViewer = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
-            managedWatchViewers.Add(managedWatchViewer)
+        //create the managed watch viewer and add it to this managed plugin's collection
+        let managedWatchViewer = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
+        managedWatchViewers.Add(managedWatchViewer)
             
-            //when the managed watch viewer's container control is closed, remove it from this plugin's collection
-            //todo winforms tabs don't support native closing!
-            //tabPage.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
+        //when the managed watch viewer's container control is closed, remove it from this plugin's collection
+        //todo winforms tabs don't support native closing!
+        //tabPage.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
             
-            //display the watch viewer
-            let watchViewerControl = managedWatchViewer.WatchViewer.Control
-            watchViewerControl.Dock <- DockStyle.Fill
-            tabPage.Controls.Add(watchViewerControl)
+        //display the watch viewer
+        let watchViewerControl = managedWatchViewer.WatchViewer.Control
+        watchViewerControl.Dock <- DockStyle.Fill
+        tabPage.Controls.Add(watchViewerControl)
         tabControl.TabPages.Add(tabPage)
         tabControl.SelectTab(tabPage)
-        ()
+        watchAdded.Trigger(managedWatchViewer)
 
     ///Send the given label, value and type to the given, existing managed watch viewer.
     member this.SendTo(managedWatchViewer:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
         managedWatchViewer.WatchViewer.Watch(label, value, valueTy)
         tabControl.SelectTab(managedWatchViewer.ID)
+        watchUpdated.Trigger(managedWatchViewer)
 
     ///Remove the managed watch viewer by id
     member this.RemoveManagedWatchViewer(id:string) =
-        managedWatchViewers.RemoveAll(fun x -> x.ID = id) |> ignore
-        tabControl.TabPages.RemoveByKey(id)
+        let mwv = managedWatchViewers |> Seq.find(fun x -> x.ID = id)
+        managedWatchViewers.Remove(mwv) |> ignore
+        let tab = tabControl.TabPages.[id]
+        tab.Dispose() //http://stackoverflow.com/a/1970158/236255
+        tabControl.TabPages.Remove(tab)
+        watchRemoved.Trigger(mwv)
