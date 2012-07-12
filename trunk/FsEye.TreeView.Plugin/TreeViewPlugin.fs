@@ -1,5 +1,6 @@
 ﻿namespace Swensen.FsEye.Plugins
 
+open System
 open Swensen.FsEye
 open Swensen.FsEye.Forms
 open System.Windows.Forms
@@ -14,6 +15,9 @@ type TreeViewWatchViewer() =
 
 type TreeViewPlugin() =
     interface IPlugin with
-        member this.Version = "1.0"
+        ///"Tree View"
         member this.Name = "Tree View"
+        ///Creates and returns a new instance of a TreeViewWatchViewer
         member this.CreateWatchViewer() = new TreeViewWatchViewer() :> IWatchViewer
+        ///Always returns true.
+        member this.IsWatchable(ty:Type) = true

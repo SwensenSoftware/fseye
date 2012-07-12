@@ -1,5 +1,6 @@
 ﻿namespace Swensen.FsEye.Plugins
 
+open System
 open Swensen.FsEye
 open System.Windows.Forms
 open System.Drawing
@@ -34,7 +35,10 @@ type PropertyGridWatchViewer() =
 ///A Plugin that creates PropertyGridWatchViewers
 type PropertyGridPlugin() =
     interface IPlugin with
+        ///"Property Grid"
         member __.Name = "Property Grid"
-        member __.Version = "1.0"
         ///Create a new instance of a PropertyGridWatchViewer
         member __.CreateWatchViewer() = new PropertyGridWatchViewer() :> IWatchViewer
+        ///Returns true if and only if the given type has any public properties.
+        member this.IsWatchable(ty:Type) = 
+            ty.GetProperties().Length > 0
