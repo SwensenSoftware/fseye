@@ -108,21 +108,19 @@ and PluginManager(tabControl:TabControl) as this =
             let count = managedWatchViewers |> Seq.filter (fun x -> x.ManagedPlugin = managedPlugin) |> Seq.length
             sprintf "%s %i" managedPlugin.Plugin.Name (count+1)
             
-        let tabPage = new TabPage(id, Name=id)
+        
         //create the managed watch viewer and add it to this managed plugin's collection
         let managedWatchViewer = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
         managedWatchViewers.Add(managedWatchViewer)
             
-        //when the managed watch viewer's container control is closed, remove it from this plugin's collection
-        //todo winforms tabs don't support native closing!
-        //tabPage.Closing.Add(fun _ -> this.ManagedWatchViewers.Remove(managedWatchViewer) |> ignore)
-            
         //display the watch viewer
+        let tabPage = new TabPage(id, Name=id)
         let watchViewerControl = managedWatchViewer.WatchViewer.Control
         watchViewerControl.Dock <- DockStyle.Fill
         tabPage.Controls.Add(watchViewerControl)
         tabControl.TabPages.Add(tabPage)
         tabControl.SelectTab(tabPage)
+
         watchAdded.Trigger(managedWatchViewer)
 
     ///Send the given label, value and type to the given, existing managed watch viewer.
