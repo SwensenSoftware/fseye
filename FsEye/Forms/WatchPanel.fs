@@ -85,8 +85,8 @@ type WatchPanel() as this =
                 mi.Click.Add(fun _ -> closeTab tab) 
                 yield mi
 
-                let mi = new MenuItem("Close Other Tabs") 
-                mi.Click.Add(fun _ -> closeOtherTabs tab) 
+                let mi = new MenuItem("Close Other Tabs", Enabled=(tabControl.TabCount>1))
+                mi.Click.Add(fun _ -> closeOtherTabs tab)
                 yield mi
 
                 let mi = new MenuItem("Close All Tabs") 
