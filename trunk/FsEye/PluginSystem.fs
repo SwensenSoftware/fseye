@@ -35,7 +35,7 @@ type IPlugin =
     //The name of the plugin
     abstract Name : string
     //The version of the plugin
-    abstract Version : string
+    abstract Version : string //todo: this is probably superflous, we could just grab the plugin assembly meta data to get the version... unless we care that multiple plugins in the same assembly would all have the same version number
     ///Create an instance of this plugin's watch viewer
     abstract CreateWatchViewer : unit -> IWatchViewer
 
