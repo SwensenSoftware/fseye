@@ -26,7 +26,7 @@ type WatchPanel() as this =
         ()
     }
 
-    let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)        
+    let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)
 
     let hidePanel2 () =
         splitContainer.Panel2Collapsed <- true
@@ -106,14 +106,13 @@ type WatchPanel() as this =
 
     
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
-    
 
     do
 
         splitContainer.Panel1.Controls.Add(treeView)
         splitContainer.Panel2.Controls.Add(tabControl)
 
-        //must splitContainer (with dockstyle fill) first in order for it to be flush with button panel
+        //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
         this.Controls.Add(splitContainer)
         do
