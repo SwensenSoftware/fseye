@@ -154,7 +154,12 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
-                            let pluginMi = new MenuItem(managedPlugin.Plugin.Name)
+                            let isWatchable =
+                                let v = w.Value.Value
+                                let ty = if v =& null then typeof<obj> else v.GetType() //todo: temp hack until we get the type of the watch directly (i.e. we want the reflected type)
+                                managedPlugin.Plugin.IsWatchable(ty)
+
+                            let pluginMi = new MenuItem(managedPlugin.Plugin.Name, Enabled=isWatchable)
                             mi.MenuItems.Add(pluginMi) |> ignore
 
                             do

@@ -34,10 +34,11 @@ type IWatchViewer =
 type IPlugin =    
     //The name of the plugin
     abstract Name : string
-    //The version of the plugin
-    abstract Version : string //todo: this is probably superflous, we could just grab the plugin assembly meta data to get the version... unless we care that multiple plugins in the same assembly would all have the same version number
     ///Create an instance of this plugin's watch viewer
     abstract CreateWatchViewer : unit -> IWatchViewer
+    ///Returns true or false depending on whether an instance of the given type is watchable: if false,
+    ///then FsEye will not allow creating a watch for a value of the given type.
+    abstract IsWatchable : Type -> bool
 
 ///Represents a plugin watch viewer being managed by the PluginManager
 type ManagedWatchViewer = {
@@ -69,7 +70,7 @@ and PluginManager(tabControl:TabControl) as this =
     let watchRemoved = new Event<ManagedWatchViewer>()
 
     let showErrorDialog (owner:IWin32Window) (text:string) (caption:string) =
-        MessageBox.Show(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
+        MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
     
     let managedPlugins = 
         try
@@ -90,8 +91,11 @@ and PluginManager(tabControl:TabControl) as this =
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
 
+    [<CLIEvent>]
     member __.WatchAdded = watchAdded.Publish
+    [<CLIEvent>]
     member __.WatchUpdated = watchUpdated.Publish
+    [<CLIEvent>]
     member __.WatchRemoved = watchRemoved.Publish
     
     member __.ManagedPlugins = managedPlugins
