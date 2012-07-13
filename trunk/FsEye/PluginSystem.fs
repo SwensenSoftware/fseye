@@ -91,6 +91,14 @@ and PluginManager(tabControl:TabControl) as this =
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
 
+    ///absolute number of watch viewer instances created for the given plugin
+    let absoluteCounts = 
+        let dic = new System.Collections.Generic.Dictionary<ManagedPlugin, int>()
+        for plugin in managedPlugins do
+            dic.[plugin] <- 0
+
+        dic
+
     [<CLIEvent>]
     member __.WatchAdded = watchAdded.Publish
     [<CLIEvent>]
@@ -109,8 +117,9 @@ and PluginManager(tabControl:TabControl) as this =
 
         //create the container control
         let id = 
-            let count = managedWatchViewers |> Seq.filter (fun x -> x.ManagedPlugin = managedPlugin) |> Seq.length
-            sprintf "%s %i" managedPlugin.Plugin.Name (count+1)
+            let next = absoluteCounts.[managedPlugin] + 1
+            absoluteCounts.[managedPlugin] <- next
+            sprintf "%s %i" managedPlugin.Plugin.Name next
             
         
         //create the managed watch viewer and add it to this managed plugin's collection
