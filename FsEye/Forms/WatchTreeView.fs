@@ -137,11 +137,9 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                     ()
                 | _ ->
                     let mi = new MenuItem("Copy Value", Enabled=enabled)
-                    mi.Click.Add(fun _ -> 
-                        match tn with
-                        | Watch(w) when w.ValueText.IsSome ->
-                            Clipboard.SetText(w.ValueText.Value)
-                        | _ -> ())
+                    match w.ValueText with
+                    | Some(vtext) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
+                    | None -> ()
                     yield mi 
 
                     match pluginManager with
@@ -154,27 +152,35 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         //issues 25 and 26 (plugin architecture and view property grid)
                         let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
                         for managedPlugin in pluginManager.ManagedPlugins do
+                            //todo: temp hack until we get the type of the watch directly (i.e. we want the reflected type)
+                            let valueTy =                             
+                                match w.Value with
+                                | Some(value) ->
+                                    let ty = if value =& null then typeof<obj> else value.GetType()
+                                    Some(ty)
+                                | None -> None
+
                             let isWatchable =
-                                let v = w.Value.Value
-                                let ty = if v =& null then typeof<obj> else v.GetType() //todo: temp hack until we get the type of the watch directly (i.e. we want the reflected type)
-                                managedPlugin.Plugin.IsWatchable(ty)
+                                match valueTy with
+                                | Some(valueTy) ->
+                                    enabled && managedPlugin.Plugin.IsWatchable(valueTy)
+                                | _ -> false
 
                             let pluginMi = new MenuItem(managedPlugin.Plugin.Name, Enabled=isWatchable)
                             mi.MenuItems.Add(pluginMi) |> ignore
-
-                            do
+                            if isWatchable then
+                                //send to a new watch                                
                                 let watchViewerMi = new MenuItem("New")
                                 watchViewerMi.Click.Add(fun _ -> 
-                                    pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, null)) //todo: pass in value type
+                                    pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, valueTy.Value)) //todo: pass in value type
                                 pluginMi.MenuItems.Add(watchViewerMi) |> ignore
-                            do
+                                //send to an existing watch                                
                                 if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
                                     pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
                                     for managedWatchViewer in managedPlugin.ManagedWatchViewers do
                                         let watchViewerMi = new MenuItem(managedWatchViewer.ID)
-                                        watchViewerMi.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, w.Value.Value, null)) //todo: pass in value type 
+                                        watchViewerMi.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, w.Value.Value, valueTy.Value)) //todo: pass in value type 
                                         pluginMi.MenuItems.Add(watchViewerMi) |> ignore
-                        
                         yield mi 
                     | None -> ()
             | _ -> () |]
