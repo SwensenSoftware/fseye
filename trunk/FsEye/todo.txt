@@ -1,0 +1,16 @@
+﻿TODO 
+
+Issue 25, Plugin Architecture: 
+* Decouple TabContainer from PluginManager
+* Create PluginTabContainer control
+* Add optional ValueInfo property to Watch to include Value, Type, and Text
+* Add ExpressionInfo property to Watch to include Expression (e.g. [0], GetBla(), PropHere),
+  optional InterfaceName, IsNonPublic (or maybe IsPublic to avoid the double negative).
+* Refactor PluginManager: not happy yet, look for appropriate design patterns (i.e. we have the
+  PluginManager, ManagedPlugins, and ManagedWatchViewers that are tightly couple but we want to
+  limit mutable surface)
+* Consider whether we want IPlugin.IsWatchable to be Type -> bool or obj -> Type -> bool (where obj is
+  the actual obj instance of the watch candidate.
+
+Issue 26, PropertyGrid:
+* Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
