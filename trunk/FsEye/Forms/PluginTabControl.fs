@@ -81,8 +81,9 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
             mi.Click.Add(fun _ -> closeTab tab) 
             yield mi
 
-            let mi = new MenuItem("Close Other Tabs", Enabled=(this.TabCount>1))
-            mi.Click.Add(fun _ -> closeOtherTabs tab)
+            let mi = new MenuItem("Close Other Tabs")
+            if this.TabCount > 1 then mi.Click.Add(fun _ -> closeOtherTabs tab)
+            else mi.Enabled <- false
             yield mi
 
             let mi = new MenuItem("Close All Tabs") 
