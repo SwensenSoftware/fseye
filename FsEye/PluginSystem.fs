@@ -64,12 +64,12 @@ and ManagedPlugin = {
 
 
 ///Manages FsEye watch viewer plugins
-and PluginManager(tabControl:TabControl) as this =
+and PluginManager() as this =
     let watchAdded = new Event<ManagedWatchViewer>()
     let watchUpdated = new Event<ManagedWatchViewer>()
     let watchRemoved = new Event<ManagedWatchViewer>()
 
-    let showErrorDialog (owner:IWin32Window) (text:string) (caption:string) =
+    let showErrorDialog (text:string) (caption:string) =
         MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
     
     let managedPlugins = 
@@ -86,7 +86,7 @@ and PluginManager(tabControl:TabControl) as this =
             else
                 []
         with x ->
-            showErrorDialog tabControl.TopLevelControl x.Message "FsEye Plugin Loading Error"
+            showErrorDialog x.Message "FsEye Plugin Loading Error"
             []
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
@@ -123,30 +123,20 @@ and PluginManager(tabControl:TabControl) as this =
             
         
         //create the managed watch viewer and add it to this managed plugin's collection
-        let managedWatchViewer = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
-        managedWatchViewers.Add(managedWatchViewer)
+        let mwv = {ID=id;WatchViewer=watchViewer;ManagedPlugin=managedPlugin}
+        managedWatchViewers.Add(mwv)
             
-        //display the watch viewer
-        let tabPage = new TabPage(id, Name=id)
-        let watchViewerControl = managedWatchViewer.WatchViewer.Control
-        watchViewerControl.Dock <- DockStyle.Fill
-        tabPage.Controls.Add(watchViewerControl)
-        tabControl.TabPages.Add(tabPage)
-        tabControl.SelectTab(tabPage)
-
-        watchAdded.Trigger(managedWatchViewer)
+        watchAdded.Trigger(mwv)
 
     ///Send the given label, value and type to the given, existing managed watch viewer.
-    member this.SendTo(managedWatchViewer:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
-        managedWatchViewer.WatchViewer.Watch(label, value, valueTy)
-        tabControl.SelectTab(managedWatchViewer.ID)
-        watchUpdated.Trigger(managedWatchViewer)
+    member this.SendTo(mwv:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
+        mwv.WatchViewer.Watch(label, value, valueTy)
+        
+        watchUpdated.Trigger(mwv)
 
     ///Remove the managed watch viewer by id
     member this.RemoveManagedWatchViewer(id:string) =
         let mwv = managedWatchViewers |> Seq.find(fun x -> x.ID = id)
         managedWatchViewers.Remove(mwv) |> ignore
-        let tab = tabControl.TabPages.[id]
-        tab.Dispose() //http://stackoverflow.com/a/1970158/236255
-        tabControl.TabPages.Remove(tab)
+        
         watchRemoved.Trigger(mwv)

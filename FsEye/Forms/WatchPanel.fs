@@ -48,7 +48,7 @@ type WatchPanel() as this =
         hidePanel2()
 
     let tabControl = new TabControl(Dock=DockStyle.Fill)
-    let pluginManager = new PluginManager(tabControl)
+    let pluginManager = new PluginManager()
     //wire up tab closing, coordinating with the plugin manager.
     do
         let closeTab (tab:TabPage) = 
@@ -69,12 +69,28 @@ type WatchPanel() as this =
             |> Seq.toList
             |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
 
-        pluginManager.WatchAdded.Add (fun _ -> 
+        pluginManager.WatchUpdated.Add (fun mwv -> 
+            tabControl.SelectTab(mwv.ID)
+        )
+
+        pluginManager.WatchAdded.Add (fun mwv -> 
+            //display the watch viewer
+            let tabPage = new TabPage(mwv.ID, Name=mwv.ID)
+            let wvControl = mwv.WatchViewer.Control
+            wvControl.Dock <- DockStyle.Fill
+            tabPage.Controls.Add(wvControl)
+            tabControl.TabPages.Add(tabPage)
+            tabControl.SelectTab(tabPage)
+
             if tabControl.TabCount > 0 && splitContainer.Panel2Collapsed then
                 showPanel2()
         )
         
-        pluginManager.WatchRemoved.Add (fun _ ->
+        pluginManager.WatchRemoved.Add (fun mwv ->
+            let tab = tabControl.TabPages.[mwv.ID]
+            tab.Dispose() //http://stackoverflow.com/a/1970158/236255
+            tabControl.TabPages.Remove(tab)
+            
             if tabControl.TabCount = 0 && not splitContainer.Panel2Collapsed then
                 hidePanel2()
         )
