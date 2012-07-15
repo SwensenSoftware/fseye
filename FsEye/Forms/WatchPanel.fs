@@ -18,6 +18,91 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
 
+type PluginTabControl(pluginManager:PluginManager) as this =
+    inherit TabControl()
+
+    let tabAdded = new Event<TabPage>()
+    let tabRemoved = new Event<TabPage>()
+
+    //wire up tab closing, coordinating with the plugin manager.
+    let closeTab (tab:TabPage) = 
+        pluginManager.RemoveManagedWatchViewer(tab.Name)
+
+    let closeOtherTabs (tab:TabPage) =
+        this.TabPages
+        |> Seq.cast<TabPage>
+        |> Seq.filter (fun x -> x.Name <> tab.Name)
+        |> Seq.map (fun x -> x.Name)
+        |> Seq.toList
+        |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
+
+    let closeAllTabs () =
+        this.TabPages
+        |> Seq.cast<TabPage>
+        |> Seq.map (fun x -> x.Name)
+        |> Seq.toList
+        |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
+
+    //we may want to have WatchUpdating event and trigger select at that point rather than after
+    do pluginManager.WatchUpdated.Add (fun mwv -> 
+        this.SelectTab(mwv.ID)
+    )
+
+    do pluginManager.WatchAdded.Add (fun mwv -> 
+        //display the watch viewer
+        let tab = new TabPage(mwv.ID, Name=mwv.ID)
+        let wvControl = mwv.WatchViewer.Control
+        wvControl.Dock <- DockStyle.Fill
+        tab.Controls.Add(wvControl)
+        this.TabPages.Add(tab)
+
+        this.SelectTab(tab)
+        
+        tabAdded.Trigger(tab)
+    )
+        
+    do pluginManager.WatchRemoved.Add (fun mwv ->
+        let tab = this.TabPages.[mwv.ID]
+        tab.Dispose() //http://stackoverflow.com/a/1970158/236255
+        this.TabPages.Remove(tab)
+        
+        tabRemoved.Trigger(tab)
+    )
+        
+    let createTabContextMenu (tab:TabPage) =
+        new ContextMenu [|
+            let mi = new MenuItem("Close Tab") 
+            mi.Click.Add(fun _ -> closeTab tab) 
+            yield mi
+
+            let mi = new MenuItem("Close Other Tabs", Enabled=(this.TabCount>1))
+            mi.Click.Add(fun _ -> closeOtherTabs tab)
+            yield mi
+
+            let mi = new MenuItem("Close All Tabs") 
+            mi.Click.Add(fun _ -> closeAllTabs ()) 
+            yield mi
+        |]
+        
+    //show the context menu on right-click
+    do this.MouseClick.Add (fun e -> 
+        if e.Button = MouseButtons.Right then                                                 
+            let clickedTab = 
+                this.TabPages 
+                |> Seq.cast<TabPage> 
+                |> Seq.mapi (fun i tab -> (i,tab)) 
+                |> Seq.find (fun (i,tab) -> this.GetTabRect(i).Contains(e.Location))
+                |> snd
+            (createTabContextMenu clickedTab).Show(this, e.Location)
+    )
+
+    [<CLIEvent>]
+    ///Fires when a plugin tab has been added (but not if you manually add a tab)
+    member __.TabAdded = tabAdded.Publish
+    [<CLIEvent>]
+    ///Fires when a plugin tab has been removed (but not if you manually add a tab)
+    member __.TabRemoved = tabRemoved.Publish
+
 type WatchPanel() as this =
     inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
@@ -26,6 +111,9 @@ type WatchPanel() as this =
         ()
     }
 
+    let pluginManager = new PluginManager()
+    let tabControl = new PluginTabControl(pluginManager, Dock=DockStyle.Fill)
+    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
     let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)
 
     let hidePanel2 () =
@@ -35,6 +123,16 @@ type WatchPanel() as this =
     let showPanel2 () =
         splitContainer.Panel2Collapsed <- false
         splitContainer.Panel2.Show()
+
+    do tabControl.TabAdded.Add(fun _ ->
+        if tabControl.TabCount > 0 && splitContainer.Panel2Collapsed then
+            showPanel2()
+    )
+
+    do tabControl.TabRemoved.Add(fun _ ->
+        if tabControl.TabCount = 0 && not splitContainer.Panel2Collapsed then
+            hidePanel2()
+    )
 
     //Auto-update splitter distance to a percentage on resize
     let mutable splitterDistancePercentage = 0.5
@@ -47,85 +145,8 @@ type WatchPanel() as this =
 
         hidePanel2()
 
-    let tabControl = new TabControl(Dock=DockStyle.Fill)
-    let pluginManager = new PluginManager()
-    //wire up tab closing, coordinating with the plugin manager.
+    //build up the component tree
     do
-        let closeTab (tab:TabPage) = 
-            pluginManager.RemoveManagedWatchViewer(tab.Name)
-
-        let closeOtherTabs (tab:TabPage) =
-            tabControl.TabPages
-            |> Seq.cast<TabPage>
-            |> Seq.filter (fun x -> x.Name <> tab.Name)
-            |> Seq.map (fun x -> x.Name)
-            |> Seq.toList
-            |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
-
-        let closeAllTabs () =
-            tabControl.TabPages
-            |> Seq.cast<TabPage>
-            |> Seq.map (fun x -> x.Name)
-            |> Seq.toList
-            |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
-
-        //we may want to have WatchUpdating event and trigger select at that point rather than after
-        pluginManager.WatchUpdated.Add (fun mwv -> 
-            tabControl.SelectTab(mwv.ID)
-        )
-
-        pluginManager.WatchAdded.Add (fun mwv -> 
-            //display the watch viewer
-            let tabPage = new TabPage(mwv.ID, Name=mwv.ID)
-            let wvControl = mwv.WatchViewer.Control
-            wvControl.Dock <- DockStyle.Fill
-            tabPage.Controls.Add(wvControl)
-            tabControl.TabPages.Add(tabPage)
-            tabControl.SelectTab(tabPage)
-
-            if tabControl.TabCount > 0 && splitContainer.Panel2Collapsed then
-                showPanel2()
-        )
-        
-        pluginManager.WatchRemoved.Add (fun mwv ->
-            let tab = tabControl.TabPages.[mwv.ID]
-            tab.Dispose() //http://stackoverflow.com/a/1970158/236255
-            tabControl.TabPages.Remove(tab)
-            
-            if tabControl.TabCount = 0 && not splitContainer.Panel2Collapsed then
-                hidePanel2()
-        )
-        
-        let createTabContextMenu (tab:TabPage) =
-            new ContextMenu [|
-                let mi = new MenuItem("Close Tab") 
-                mi.Click.Add(fun _ -> closeTab tab) 
-                yield mi
-
-                let mi = new MenuItem("Close Other Tabs", Enabled=(tabControl.TabCount>1))
-                mi.Click.Add(fun _ -> closeOtherTabs tab)
-                yield mi
-
-                let mi = new MenuItem("Close All Tabs") 
-                mi.Click.Add(fun _ -> closeAllTabs ()) 
-                yield mi
-            |]
-        
-        tabControl.MouseClick.Add (fun e -> 
-            if e.Button = MouseButtons.Right then                                                 
-                let clickedTab = 
-                    tabControl.TabPages 
-                    |> Seq.cast<TabPage> 
-                    |> Seq.mapi (fun i tab -> (i,tab)) 
-                    |> Seq.find (fun (i,tab) -> tabControl.GetTabRect(i).Contains(e.Location))
-                    |> snd
-                (createTabContextMenu clickedTab).Show(tabControl, e.Location))
-
-    
-    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
-
-    do
-
         splitContainer.Panel1.Controls.Add(treeView)
         splitContainer.Panel2.Controls.Add(tabControl)
 
