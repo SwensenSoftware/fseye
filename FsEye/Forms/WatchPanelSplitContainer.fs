@@ -22,7 +22,7 @@ open Swensen.FsEye
 ///When no plugin watch viewers are active, the right panel is hidden, otherwise it is shown, reacting to tabs as they 
 ///are added and remove. By default the size of each is 50% on each size, but it persists the percentage set by the
 ///user scaling on resize. This internal component is used by the WatchPanel.
-type internal WatchPluginSplitContainer(pluginManager:PluginManager) as this =
+type internal WatchPanelSplitContainer(pluginManager:PluginManager) as this =
     inherit SplitContainer(Orientation=Orientation.Vertical)
 
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
