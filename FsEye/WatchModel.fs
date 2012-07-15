@@ -20,6 +20,7 @@ open Microsoft.FSharp.Reflection
 open Swensen.Utils
 
 
+///let l be the lazy:'a arg, returns Some(l.Value) if l.IsValueCreated, else returns None.
 let (|CreatedValue|_|) (l:'a Lazy) =
     if l.IsValueCreated then Some(l.Value)
     else None
@@ -28,8 +29,7 @@ let (|CreatedValue|_|) (l:'a Lazy) =
 
 type Root = { Text: string
               Children:seq<Watch>
-              ValueText:string
-              Value:obj
+              ValueInfo:ValueInfo
               Name: String }
 
 and Organizer = { OrganizerKind: OrganizerKind
@@ -41,8 +41,7 @@ and OrganizerKind =
 
 and EnumeratorElement = { Text:string
                           Children:seq<Watch>
-                          Value:obj
-                          ValueText:string}
+                          ValueInfo:ValueInfo }
 
 and DataMember = { LoadingText: string
                    LazyMemberValue: Lazy<MemberValue>
@@ -57,8 +56,11 @@ and CallMember = { InitialText: string
 
 and MemberValue = { Text: string
                     Children:seq<Watch>
-                    ValueText: string option 
-                    Value: obj option }
+                    ValueInfo: ValueInfo option }
+
+and ValueInfo = { Text: string
+                  Value: obj
+                  Type : Type }
 
 and Watch =
     | Root              of Root
@@ -85,19 +87,12 @@ and Watch =
             | EnumeratorElement {Children=children} -> children
             | CallMember {LazyMemberValue=l} 
             | DataMember {LazyMemberValue=l} -> l.Value.Children
-        member this.ValueText =
+        member this.ValueInfo =
             match this with
-            | Root {ValueText=vt}
-            | DataMember {LazyMemberValue=CreatedValue({ValueText=Some(vt)})} 
-            | CallMember {LazyMemberValue=CreatedValue({ValueText=Some(vt)})} 
-            | EnumeratorElement {ValueText=vt}-> Some(vt)
-            | _ -> None
-        member this.Value =
-            match this with
-            | Root {Value=v} -> Some(v)
-            | DataMember {LazyMemberValue=CreatedValue({Value=Some(v)})} 
-            | CallMember {LazyMemberValue=CreatedValue({Value=Some(v)})} -> Some(v)
-            | EnumeratorElement {Value=v}-> Some(v)
+            | Root {ValueInfo=vi} 
+            | EnumeratorElement {ValueInfo=vi}-> Some(vi)
+            | DataMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} 
+            | CallMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} -> optionalVi
             | _ -> None
         member this.Image =
             match this with
@@ -200,8 +195,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 let children = createChildren value ty
                 EnumeratorElement { Text=text
                                     Children=children
-                                    Value = value
-                                    ValueText=valueText }
+                                    ValueInfo={Text=valueText; Value=value; Type=ty} }
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -229,14 +223,12 @@ let rec createChildren ownerValue (ownerTy:Type) =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
                 { MemberValue.Text=pretext valueTy.FSharpName ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
-                  ValueText=None 
-                  Value=None }
+                  ValueInfo=None }
             else
                 let valueText = sprintValue value valueTy
                 { Text=pretext valueTy.FSharpName (" = " + valueText)
                   Children=(createChildren value valueTy)
-                  ValueText=Some(valueText) 
-                  Value=Some(value) }
+                  ValueInfo=Some({Text=valueText; Value=value; Type=valueTy}) }
 
         let loadingText = " = Loading..."
 
@@ -352,6 +344,5 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
     let children = createChildren value ty
     Root { Text=text
            Children=children
-           Value=value
-           Name=name
-           ValueText=valueText }
+           ValueInfo={Text=valueText; Value=value; Type=ty}
+           Name=name }

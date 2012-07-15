@@ -66,8 +66,8 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
     ///for Root Watches).
     let refresh (node:TreeNode) =
         match node with
-        | Watch(Root(info)) as watch ->
-            this.UpdateWatch(node, info.Value, if info.Value =& null then null else info.Value.GetType())
+        | Watch(Root({ValueInfo=vi})) ->
+            this.UpdateWatch(node, vi.Value, vi.Type)
         | _ -> failwith "TreeNode was not a Root Watch"
 
     ///Calculate the "label" for the given node. i.e., the expression, starting from the root, from which the current node value is obtained. Used by the SendTo plugin.
@@ -126,69 +126,59 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
             match tn with
             | Watch(w) ->
-                let enabled = w.ValueText.IsSome && w.Value.IsSome //should just group these together as one property
                 match w with
                 | Root _ ->
-                    yield new MenuItem("-", Enabled=enabled)
+                    yield new MenuItem("-") //n.b. for root watches, ValueInfo is always Some
                 | _ -> ()
 
-                match w with
-                | Organizer _ -> //issue 27
-                    ()
-                | _ ->
-                    let mi = new MenuItem("Copy Value", Enabled=enabled)
-                    match w.ValueText with
-                    | Some(vtext) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
-                    | None -> ()
-                    yield mi 
+                let mi = new MenuItem("Copy Value")
+                match w.ValueInfo with
+                | Some({Text=vtext}) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
+                | None -> mi.Enabled <- false
+                yield mi 
 
-                    match pluginManager with
-                    | Some(pluginManager) ->
-                        //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
-                        //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
-                        //if the children take longer to load than the first force).
-                        let label = lazy(calcNodeLabel tn)
+                match pluginManager with
+                | Some(pluginManager) ->
+                    //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
+                    //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
+                    //if the children take longer to load than the first force).
+                    let label = lazy(calcNodeLabel tn)
 
-                        //issues 25 and 26 (plugin architecture and view property grid)
-                        let mi = new MenuItem("Send To", Enabled=(enabled && (pluginManager.ManagedPlugins.Length > 0)))
-                        for managedPlugin in pluginManager.ManagedPlugins do
-                            //todo: temp hack until we get the type of the watch directly (i.e. we want the reflected type)
-                            let valueTy =                             
-                                match w.Value with
-                                | Some(value) ->
-                                    let ty = if value =& null then typeof<obj> else value.GetType()
-                                    Some(ty)
-                                | None -> None
-
-                            let isWatchable =
-                                match valueTy with
-                                | Some(valueTy) ->
-                                    enabled && managedPlugin.Plugin.IsWatchable(valueTy)
-                                | _ -> false
-
-                            let pluginMi = new MenuItem(managedPlugin.Plugin.Name, Enabled=isWatchable)
-                            mi.MenuItems.Add(pluginMi) |> ignore
-                            if isWatchable then
-                                //send to a new watch                                
-                                let watchViewerMi = new MenuItem("New")
-                                watchViewerMi.Click.Add(fun _ -> 
-                                    pluginManager.SendTo(managedPlugin, label.Value, w.Value.Value, valueTy.Value)) //todo: pass in value type
-                                pluginMi.MenuItems.Add(watchViewerMi) |> ignore
-                                //send to an existing watch                                
-                                if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
-                                    pluginMi.MenuItems.Add(new MenuItem("-", Enabled=enabled)) |> ignore
-                                    for managedWatchViewer in managedPlugin.ManagedWatchViewers do
-                                        let watchViewerMi = new MenuItem(managedWatchViewer.ID)
-                                        watchViewerMi.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, w.Value.Value, valueTy.Value)) //todo: pass in value type 
-                                        pluginMi.MenuItems.Add(watchViewerMi) |> ignore
-                        yield mi 
-                    | None -> ()
+                    //issues 25 and 26 (plugin architecture and view property grid)
+                    let miSendTo = new MenuItem("Send To")
+                    match w.ValueInfo with
+                    | Some(vi) when pluginManager.ManagedPlugins.Length > 0 ->
+                        miSendTo.MenuItems.AddRange [|
+                            for managedPlugin in pluginManager.ManagedPlugins do
+                                let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
+                                if managedPlugin.Plugin.IsWatchable(vi.Type) then
+                                    miPlugin.MenuItems.AddRange [|
+                                        //send to a new watch                                
+                                        let miWatchViewer = new MenuItem("New")
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Value, vi.Value, vi.Type))
+                                        yield miWatchViewer
+                                        //send to an existing watch                                
+                                        if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
+                                            yield new MenuItem("-")
+                                            for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                                let miWatchViewer = new MenuItem(managedWatchViewer.ID)
+                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, vi.Value, vi.Type))
+                                                yield miWatchViewer
+                                    |]
+                                else 
+                                    miPlugin.Enabled <- false
+                                yield miPlugin 
+                        |]
+                    | _ -> 
+                        miSendTo.Enabled <- false
+                    yield miSendTo
+                | None -> ()
             | _ -> () |]
     
     let mutable archiveCounter = 0
 
     ///Constructs an async expression used for updating the given TreeNode with values from the given Lazy<Custom>.
-    let loadWatchAsync guiContext (tn:TreeNode) (lz:Lazy<_>) addDummy =
+    let loadWatchAsync guiContext (tn:TreeNode) (lz:Lazy<MemberValue>) addDummy =
         async {
             let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
             let text = lz.Value.Text
@@ -334,7 +324,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                 |> Seq.tryFind (fun tn -> tn.Name = name)
 
             match objNode with
-            | Some(Watch(Root(info)) as tn) when info.Value <>& value -> 
+            | Some(Watch(Root({ValueInfo=vi})) as tn) when vi.Value <>& value -> 
                 this.UpdateWatch(tn, value, ty)
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()

@@ -58,7 +58,7 @@ let ``calling Watch with an existing name and different value replaces previous 
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).Value :?> int) = 2 @>
+    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).ValueInfo.Value :?> int) = 2 @>
 
 [<Fact>]
 let ``calling Watch with an existing name and same reference does nothing`` () =
@@ -69,7 +69,7 @@ let ``calling Watch with an existing name and same reference does nothing`` () =
     
     test <@ tree.Nodes.Count = 1 @>
     test <@ tree.Nodes.Find("w1", false).Length = 1 @>
-    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).Value :?> string) =& value @>
+    test <@ ((tree.Nodes.Find("w1", false).[0] |> asRoot).ValueInfo.Value :?> string) =& value @>
 
 [<Fact>]
 let ``create empty Archive with explicit label`` () =
