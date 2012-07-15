@@ -69,6 +69,7 @@ type WatchPanel() as this =
             |> Seq.toList
             |> Seq.iter (fun id -> pluginManager.RemoveManagedWatchViewer(id))
 
+        //we may want to have WatchUpdating event and trigger select at that point rather than after
         pluginManager.WatchUpdated.Add (fun mwv -> 
             tabControl.SelectTab(mwv.ID)
         )
