@@ -61,6 +61,7 @@
     <Compile Include="WatchModel.fs" />
     <Compile Include="PluginSystem.fs" />
     <Compile Include="Forms\WatchTreeView.fs" />
+    <Compile Include="Forms\PluginTabControl.fs" />
     <Compile Include="Forms\WatchPanel.fs" />
     <Compile Include="Forms\WatchForm.fs" />
     <Compile Include="Fsi\SessionQueries.fs" />
