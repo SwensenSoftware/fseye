@@ -18,6 +18,51 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
 
+type internal WatchPluginSplitContainer(pluginManager:PluginManager) as this =
+    inherit SplitContainer(Orientation=Orientation.Vertical)
+
+    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
+    let tabControl = new PluginTabControl(pluginManager, Dock=DockStyle.Fill)
+
+    let hidePanel2 () =
+        this.Panel2Collapsed <- true
+        this.Panel2.Hide()
+
+    let showPanel2 () =
+        this.Panel2Collapsed <- false
+        this.Panel2.Show()
+
+    do tabControl.TabAdded.Add(fun _ ->
+        if tabControl.TabCount > 0 && this.Panel2Collapsed then
+            showPanel2()
+    )
+
+    do tabControl.TabRemoved.Add(fun _ ->
+        if tabControl.TabCount = 0 && not this.Panel2Collapsed then
+            hidePanel2()
+    )
+
+    //Auto-update splitter distance to a percentage on resize
+    let mutable splitterDistancePercentage = 0.5
+    do     
+        let updateSplitterDistancePercentage() = splitterDistancePercentage <- (float this.SplitterDistance) / (float this.Width)
+        let updateSplitterDistance() = this.SplitterDistance <- int ((float this.Width) * splitterDistancePercentage)
+        updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
+        this.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
+        this.SizeChanged.Add(fun _ -> updateSplitterDistance())
+
+        hidePanel2()
+
+    //build up the component tree
+    do
+        this.Panel1.Controls.Add(treeView)
+        this.Panel2.Controls.Add(tabControl)
+
+    ///The left panel control
+    member this.TreeView = treeView
+    ///The right panel control
+    member this.TabControl = tabControl
+
 type WatchPanel() as this =
     inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
@@ -26,45 +71,10 @@ type WatchPanel() as this =
         ()
     }
 
-    let pluginManager = new PluginManager()
-    let tabControl = new PluginTabControl(pluginManager, Dock=DockStyle.Fill)
-    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
-    let splitContainer = new SplitContainer(Dock=DockStyle.Fill, Orientation=Orientation.Vertical)
+    let pluginManager = new PluginManager() //todo: only the Eye should own this resource
+    let splitContainer = new WatchPluginSplitContainer(pluginManager, Dock=DockStyle.Fill)
 
-    let hidePanel2 () =
-        splitContainer.Panel2Collapsed <- true
-        splitContainer.Panel2.Hide()
-
-    let showPanel2 () =
-        splitContainer.Panel2Collapsed <- false
-        splitContainer.Panel2.Show()
-
-    do tabControl.TabAdded.Add(fun _ ->
-        if tabControl.TabCount > 0 && splitContainer.Panel2Collapsed then
-            showPanel2()
-    )
-
-    do tabControl.TabRemoved.Add(fun _ ->
-        if tabControl.TabCount = 0 && not splitContainer.Panel2Collapsed then
-            hidePanel2()
-    )
-
-    //Auto-update splitter distance to a percentage on resize
-    let mutable splitterDistancePercentage = 0.5
-    do     
-        let updateSplitterDistancePercentage() = splitterDistancePercentage <- (float splitContainer.SplitterDistance) / (float splitContainer.Width)
-        let updateSplitterDistance() = splitContainer.SplitterDistance <- int ((float splitContainer.Width) * splitterDistancePercentage)
-        updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
-        splitContainer.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
-        this.SizeChanged.Add(fun _ -> updateSplitterDistance())
-
-        hidePanel2()
-
-    //build up the component tree
     do
-        splitContainer.Panel1.Controls.Add(treeView)
-        splitContainer.Panel2.Controls.Add(tabControl)
-
         //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
         //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
         this.Controls.Add(splitContainer)
@@ -95,31 +105,31 @@ type WatchPanel() as this =
 
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value, ty) =
-            treeView.Watch(name, value, ty)
+            splitContainer.TreeView.Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value.
         member this.Watch(name, value) =
-            treeView.Watch(name,value)
+            splitContainer.TreeView.Watch(name,value)
 
         ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
-            treeView.Archive(label)
+            splitContainer.TreeView.Archive(label)
 
         ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = 
-            treeView.Archive()
+            splitContainer.TreeView.Archive()
 
         ///Clear all archives and reset the archive count.        
         member this.ClearArchives() = 
-            treeView.ClearArchives()
+            splitContainer.TreeView.ClearArchives()
 
         ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() = 
-            treeView.ClearWatches()
+            splitContainer.TreeView.ClearWatches()
 
         ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
-            treeView.ClearAll()
+            splitContainer.TreeView.ClearAll()
 
         //note: would like to use [<DebuggerBrowsable(DebuggerBrowsableState.Never)>]
         //on the following two Async methods but the attribute is not valid on methods
