@@ -2,7 +2,7 @@
 
 Issue 25, Plugin Architecture: 
 * DONE Decouple TabContainer from PluginManager
-* Create PluginTabContainer control
+* DONE Create PluginTabContainer control
 * Add optional ValueInfo property to Watch to include Value, Type, and Text
 * Add ExpressionInfo property to Watch to include Expression (e.g. [0], GetBla(), PropHere),
   optional InterfaceName, IsNonPublic (or maybe IsPublic to avoid the double negative).
