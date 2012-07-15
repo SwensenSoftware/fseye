@@ -18,51 +18,6 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
 
-type internal WatchPluginSplitContainer(pluginManager:PluginManager) as this =
-    inherit SplitContainer(Orientation=Orientation.Vertical)
-
-    let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
-    let tabControl = new PluginTabControl(pluginManager, Dock=DockStyle.Fill)
-
-    let hidePanel2 () =
-        this.Panel2Collapsed <- true
-        this.Panel2.Hide()
-
-    let showPanel2 () =
-        this.Panel2Collapsed <- false
-        this.Panel2.Show()
-
-    do tabControl.TabAdded.Add(fun _ ->
-        if tabControl.TabCount > 0 && this.Panel2Collapsed then
-            showPanel2()
-    )
-
-    do tabControl.TabRemoved.Add(fun _ ->
-        if tabControl.TabCount = 0 && not this.Panel2Collapsed then
-            hidePanel2()
-    )
-
-    //Auto-update splitter distance to a percentage on resize
-    let mutable splitterDistancePercentage = 0.5
-    do     
-        let updateSplitterDistancePercentage() = splitterDistancePercentage <- (float this.SplitterDistance) / (float this.Width)
-        let updateSplitterDistance() = this.SplitterDistance <- int ((float this.Width) * splitterDistancePercentage)
-        updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
-        this.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
-        this.SizeChanged.Add(fun _ -> updateSplitterDistance())
-
-        hidePanel2()
-
-    //build up the component tree
-    do
-        this.Panel1.Controls.Add(treeView)
-        this.Panel2.Controls.Add(tabControl)
-
-    ///The left panel control
-    member this.TreeView = treeView
-    ///The right panel control
-    member this.TabControl = tabControl
-
 type WatchPanel() as this =
     inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
