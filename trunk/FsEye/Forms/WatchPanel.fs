@@ -29,32 +29,33 @@ type WatchPanel() as this =
     let pluginManager = new PluginManager() //todo: only the Eye should own this resource
     let splitContainer = new WatchPanelSplitContainer(pluginManager, Dock=DockStyle.Fill)
 
-    do
-        //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
-        //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
-        this.Controls.Add(splitContainer)
-        do
-            let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
-            do
-                let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
-                archiveButton.Click.Add(fun _ -> this.Archive()) 
-                buttonPanel.Controls.Add(archiveButton)
-            do
-                let clearButton = new Button(Text="Clear Archives", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
-                buttonPanel.Controls.Add(clearButton)
-            do
-                let clearButton = new Button(Text="Clear Watches", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearWatches()) 
-                buttonPanel.Controls.Add(clearButton)
-            do
-                let clearButton = new Button(Text="Clear All", AutoSize=true)
-                clearButton.Click.Add(fun _ -> this.ClearAll()) 
-                buttonPanel.Controls.Add(clearButton)
-            do
-                continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
-                buttonPanel.Controls.Add(continueButton)
-            this.Controls.Add(buttonPanel)
+    //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
+    //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html
+    do this.Controls.Add(splitContainer)
+
+    do //build button panel and add it to this panel
+        let buttonPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true)
+    
+        let archiveButton = new Button(Text="Archive Watches", AutoSize=true)
+        archiveButton.Click.Add(fun _ -> this.Archive()) 
+        buttonPanel.Controls.Add(archiveButton)
+    
+        let clearButton = new Button(Text="Clear Archives", AutoSize=true)
+        clearButton.Click.Add(fun _ -> this.ClearArchives() ) 
+        buttonPanel.Controls.Add(clearButton)
+    
+        let clearButton = new Button(Text="Clear Watches", AutoSize=true)
+        clearButton.Click.Add(fun _ -> this.ClearWatches()) 
+        buttonPanel.Controls.Add(clearButton)
+    
+        let clearButton = new Button(Text="Clear All", AutoSize=true)
+        clearButton.Click.Add(fun _ -> this.ClearAll()) 
+        buttonPanel.Controls.Add(clearButton)
+    
+        continueButton.Click.Add(fun _ -> continueButton.Enabled <- false)
+        buttonPanel.Controls.Add(continueButton)
+    
+        this.Controls.Add(buttonPanel)
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
