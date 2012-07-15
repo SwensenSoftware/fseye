@@ -27,7 +27,7 @@ type WatchPanel() as this =
     }
 
     let pluginManager = new PluginManager() //todo: only the Eye should own this resource
-    let splitContainer = new WatchPluginSplitContainer(pluginManager, Dock=DockStyle.Fill)
+    let splitContainer = new WatchPanelSplitContainer(pluginManager, Dock=DockStyle.Fill)
 
     do
         //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
