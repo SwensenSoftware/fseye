@@ -39,5 +39,21 @@ type IPlugin =
 	///is supported (receivable): if false, then FsEye will not allow creating a watch for a value of the given type
     abstract IsSupported : obj -> Type -> Supported
 
+CURRENT THOUGHTS regarding previous two items: 
+
+	I worry about growing the complexity of the plugin interfaces, for fear it will 
+	become prohibitive for would-be plugin authors and become less-intuitive for plugin users. For example, the tri-state Support
+	value may be confusing for plugin users since it would not be transparent to them why a given plugin should be Enabled, Disabled, or Hidden.
+	
+	So in that regard I think we should stick to just Enabled / Disabled, preferring Disabled to Hidden since the availability is determined
+	DYNAMICALLY by all WATCHABLE values. I believe in this classification it leaves a user in less wonder to see a menu item disabled versus  
+	hidden (principle of least surprise: "is my plugin loaded?"). On the other hand, we hide menu items for STATIC availability of nodes of a given
+	clasification (e.g. Archive nodes are never watchable no matter what their state, so we never show them the "Send To" menu item). But I do
+	see the concern that the list of plugins may be very large and cluttered if we merely disable rather than hide...
+
+	Regarding expanding the generality of plugins, i.e. IWatchReceiver with an optional control which indicates it is not a visual "watch", that
+	again increases complexity. It seems to me it would be perfectly usable to have an e.g. "Send To Excel" plugin that also exposes a Control
+	for a watch that e.g. displays info about or allows configuration for the excel file that is to be generated.
+
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
