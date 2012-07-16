@@ -54,13 +54,17 @@ and CallMember = { InitialText: string
                    Image:ImageResource
                    MemberInfo:MemberInfo }
 
-and MemberValue = { Text: string
+and MemberValue = { LoadedText: string
                     Children:seq<Watch>
                     ValueInfo: ValueInfo option }
 
 and ValueInfo = { Text: string
                   Value: obj
                   Type : Type }
+
+and ExpressionInfo = { Expression: string
+                       IsPublic: bool
+                       ExplicitInterfaceName: string option }
 
 and Watch =
     | Root              of Root
@@ -221,12 +225,12 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         let makeMemberValue (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                { MemberValue.Text=pretext valueTy.FSharpName ""
+                { MemberValue.LoadedText=pretext valueTy.FSharpName ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
                   ValueInfo=None }
             else
                 let valueText = sprintValue value valueTy
-                { Text=pretext valueTy.FSharpName (" = " + valueText)
+                { LoadedText=pretext valueTy.FSharpName (" = " + valueText)
                   Children=(createChildren value valueTy)
                   ValueInfo=Some({Text=valueText; Value=value; Type=valueTy}) }
 
