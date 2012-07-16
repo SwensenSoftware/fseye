@@ -30,7 +30,8 @@ let (|CreatedValue|_|) (l:'a Lazy) =
 type Root = { Text: string
               Children:seq<Watch>
               ValueInfo:ValueInfo
-              Name: String }
+              Name: String
+              ExpressionInfo:ExpressionInfo }
 
 and Organizer = { OrganizerKind: OrganizerKind
                   Children:seq<Watch> }
@@ -41,18 +42,21 @@ and OrganizerKind =
 
 and EnumeratorElement = { Text:string
                           Children:seq<Watch>
-                          ValueInfo:ValueInfo }
+                          ValueInfo:ValueInfo 
+                          ExpressionInfo:ExpressionInfo }
 
 and DataMember = { LoadingText: string
                    LazyMemberValue: Lazy<MemberValue>
                    Image:ImageResource
-                   MemberInfo:MemberInfo }
+                   MemberInfo:MemberInfo 
+                   ExpressionInfo:ExpressionInfo }
 
 and CallMember = { InitialText: string
                    LoadingText: string
                    LazyMemberValue: Lazy<MemberValue>
                    Image:ImageResource
-                   MemberInfo:MemberInfo }
+                   MemberInfo:MemberInfo 
+                   ExpressionInfo:ExpressionInfo }
 
 and MemberValue = { LoadedText: string
                     Children:seq<Watch>
@@ -108,6 +112,13 @@ and Watch =
             | DataMember { MemberInfo=mi } 
             | CallMember { MemberInfo=mi } -> Some(mi)
             | _ -> None
+        member this.ExpressionInfo =
+            match this with
+            | Root {ExpressionInfo=ei}  
+            | EnumeratorElement {ExpressionInfo=ei}
+            | CallMember {ExpressionInfo=ei}
+            | DataMember {ExpressionInfo=ei} -> Some(ei)
+            | Organizer _ -> None
 
 open System.Text.RegularExpressions
 ///Sprint the given value with the given Type. Precondition: Type cannot be null.
@@ -195,11 +206,13 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 //but if is non-Custom IEnumerable, then can't
                 let ty = if value =& null then typeof<obj> else value.GetType()
                 let valueText = sprintValue value ty
-                let text = sprintf "[%i] : %s = %s" index ty.FSharpName valueText
+                let expression = sprintf "[%i]" index
+                let text = sprintf "%s : %s = %s" expression ty.FSharpName valueText
                 let children = createChildren value ty
                 EnumeratorElement { Text=text
                                     Children=children
-                                    ValueInfo={Text=valueText; Value=value; Type=ty} }
+                                    ValueInfo={Text=valueText; Value=value; Type=ty} 
+                                    ExpressionInfo={Expression=expression; ExplicitInterfaceName=None; IsPublic=true}}
             
             //yield 100  chunks
             let rec calcRest pos (ie:System.Collections.IEnumerator) = seq {
@@ -222,6 +235,27 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 mi.ReflectedType.FSharpName + "." + mi.Name
             else
                 mi.Name
+
+        let getMemberExpressionInfo (mi:Reflection.MemberInfo) =
+            let explicitInterfaceName =
+                if mi.ReflectedType.IsInterface then
+                    Some(mi.ReflectedType.FSharpName)
+                else
+                    None
+
+            let expression =
+                if mi :? MethodInfo then
+                    sprintf "%s()" mi.Name
+                else
+                    mi.Name
+            
+            let isPublic =
+                match mi with
+                | :? FieldInfo as fi -> fi.IsPublic
+                | :? MethodInfo as mi -> mi.IsPublic
+                | :? PropertyInfo as pi -> pi.GetGetMethod(true).IsPublic
+
+            { Expression=expression; ExplicitInterfaceName=explicitInterfaceName; IsPublic=isPublic }
 
         let makeMemberValue (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
@@ -263,7 +297,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
             DataMember { LoadingText=(pretext pi.PropertyType.FSharpName loadingText)
                          LazyMemberValue=delayed
                          Image=image
-                         MemberInfo=pi }
+                         MemberInfo=pi 
+                         ExpressionInfo= getMemberExpressionInfo pi }
 
         let getFieldWatch (fi:FieldInfo) =
             let pretext = sprintf "%s : %s%s" (getMemberName fi)
@@ -287,7 +322,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
             DataMember { LoadingText=pretext fi.FieldType.FSharpName loadingText
                          LazyMemberValue=delayed
                          Image=image
-                         MemberInfo=fi }
+                         MemberInfo=fi 
+                         ExpressionInfo= getMemberExpressionInfo fi }
 
         let getMethodWatch (mi:MethodInfo) =
             let pretext = sprintf "%s() : %s%s" (getMemberName mi)
@@ -315,7 +351,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                          LoadingText=pretext mi.ReturnType.FSharpName loadingText
                          LazyMemberValue=delayed
                          Image=image
-                         MemberInfo=mi }
+                         MemberInfo=mi 
+                         ExpressionInfo= getMemberExpressionInfo mi}
 
         let getMemberWatches bindingFlags = seq {
             let members = getMembers bindingFlags
@@ -349,4 +386,5 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
     Root { Text=text
            Children=children
            ValueInfo={Text=valueText; Value=value; Type=ty}
-           Name=name }
+           Name=name 
+           ExpressionInfo= {Expression=name; IsPublic=true; ExplicitInterfaceName=None}}
