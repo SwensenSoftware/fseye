@@ -181,7 +181,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
     let loadWatchAsync guiContext (tn:TreeNode) (lz:Lazy<MemberValue>) addDummy =
         async {
             let original = System.Threading.SynchronizationContext.Current //always null - don't understand the point
-            let text = lz.Value.Text
+            let text = lz.Value.LoadedText
             do! Async.SwitchToContext guiContext
             Control.update this <| fun () ->
                 tn.Text <- text
@@ -203,7 +203,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             tn, None
         | DataMember(info) -> //need to make this not clickable, Lazy is not thread safe
             if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
-                tn.Text <- info.LazyMemberValue.Value.Text
+                tn.Text <- info.LazyMemberValue.Value.LoadedText
                 tn.Nodes.Add(dummyText) |> ignore
                 tn, None
             else
@@ -222,7 +222,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             | CallMember(info) when info.LazyMemberValue.IsValueCreated |> not ->
                 if info.MemberInfo.DeclaringType |> requiresUIThread then //issue 20
                     Control.update this <| fun () ->
-                        tn.Text <- info.LazyMemberValue.Value.Text
+                        tn.Text <- info.LazyMemberValue.Value.LoadedText
                         //note that the dummy node is already added
                 else
                     Control.update this <| fun () ->
