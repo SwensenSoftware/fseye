@@ -11,6 +11,33 @@ Issue 25, Plugin Architecture:
   limit mutable surface)
 * Consider whether we want IPlugin.IsWatchable to be Type -> bool or obj -> Type -> bool (where obj is
   the actual obj instance of the watch candidate.
+* Per Howards latest feedback, consider renaming IWatchViewer to something more general like IWatchReceiver with the following signature:
+
+type IWatchReceiver =
+    ///Add or update a the receiver with the given label, value, and type. Note: you can choose to 
+    ///disregard the label and type if desired, but will almost certainly need the value.
+    abstract Receive : string * 'a * System.Type -> unit
+    ///An optional control which provides a viewer for the receiver. If Some, then
+	///will be displayed in a tab by FsEye and can be updated. If None, then is for one-time use
+	///and will not have any visual representation in FsEye.
+    abstract Control : Control option
+
+* Per Howards latest feedback, related to the previous item, consider renaming IPlugin.IsWatchable to IPlugin.IsSupported and prefer the following signature:
+
+///Used by plugin authors to indicate how the plugin should be displayed in the context menu based on a watch instance and type.
+type Supported =
+	| Enabled
+	| Disabled
+	| Hidden
+
+type IPlugin =    
+    //The name of the plugin
+    abstract Name : string
+    ///Create an instance of this plugin's watch receiver
+    abstract CreateWatchReceiver : unit -> IWatchReceiver
+    ///Returns the Supported choice depending on whether the given instance and its type (which we may need if the instance is null)
+	///is supported (receivable): if false, then FsEye will not allow creating a watch for a value of the given type
+    abstract IsSupported : obj -> Type -> Supported
 
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
