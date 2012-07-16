@@ -78,34 +78,20 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             match cur with
             | null -> ""
             | Archive -> sprintf "[%s] " cur.Text
-            | Watch (Root {Name=name}) -> sprintf "%s%s" (loop cur.Parent) name
-            | _ ->
-                //"." or "?" depending on whether the parent watch is the NonPublic Organizer watch
-                let separator =
-                    match cur.Parent with
-                    | Watch (Organizer {OrganizerKind=OrganizerKind.NonPublic}) -> "?"
-                    | _ -> "."
+            | Watch (Root {ExpressionInfo=ei}) -> sprintf "%s%s" (loop cur.Parent) ei.Expression
+            | Watch w ->
+                match w.ExpressionInfo with
+                | None -> loop cur.Parent
+                | Some(ei) ->
+                    let separator =
+                        if ei.IsPublic then "."
+                        else "?"
 
-                //don't treat Organizer or EnumeratorElements as parents (unless the EnumeratorElement is the immediate parent)
-                let parent =
-                    let rec loop (cur:TreeNode) depth =
-                        match cur with
-                        | null | Archive -> cur //should not be possible
-                        | Watch parentWatch -> 
-                            match parentWatch with
-                            | EnumeratorElement _ when depth = 0 -> cur
-                            | Organizer _ | EnumeratorElement _ -> loop cur.Parent (depth+1)
-                            | _ -> cur
-                    loop cur.Parent 0
-
-                //todo: these regexes will fail if the member expression has spaces in it
-                match cur.Text with
-                | Regex.Compiled.Match "^((I[^\.\s]+)\.)([^\s]*).*$" {GroupValues=[_;iface;memberExpr]} -> //only intefaces need to be down casted
-                    sprintf "(%s :> %s)%s%s" (loop parent) iface separator memberExpr 
-                | Regex.Compiled.Match "^(([^\.\s]+)\.)?([^\s]*).*$" {GroupValues=[_;_;memberExpr]} -> //base classes don't need to be down casted and may not be present
-                    sprintf "%s%s%s" (loop parent) separator memberExpr
-                | _ -> 
-                    sprintf "%s%s%s" (loop parent) separator "[error]"
+                    match ei.ExplicitInterfaceName with
+                    | Some(iface) ->
+                        sprintf "(%s :> %s)%s%s" (loop cur.Parent) iface separator ei.Expression
+                    | None ->
+                        sprintf "%s%s%s" (loop cur.Parent) separator ei.Expression
         loop tn
 
     let createNodeContextMenu (tn:TreeNode) = 
@@ -139,11 +125,6 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
                 match pluginManager with
                 | Some(pluginManager) ->
-                    //n.b. we use lazy since the text of the current node may not be fully solidified (i.e. the value is created,
-                    //but the children are still loading, so it contains "Loading..." text... even using lazy is not full-proof,
-                    //if the children take longer to load than the first force).
-                    let label = lazy(calcNodeLabel tn)
-
                     //issues 25 and 26 (plugin architecture and view property grid)
                     let miSendTo = new MenuItem("Send To")
                     match w.ValueInfo with
@@ -152,17 +133,18 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                             for managedPlugin in pluginManager.ManagedPlugins do
                                 let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
                                 if managedPlugin.Plugin.IsWatchable(vi.Type) then
+                                    let label = calcNodeLabel tn
                                     miPlugin.MenuItems.AddRange [|
                                         //send to a new watch                                
                                         let miWatchViewer = new MenuItem("New")
-                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Value, vi.Value, vi.Type))
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label, vi.Value, vi.Type))
                                         yield miWatchViewer
                                         //send to an existing watch                                
                                         if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
                                             yield new MenuItem("-")
                                             for managedWatchViewer in managedPlugin.ManagedWatchViewers do
                                                 let miWatchViewer = new MenuItem(managedWatchViewer.ID)
-                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Value, vi.Value, vi.Type))
+                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label, vi.Value, vi.Type))
                                                 yield miWatchViewer
                                     |]
                                 else 
