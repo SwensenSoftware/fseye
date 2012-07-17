@@ -20,6 +20,7 @@ open System.Reflection
 
 type WatchForm() as this =
     inherit Form(
+        Name = "FsEye",
         Icon = IconResource.FsEye.Icon,
         Text = "FsEye v2.0.0 beta 1 by Stephen Swensen", 
         Size = (
