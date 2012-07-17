@@ -100,6 +100,8 @@ and PluginManager() as this =
 
         dic
 
+    let mutable activeManagedWatchViewer : ManagedWatchViewer option = None
+
     [<CLIEvent>]
     member __.WatchAdded = watchAdded.Publish
     [<CLIEvent>]
@@ -143,3 +145,8 @@ and PluginManager() as this =
         managedWatchViewers.Remove(mwv) |> ignore
         
         watchRemoved.Trigger(mwv)
+
+    ///Set by extneral users (defaults to None, but plugin manager doesn't otherwise ever set).
+    member this.ActiveManagedWatchViewer 
+        with get() = activeManagedWatchViewer
+        and set(x) = activeManagedWatchViewer <- x

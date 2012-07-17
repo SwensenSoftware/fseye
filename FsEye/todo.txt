@@ -62,7 +62,7 @@ CURRENT THOUGHTS regarding previous two items:
 * Should it be IWatchViewer.IsWatchable obj * Type -> bool or IWatchViewer.IsWatchable 'a * Type -> bool? The latter is consistent but seems
   like an anti pattern we adopted to give benifit in F#'s type system.
 
-* Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
+* DONE Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
 
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
