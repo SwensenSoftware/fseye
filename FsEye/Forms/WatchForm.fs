@@ -21,7 +21,7 @@ open System.Reflection
 type WatchForm() as this =
     inherit Form(
         Icon = IconResource.FsEye.Icon,
-        Text = "FsEye v1.0.1 by Stephen Swensen", 
+        Text = "FsEye v2.0.0 beta 1 by Stephen Swensen", 
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
