@@ -77,7 +77,7 @@ and Watch =
     | Organizer         of Organizer
     | EnumeratorElement of EnumeratorElement
     with 
-        ///Get the "default text" of this Watch
+        ///Get the "default text" of this Watch (i.e. the text which is displayed when a watch node is first created which may or may not be updated later).
         member this.DefaultText =
             match this with
             | Root {Text=text} 
@@ -95,6 +95,7 @@ and Watch =
             | EnumeratorElement {Children=children} -> children
             | CallMember {LazyMemberValue=l} 
             | DataMember {LazyMemberValue=l} -> l.Value.Children
+        ///Returns the value info for this watch if a) the watch is fully initialized (it is not forced), b) it is even supported
         member this.ValueInfo =
             match this with
             | Root {ValueInfo=vi} 

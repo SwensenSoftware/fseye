@@ -9,9 +9,9 @@ Issue 25, Plugin Architecture:
 * Refactor PluginManager: not happy yet, look for appropriate design patterns (i.e. we have the
   PluginManager, ManagedPlugins, and ManagedWatchViewers that are tightly couple but we want to
   limit mutable surface)
-* Consider whether we want IPlugin.IsWatchable to be Type -> bool or obj -> Type -> bool (where obj is
+* DONE Consider whether we want IPlugin.IsWatchable to be Type -> bool or obj -> Type -> bool (where obj is
   the actual obj instance of the watch candidate.
-  STATUS: leaning towards second option
+  STATUS: chose second option
 * Per Howards latest feedback, consider renaming IWatchViewer to something more general like IWatchReceiver with the following signature:
 
 type IWatchReceiver =
@@ -50,11 +50,17 @@ CURRENT THOUGHTS regarding previous two items:
 	DYNAMICALLY by all WATCHABLE values. I believe in this classification it leaves a user in less wonder to see a menu item disabled versus  
 	hidden (principle of least surprise: "is my plugin loaded?"). On the other hand, we hide menu items for STATIC availability of nodes of a given
 	clasification (e.g. Archive nodes are never watchable no matter what their state, so we never show them the "Send To" menu item). But I do
-	see the concern that the list of plugins may be very large and cluttered if we merely disable rather than hide...
+	see the concern that the list of plugins may be very large and cluttered if we merely disable rather than hide... perhaps we making this a Settings option
+	(i.e. user choice rather than plugin author's choice -- default to disabled).
 
 	Regarding expanding the generality of plugins, i.e. IWatchReceiver with an optional control which indicates it is not a visual "watch", that
 	again increases complexity. It seems to me it would be perfectly usable to have an e.g. "Send To Excel" plugin that also exposes a Control
 	for a watch that e.g. displays info about or allows configuration for the excel file that is to be generated.
+
+* If one plugin throws an exception while loading, should continue to try to load the rest
+
+* Should it be IWatchViewer.IsWatchable obj * Type -> bool or IWatchViewer.IsWatchable 'a * Type -> bool? The latter is consistent but seems
+  like an anti pattern we adopted to give benifit in F#'s type system.
 
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.

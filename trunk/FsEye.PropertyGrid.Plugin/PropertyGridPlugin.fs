@@ -40,6 +40,6 @@ type PropertyGridPlugin() =
         ///Create a new instance of a PropertyGridWatchViewer
         member __.CreateWatchViewer() = new PropertyGridWatchViewer() :> IWatchViewer
         ///Returns true if and only if the given type has any public properties.
-        member this.IsWatchable(ty:Type) =
+        member this.IsWatchable(value:obj, ty:Type) =
             //see Aseem Gautam (http://stackoverflow.com/users/213469/aseem-gautam) answer at http://stackoverflow.com/a/11458601/236255
-            System.ComponentModel.TypeDescriptor.GetProperties(ty).Count > 0
+            value <> null && System.ComponentModel.TypeDescriptor.GetProperties(ty).Count > 0
