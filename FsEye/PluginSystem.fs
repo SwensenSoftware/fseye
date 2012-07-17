@@ -114,6 +114,8 @@ and PluginManager() as this =
     member this.SendTo(managedPlugin:ManagedPlugin, label: string, value: obj, valueTy:System.Type) =
         //create the new watch viewer
         let watchViewer = managedPlugin.Plugin.CreateWatchViewer()
+        //todo: we may want a WatchCreated event to be handled by the PluginTabControl so that the watch control can be added
+        //to a tab before watchViewer.Watch is called...
         watchViewer.Watch(label, value, valueTy)
 
         //create the container control
