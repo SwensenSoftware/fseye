@@ -132,7 +132,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         miSendTo.MenuItems.AddRange [|
                             for managedPlugin in pluginManager.ManagedPlugins do
                                 let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
-                                if managedPlugin.Plugin.IsWatchable(vi.Type) then
+                                if managedPlugin.Plugin.IsWatchable(vi.Value, vi.Type) then
                                     let label = calcNodeLabel tn
                                     miPlugin.MenuItems.AddRange [|
                                         //send to a new watch                                

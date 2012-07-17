@@ -36,9 +36,10 @@ type IPlugin =
     abstract Name : string
     ///Create an instance of this plugin's watch viewer
     abstract CreateWatchViewer : unit -> IWatchViewer
-    ///Returns true or false depending on whether an instance of the given type is watchable: if false,
-    ///then FsEye will not allow creating a watch for a value of the given type.
-    abstract IsWatchable : Type -> bool
+    ///Returns true or false depending on whether the given instance and its type (which we may need if 
+    ///the instance is null) are watchable: if false, then FsEye will not allow creating a watch for a value 
+    ///of the given type. Plugin authors should be mindful of the performance impact this method may have.
+    abstract IsWatchable : obj * Type -> bool
 
 ///Represents a plugin watch viewer being managed by the PluginManager
 type ManagedWatchViewer = {

@@ -20,4 +20,4 @@ type TreeViewPlugin() =
         ///Creates and returns a new instance of a TreeViewWatchViewer
         member this.CreateWatchViewer() = new TreeViewWatchViewer() :> IWatchViewer
         ///Always returns true.
-        member this.IsWatchable(ty:Type) = true
+        member this.IsWatchable(value:obj, ty:Type) = true
