@@ -128,7 +128,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                     //issues 25 and 26 (plugin architecture and view property grid)
                     let miSendTo = new MenuItem("Send To")
                     match w.ValueInfo with
-                    | Some(vi) when pluginManager.ManagedPlugins.Length > 0 ->
+                    | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
                         let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
                         miSendTo.MenuItems.AddRange [|
                             for managedPlugin in pluginManager.ManagedPlugins do
