@@ -110,7 +110,8 @@ and PluginManager() as this =
     member __.ManagedPlugins = managedPlugins
     member __.ManagedWatchViewers = managedWatchViewers |> Seq.readonly
 
-    ///Create a new watch viewer for the given managed plugin, sending the given label, value and type
+    ///Create a new watch viewer for the given managed plugin, sending the given label, value and type.
+    ///Returns the ManagedWatchViewer which wraps the created watch viewer.
     member this.SendTo(managedPlugin:ManagedPlugin, label: string, value: obj, valueTy:System.Type) =
         //create the new watch viewer
         let watchViewer = managedPlugin.Plugin.CreateWatchViewer()
@@ -128,6 +129,7 @@ and PluginManager() as this =
         managedWatchViewers.Add(mwv)
             
         watchAdded.Trigger(mwv)
+        mwv
 
     ///Send the given label, value and type to the given, existing managed watch viewer.
     member this.SendTo(mwv:ManagedWatchViewer, label: string, value: obj, valueTy:System.Type) =
