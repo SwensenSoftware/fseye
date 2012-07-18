@@ -100,8 +100,6 @@ and PluginManager() as this =
 
         dic
 
-    let mutable activeManagedWatchViewer : ManagedWatchViewer option = None
-
     [<CLIEvent>]
     member __.WatchAdded = watchAdded.Publish
     [<CLIEvent>]
@@ -116,8 +114,6 @@ and PluginManager() as this =
     member this.SendTo(managedPlugin:ManagedPlugin, label: string, value: obj, valueTy:System.Type) =
         //create the new watch viewer
         let watchViewer = managedPlugin.Plugin.CreateWatchViewer()
-        //todo: we may want a WatchCreated event to be handled by the PluginTabControl so that the watch control can be added
-        //to a tab before watchViewer.Watch is called...
         watchViewer.Watch(label, value, valueTy)
 
         //create the container control
@@ -145,8 +141,3 @@ and PluginManager() as this =
         managedWatchViewers.Remove(mwv) |> ignore
         
         watchRemoved.Trigger(mwv)
-
-    ///Set by extneral users (defaults to None, but plugin manager doesn't otherwise ever set).
-    member this.ActiveManagedWatchViewer 
-        with get() = activeManagedWatchViewer
-        and set(x) = activeManagedWatchViewer <- x

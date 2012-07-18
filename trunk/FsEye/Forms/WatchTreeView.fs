@@ -127,14 +127,13 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                 | Some(pluginManager) ->
                     //issues 25 and 26 (plugin architecture and view property grid)
                     let miSendTo = new MenuItem("Send To")
-                    yield miSendTo //need to yield early here so appears before miSendToActive
                     match w.ValueInfo with
                     | Some(vi) when pluginManager.ManagedPlugins.Length > 0 ->
-                        let label = calcNodeLabel tn
                         miSendTo.MenuItems.AddRange [|
                             for managedPlugin in pluginManager.ManagedPlugins do
                                 let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
                                 if managedPlugin.Plugin.IsWatchable(vi.Value, vi.Type) then
+                                    let label = calcNodeLabel tn
                                     miPlugin.MenuItems.AddRange [|
                                         //send to a new watch                                
                                         let miWatchViewer = new MenuItem("New")
@@ -152,18 +151,9 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                     miPlugin.Enabled <- false
                                 yield miPlugin 
                         |]
-                        match pluginManager.ActiveManagedWatchViewer with
-                        | Some(mwv) ->
-                            let miSendToActive = new MenuItem("Send To " + mwv.ID)
-                            if mwv.ManagedPlugin.Plugin.IsWatchable(vi.Value, vi.Type) then
-                                miSendToActive.Click.Add(fun _ -> pluginManager.SendTo(mwv, label, vi.Value, vi.Type))
-                            else
-                                miSendToActive.Enabled <- false
-                            yield miSendToActive
-                        | None ->
-                            ()
                     | _ -> 
                         miSendTo.Enabled <- false
+                    yield miSendTo
                 | None -> ()
             | _ -> () |]
     
