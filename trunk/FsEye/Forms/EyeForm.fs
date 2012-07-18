@@ -18,7 +18,7 @@ open Swensen.FsEye
 open System.Windows.Forms
 open System.Reflection
 
-type WatchForm() as this =
+type EyeForm() as this =
     inherit Form(
         Name = "FsEye",
         Icon = IconResource.FsEye.Icon,
@@ -29,40 +29,40 @@ type WatchForm() as this =
         )
     )
 
-    let watchPanel = new WatchPanel(Dock=DockStyle.Fill)
+    let eyePanel = new EyePanel(Dock=DockStyle.Fill)
 
     do
-        this.Controls.Add(watchPanel)
+        this.Controls.Add(eyePanel)
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
         ///Add or update a watch with the given name, value, and type.
         member this.Watch(name, value:obj, ty) =
-            watchPanel.Watch(name, value, ty)
+            eyePanel.Watch(name, value, ty)
 
         ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
         member this.Watch(name, value) =
-            watchPanel.Watch(name,value)
+            eyePanel.Watch(name,value)
 
         ///Take archival snap shot of all current watches using the given label.
         member this.Archive(label: string) =
-            watchPanel.Archive(label)
+            eyePanel.Archive(label)
 
         ///Take archival snap shot of all current watches using a default label based on an archive count.
         member this.Archive() = 
-            watchPanel.Archive()
+            eyePanel.Archive()
 
         ///Clear all archives and reset the archive count.
         member this.ClearArchives() = 
-            watchPanel.ClearArchives()
+            eyePanel.ClearArchives()
 
         ///Clear all watches (doesn't include archive nodes).
         member this.ClearWatches() = 
-            watchPanel.ClearWatches()
+            eyePanel.ClearWatches()
 
         ///Clear all archives (reseting archive count) and watches.
         member this.ClearAll() = 
-            watchPanel.ClearAll()
+            eyePanel.ClearAll()
 
         ///<summary>
         ///Use this in an async block with do! to pause execution and activate the watch viewer, e.g.
@@ -76,7 +76,7 @@ type WatchForm() as this =
         ///<para>} |> Async.StartImmediate</para>
         ///</summary>
         member this.AsyncBreak() =
-            let asyncBreak = watchPanel.AsyncBreak()
+            let asyncBreak = eyePanel.AsyncBreak()
             if this.Visible |> not then
                 this.Show()
 
@@ -86,4 +86,4 @@ type WatchForm() as this =
 
         ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
-            watchPanel.AsyncContinue()
+            eyePanel.AsyncContinue()
