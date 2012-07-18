@@ -65,7 +65,7 @@ CURRENT THOUGHTS regarding previous two items:
 
 * ON HOLD Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
 
-* Arite tests for add / remove plugin functionality on PluginManager.
+* Write tests for add / remove plugin functionality on PluginManager.
 
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
