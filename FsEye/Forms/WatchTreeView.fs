@@ -280,7 +280,9 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
             il
     with
+        ///Initialize an instance of a WatchTreeView without a PluginManager (e.g. when a WatchTreeView is used as the basis for a plugin!).
         new() = new WatchTreeView(None)
+
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->
                 let watch = createRootWatch tn.Name value ty
@@ -290,7 +292,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                 tn.Nodes.Add(dummyText) |> ignore
                 tn.Collapse()
 
-        member private this.AddWatch(name, value, ty) =
+        member private this.AddWatch(name, value:obj, ty) =
             Control.update this <| fun () ->
                 createRootWatch name value ty
                 |> createWatchTreeNode null //don't like passing null here...
@@ -299,7 +301,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                 |> ignore
 
         ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
+        member this.Watch(name, value:obj, ty) =
             let objNode =
                 this.Nodes
                 |> Seq.cast<TreeNode>
@@ -311,7 +313,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             | None -> this.AddWatch(name, value, ty)
             | _ -> ()
 
-        ///Add or update a watch with the given name and value.
+        ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
         member this.Watch(name: string, value: 'a) =
             this.Watch(name, value, typeof<'a>)
 

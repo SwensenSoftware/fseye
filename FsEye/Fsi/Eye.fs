@@ -62,10 +62,10 @@ type Eye() as this =
                 null
 
     ///Add or update a watch with the given name, value, and type.
-    member __.Watch(name, value, ty) =
+    member __.Watch(name, value:obj, ty) =
         watchForm.Watch(name, value, ty)
 
-    ///Add or update a watch with the given name and value.
+    ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
     member __.Watch(name, value) =
         watchForm.Watch(name, value)
 
