@@ -129,6 +129,9 @@ type Eye() as this =
     member __.Hide() =
         eyeForm.Hide()
 
+    ///Manages plugins and plugin watch viewers
+    member this.PluginManager = eyeForm.PluginManager
+
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 ///Holds the Eye singleton for the active FSI session
