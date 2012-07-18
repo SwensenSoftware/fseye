@@ -137,7 +137,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                                     miPlugin.MenuItems.AddRange [|
                                         //send to a new watch                                
                                         let miWatchViewer = new MenuItem("New")
-                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type))
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
                                         yield miWatchViewer
                                         //send to an existing watch                                
                                         if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
