@@ -87,3 +87,6 @@ type EyeForm() as this =
         ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             eyePanel.AsyncContinue()
+
+        ///Manages plugins and plugin watch viewers
+        member this.PluginManager = eyePanel.PluginManager

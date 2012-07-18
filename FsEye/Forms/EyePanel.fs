@@ -111,3 +111,6 @@ type EyePanel() as this =
             //the Click event for continueButton.PerformClick() doesn't fire when form is closed
             //but it does fire using InvokeOnClick
             this.InvokeOnClick(continueButton, System.EventArgs.Empty)
+
+        ///Manages plugins and plugin watch viewers
+        member this.PluginManager = pluginManager
