@@ -59,10 +59,11 @@ CURRENT THOUGHTS regarding previous two items:
 
 * If one plugin throws an exception while loading, should continue to try to load the rest
 
-* Should it be IWatchViewer.IsWatchable obj * Type -> bool or IWatchViewer.IsWatchable 'a * Type -> bool? The latter is consistent but seems
+* DONE Should it be IWatchViewer.IsWatchable obj * Type -> bool or IWatchViewer.IsWatchable 'a * Type -> bool? The latter is consistent but seems
   like an anti pattern we adopted to give benifit in F#'s type system.
+  SOLUTION: keeping obj * Type -> bool, changed WatchTreeView.Watch to string * obj * Type 
 
-* Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
+* ON HOLD Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
 
 Issue 26, PropertyGrid:
 * Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.

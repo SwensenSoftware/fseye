@@ -60,10 +60,10 @@ type WatchPanel() as this =
         //a lot of delegation to treeView below -- not sure how to do this better
 
         ///Add or update a watch with the given name, value, and type.
-        member this.Watch(name, value, ty) =
+        member this.Watch(name, value:obj, ty) =
             splitContainer.TreeView.Watch(name, value, ty)
 
-        ///Add or update a watch with the given name and value.
+        ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
         member this.Watch(name, value) =
             splitContainer.TreeView.Watch(name,value)
 
