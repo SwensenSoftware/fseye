@@ -21,8 +21,8 @@ open Swensen.FsEye
 ///A vertical split container which manages the interaction between the left WatchTreeView and the right PluginTabControl.
 ///When no plugin watch viewers are active, the right panel is hidden, otherwise it is shown, reacting to tabs as they 
 ///are added and remove. By default the size of each is 50% on each size, but it persists the percentage set by the
-///user scaling on resize. This internal component is used by the WatchPanel.
-type internal WatchPanelSplitContainer(pluginManager:PluginManager) as this =
+///user scaling on resize. This internal component is used by the EyePanel.
+type internal EyeSplitContainer(pluginManager:PluginManager) as this =
     inherit SplitContainer(Orientation=Orientation.Vertical)
 
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)

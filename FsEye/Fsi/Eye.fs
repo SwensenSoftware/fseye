@@ -16,12 +16,12 @@ limitations under the License.
 namespace Swensen.FsEye.Fsi
 open Swensen.FsEye.Forms
 
-///Manages a WatchForm in the context of an FSI session listening for watch additions and updates and reflecting those in the WatchForm.
+///Manages a EyeForm in the context of an FSI session listening for watch additions and updates and reflecting those in the EyeForm.
 type Eye() as this = 
-    let mutable watchForm = new WatchForm()
+    let mutable eyeForm = new EyeForm()
     do
         ///prevent form from disposing when closing
-        watchForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
+        eyeForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
     
     ///Indicates whether or not FSI session listening is turned on
     let mutable listen = true
@@ -42,7 +42,7 @@ type Eye() as this =
                         do! Async.SwitchToContext gui
                         
                         this.Show()
-                        watchVars |> Array.iter watchForm.Watch
+                        watchVars |> Array.iter eyeForm.Watch
 
                         do! Async.SwitchToContext original
                         do! Async.Sleep 100
@@ -63,31 +63,31 @@ type Eye() as this =
 
     ///Add or update a watch with the given name, value, and type.
     member __.Watch(name, value:obj, ty) =
-        watchForm.Watch(name, value, ty)
+        eyeForm.Watch(name, value, ty)
 
     ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
     member __.Watch(name, value) =
-        watchForm.Watch(name, value)
+        eyeForm.Watch(name, value)
 
     ///Take archival snap shot of all current watches using the given label.
     member this.Archive(label) =
-        watchForm.Archive(label)
+        eyeForm.Archive(label)
 
     ///Take archival snap shot of all current watches using a default label based on an archive count.
     member __.Archive() =
-        watchForm.Archive()
+        eyeForm.Archive()
     
     ///Clear all watches (doesn't include archive nodes).
     member __.ClearArchives() =
-        watchForm.ClearArchives()
+        eyeForm.ClearArchives()
 
     ///Clear all watches (doesn't include archive nodes).
     member __.ClearWatches() =
-        watchForm.ClearWatches()
+        eyeForm.ClearWatches()
 
     ///Clear all archives (reseting archive count) and watches.
     member __.ClearAll() =
-        watchForm.ClearAll()
+        eyeForm.ClearAll()
 
     ///<summary>
     ///Use this in a sync block with do!, e.g.
@@ -101,11 +101,11 @@ type Eye() as this =
     ///<para>} |> Async.StartImmediate</para>
     ///</summary>
     member __.AsyncBreak() =
-        watchForm.AsyncBreak()
+        eyeForm.AsyncBreak()
 
     ///Continue from an AsyncBreak()
     member __.AsyncContinue() =
-        watchForm.AsyncContinue()
+        eyeForm.AsyncContinue()
 
     ///Indicates whether or not FSI session listening is turned on.
     member __.Listen 
@@ -118,16 +118,16 @@ type Eye() as this =
 
     ///Show the Watch form.
     member __.Show() =
-        if watchForm.IsDisposed then
-            watchForm <- new WatchForm()
+        if eyeForm.IsDisposed then
+            eyeForm <- new EyeForm()
 
-        if watchForm.Visible |> not then
-            watchForm.Show()
-            watchForm.Activate()
+        if eyeForm.Visible |> not then
+            eyeForm.Show()
+            eyeForm.Activate()
 
     ///Hide the Watch form.
     member __.Hide() =
-        watchForm.Hide()
+        eyeForm.Hide()
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

@@ -18,7 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
 
-type WatchPanel() as this =
+type EyePanel() as this =
     inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
     let asyncBreak = async {
@@ -27,7 +27,7 @@ type WatchPanel() as this =
     }
 
     let pluginManager = new PluginManager() //todo: only the Eye should own this resource
-    let splitContainer = new WatchPanelSplitContainer(pluginManager, Dock=DockStyle.Fill)
+    let splitContainer = new EyeSplitContainer(pluginManager, Dock=DockStyle.Fill)
 
     //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
     //see: http://www.pcreview.co.uk/forums/setting-control-dock-fill-you-have-menustrip-t3240577.html

@@ -23,7 +23,7 @@ open Swensen.FsEye
 ///tab pages, this is initiated via tab right-click context menu calls which do add / remove ops 
 ///on the tab plugin itself. This decoupling always direct, programatic calls to add / remove
 ///plugin manager watch views to propagate events that are handled by this and higher up visual components.
-///This internal component is used by the WatchPluginSplitContainer which in turn is used by the WatchPanel.
+///This internal component is used by the WatchPluginSplitContainer which in turn is used by the EyePanel.
 type internal PluginTabControl(pluginManager:PluginManager) as this =
     inherit TabControl()
 
