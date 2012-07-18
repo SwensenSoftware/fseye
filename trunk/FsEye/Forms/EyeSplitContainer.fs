@@ -17,13 +17,14 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
+open System.Drawing
 
 ///A vertical split container which manages the interaction between the left WatchTreeView and the right PluginTabControl.
 ///When no plugin watch viewers are active, the right panel is hidden, otherwise it is shown, reacting to tabs as they 
 ///are added and remove. By default the size of each is 50% on each size, but it persists the percentage set by the
 ///user scaling on resize. This internal component is used by the EyePanel.
 type internal EyeSplitContainer(pluginManager:PluginManager) as this =
-    inherit SplitContainer(Orientation=Orientation.Vertical)
+    inherit SplitContainer(Orientation=Orientation.Vertical, SplitterWidth=6)
 
     let treeView = new WatchTreeView(Some(pluginManager), Dock=DockStyle.Fill)
     let tabControl = new PluginTabControl(pluginManager, Dock=DockStyle.Fill)
@@ -62,7 +63,21 @@ type internal EyeSplitContainer(pluginManager:PluginManager) as this =
         this.Panel1.Controls.Add(treeView)
         this.Panel2.Controls.Add(tabControl)
 
+    //http://stackoverflow.com/a/10412371/236255 (try to emphasize splitter)
+//    do
+//        this.Paint.Add(fun e -> 
+//            let s = this
+//            let top = 5;
+//            let bottom = s.Height - 5;
+//            let left = s.SplitterDistance;
+//            let right = left + s.SplitterWidth - 1;
+//            e.Graphics.DrawLine(Pens.Silver, left, top, left, bottom);
+//            e.Graphics.DrawLine(Pens.Silver, right, top, right, bottom);
+//        )
+
     ///The left panel control
     member this.TreeView = treeView
     ///The right panel control
     member this.TabControl = tabControl
+
+        
