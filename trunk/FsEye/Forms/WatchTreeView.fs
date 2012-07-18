@@ -129,22 +129,22 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                     let miSendTo = new MenuItem("Send To")
                     match w.ValueInfo with
                     | Some(vi) when pluginManager.ManagedPlugins.Length > 0 ->
+                        let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
                         miSendTo.MenuItems.AddRange [|
                             for managedPlugin in pluginManager.ManagedPlugins do
                                 let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
                                 if managedPlugin.Plugin.IsWatchable(vi.Value, vi.Type) then
-                                    let label = calcNodeLabel tn
                                     miPlugin.MenuItems.AddRange [|
                                         //send to a new watch                                
                                         let miWatchViewer = new MenuItem("New")
-                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label, vi.Value, vi.Type))
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type))
                                         yield miWatchViewer
                                         //send to an existing watch                                
                                         if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
                                             yield new MenuItem("-")
                                             for managedWatchViewer in managedPlugin.ManagedWatchViewers do
                                                 let miWatchViewer = new MenuItem(managedWatchViewer.ID)
-                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label, vi.Value, vi.Type))
+                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
                                                 yield miWatchViewer
                                     |]
                                 else 
