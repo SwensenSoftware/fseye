@@ -30,16 +30,6 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
     let tabAdded = new Event<TabPage>()
     let tabRemoved = new Event<TabPage>()
 
-    let updateActiveManagedWatchViewer() =
-        if this.SelectedTab <> null then
-            let mwv = pluginManager.ManagedWatchViewers |> Seq.find (fun mwv -> mwv.ID = this.SelectedTab.Name)
-            pluginManager.ActiveManagedWatchViewer <- Some(mwv)
-        else
-            pluginManager.ActiveManagedWatchViewer <- None
-
-    //n.b. doesn't fire for first tab added.
-    do this.Selected.Add (fun e -> updateActiveManagedWatchViewer())
-
     //wire up tab closing, coordinating with the plugin manager.
     let closeTab (tab:TabPage) = 
         pluginManager.RemoveManagedWatchViewer(tab.Name)
@@ -73,8 +63,7 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
         this.TabPages.Add(tab)
 
         this.SelectTab(tab)
-        if this.TabPages.Count = 1 then //i.e. we went from 0 to 1, normal Selected event doesn't fire.
-            updateActiveManagedWatchViewer()
+        
         tabAdded.Trigger(tab)
     )
         
