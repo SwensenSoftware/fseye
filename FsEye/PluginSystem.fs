@@ -18,6 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open System.IO
 open System
+open Microsoft.FSharp.Collections
 
 //todo: rename IEye?
 ///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
@@ -63,7 +64,6 @@ and ManagedPlugin = {
         ///The list of active watch viewers (i.e. watch viewers may be added and removed by the plugin manager)
         member this.ManagedWatchViewers = this.PluginManager.ManagedWatchViewers |> Seq.filter (fun (x:ManagedWatchViewer) -> x.ManagedPlugin = this)
 
-
 ///Manages FsEye watch viewer plugins
 and PluginManager() as this =
     let watchAdded = new Event<ManagedWatchViewer>()
@@ -77,18 +77,19 @@ and PluginManager() as this =
         try
             let pluginDir = sprintf "%s%cplugins" (Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) Path.DirectorySeparatorChar
             if Directory.Exists(pluginDir) then
-                Directory.GetFiles(pluginDir)
-                |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
-                |> Seq.collect (fun assembly -> assembly.GetTypes())
-                |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
-                |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
-                |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
-                |> Seq.toList
+                let pluginSeq =
+                    Directory.GetFiles(pluginDir)
+                    |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
+                    |> Seq.collect (fun assembly -> assembly.GetTypes())
+                    |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
+                    |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
+                    |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
+                ResizeArray(pluginSeq)
             else
-                []
+                ResizeArray()
         with x ->
             showErrorDialog x.Message "FsEye Plugin Loading Error"
-            []
+            ResizeArray()
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
 
@@ -107,7 +108,7 @@ and PluginManager() as this =
     [<CLIEvent>]
     member __.WatchRemoved = watchRemoved.Publish
     
-    member __.ManagedPlugins = managedPlugins
+    member __.ManagedPlugins = managedPlugins |> Seq.readonly
     member __.ManagedWatchViewers = managedWatchViewers |> Seq.readonly
 
     ///Create a new watch viewer for the given managed plugin, sending the given label, value and type.
@@ -143,3 +144,26 @@ and PluginManager() as this =
         managedWatchViewers.Remove(mwv) |> ignore
         
         watchRemoved.Trigger(mwv)
+
+    ///Remove the managed plugin (and all of its managed watch viewers) by name
+    member this.RemoveManagedPlugin(name:string) =
+        let mp = managedPlugins |> Seq.find(fun x -> x.Plugin.Name = name)
+        
+        managedWatchViewers 
+        |> Seq.filter (fun x -> x.ManagedPlugin = mp) 
+        |> Seq.toList
+        |> Seq.iter (fun x -> this.RemoveManagedWatchViewer(x.ID))
+
+        absoluteCounts.Remove(mp) |> ignore
+        managedPlugins.Remove(mp) |> ignore
+
+    ///Register the given plugin, removing a managed plugin of the same name if it exists,
+    ///and return the managed plugin wrapping it.
+    member this.RegisterPlugin(plugin:IPlugin) =
+        if managedPlugins |> Seq.exists (fun x -> x.Plugin.Name = plugin.Name) then
+            this.RemoveManagedPlugin(plugin.Name)
+             
+        let mp = {Plugin=plugin; PluginManager=this}
+        managedPlugins.Add(mp)
+        absoluteCounts.[mp] <- 0
+        mp
