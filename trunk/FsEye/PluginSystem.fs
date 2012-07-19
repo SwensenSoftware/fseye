@@ -20,7 +20,6 @@ open System.IO
 open System
 open Microsoft.FSharp.Collections
 
-//todo: rename IEye?
 ///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
 ///a custom watch viewer control
 type IWatchViewer =
@@ -52,7 +51,6 @@ type ManagedWatchViewer = {
     ManagedPlugin:ManagedPlugin
 }
 
-//todo: refactor so we don't expose mutable properties and methods that could result in invalid state.
 ///Represents a plugin being managed by the PluginManager
 and ManagedPlugin = {
     ///The plugin being managed
@@ -138,30 +136,38 @@ and PluginManager() as this =
         
         watchUpdated.Trigger(mwv)
 
-    ///Remove the managed watch viewer by id
-    member this.RemoveManagedWatchViewer(id:string) =
-        let mwv = managedWatchViewers |> Seq.find(fun x -> x.ID = id)
+    ///Remove the given managed watch viewer, disposing the watch viewer's Control.
+    member this.RemoveManagedWatchViewer(mwv) =
+        mwv.WatchViewer.Control.Dispose()
         managedWatchViewers.Remove(mwv) |> ignore
-        
         watchRemoved.Trigger(mwv)
 
-    ///Remove the managed plugin (and all of its managed watch viewers) by name
-    member this.RemoveManagedPlugin(name:string) =
-        let mp = managedPlugins |> Seq.find(fun x -> x.Plugin.Name = name)
-        
+    ///Remove the managed watch viewer by id, disposing the watch viewer's Control.
+    member this.RemoveManagedWatchViewer(id:string) =
+        let mwv = managedWatchViewers |> Seq.find(fun x -> x.ID = id)
+        this.RemoveManagedWatchViewer(mwv)
+
+    ///Remove the given managed plugin (and all of its managed watch viewers).
+    member this.RemoveManagedPlugin(mp) =
         managedWatchViewers 
         |> Seq.filter (fun x -> x.ManagedPlugin = mp) 
         |> Seq.toList
-        |> Seq.iter (fun x -> this.RemoveManagedWatchViewer(x.ID))
+        |> Seq.iter (fun x -> this.RemoveManagedWatchViewer(x))
 
         absoluteCounts.Remove(mp) |> ignore
         managedPlugins.Remove(mp) |> ignore
 
-    ///Register the given plugin, removing a managed plugin of the same name if it exists,
-    ///and return the managed plugin wrapping it.
+    ///Remove the managed plugin (and all of its managed watch viewers) by name.
+    member this.RemoveManagedPlugin(name:string) =
+        let mp = managedPlugins |> Seq.find(fun x -> x.Plugin.Name = name)
+        this.RemoveManagedPlugin(mp)
+
+    ///Register the given plugin and return the managed plugin wrapping it. If a managed plugin wrapping a plugin of the same name exists, 
+    ///removes it (and all of its associated managed watch viewers).
     member this.RegisterPlugin(plugin:IPlugin) =
-        if managedPlugins |> Seq.exists (fun x -> x.Plugin.Name = plugin.Name) then
-            this.RemoveManagedPlugin(plugin.Name)
+        match managedPlugins |> Seq.tryFind (fun x -> x.Plugin.Name = plugin.Name) with
+        | Some(old_mp) -> this.RemoveManagedPlugin(old_mp)
+        | None -> ()
              
         let mp = {Plugin=plugin; PluginManager=this}
         managedPlugins.Add(mp)
