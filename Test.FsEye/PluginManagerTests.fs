@@ -14,40 +14,6 @@ open System
 open System.Reflection
 open ImpromptuInterface.FSharp
 
-//todo: so far this is turning into a "tree view label tests" suite of tests. rename as appropriate. may find new applications for labels, 
-//like: Copy context menu option (as opposed to just Copy Value)
-
-//type MockWatchViewer() =
-//    let mutable result = "", new obj(), typeof<MockWatchViewer>
-//    interface IWatchViewer with
-//        member __.Watch(x,y,z) =
-//            result <- (x,y :> obj,z)
-//        member __.Control = null
-//    member __.Result = result
-//
-//let sendToResult (tn:TreeNode) =
-//    let pm = tn.TreeView?pluginManager?Value
-//    pm
-//
-//[<Fact(Skip="not done yet: trying to figure best way create mock plugin")>]
-//let ``root watch SendTo label value`` () =
-//    //arrange
-//    let tc = new TabControl()
-//    tc.TabPages.Add("mock","mock")
-//    let pm = new PluginManager(tc)
-//    let mp = {Plugin=Unchecked.defaultof<IPlugin>;PluginManager=pm}
-//    let wv = new MockWatchViewer()
-//    let mwv = {ID="mock"; ManagedPlugin=mp; WatchViewer=wv}
-//
-//    let tree = new WatchTreeView(Some(pm))
-//    tree.Watch("watch", [1;2;3;4;5])
-//    let tn = tree.Nodes.[0]
-//
-//    //act
-//    pm.SendTo(
-//
-//    test <@ sendToLabel tn <> null @>
-
 ///Parses the path to find a tree node in the Tree, expanding nodes as needed. Path has form:
 ///root/child1/child2/child3 where t%he root and each child is a text starts with match
 let findTreeNode (tree:TreeView) (path:string) =
@@ -150,3 +116,35 @@ let ``watch label: archive`` () =
     tree.Archive()
     let tn = findTreeNode tree "Archive (0)/watch"
     test <@ tree?calcNodeLabel(tn) = "[Archive (0)] watch" @>
+
+type MockWatchViewer() =
+    let mutable result = "", new obj(), typeof<MockWatchViewer>
+    interface IWatchViewer with
+        member __.Watch(x,y,z) =
+            result <- (x,y :> obj,z)
+        member __.Control = null
+    member __.Result = result
+
+let mkPlugin() =
+    {
+        new IPlugin with
+            member __.Name = "Plugin"
+            member __.IsWatchable(_,_) = true
+            member __.CreateWatchViewer() =
+                { 
+                    new IWatchViewer with
+                        member __.Watch(_,_,_) = ()
+                        member __.Control = new Control()
+                }
+    }
+
+[<Fact>]
+let ``SendTo plugin creates watch viewers with absolute count ids`` () =
+    let plugin = mkPlugin()
+    let pm = new PluginManager()
+    let mp = pm.RegisterPlugin(plugin)
+    test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 1" @>
+    test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 2" @>
+    test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 3" @>
+    pm.RemoveManagedWatchViewer("Plugin 3")
+    test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 4" @>
