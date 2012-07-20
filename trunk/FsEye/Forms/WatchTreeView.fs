@@ -111,6 +111,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             | _ -> ()
 
             match tn with
+            | Watch(Organizer _ ) -> ()
             | Watch(w) ->
                 match w with
                 | Root _ ->
