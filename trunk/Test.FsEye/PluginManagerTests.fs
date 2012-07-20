@@ -178,3 +178,17 @@ let ``registering a plugin of the same name removes the previous version of the 
     test <@ pm.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginA 1"; "PluginA 2"]  @>
 
     test <@ pm.ManagedPlugins |> Seq.map (fun x -> x.Plugin) |> Seq.toList = [pluginA; pluginB']  @>
+
+[<Fact>]
+let ``removing a managed watch viewer disposes of its control`` () =
+    let control = new Control()
+    let pluginA = mkPlugin "PluginA" (fun () -> control)
+
+    let pm = new PluginManager()
+    let mpA = pm.RegisterPlugin(pluginA)
+    let mwv = pm.SendTo(mpA, "", null, typeof<obj>)
+    
+    test <@ not mwv.WatchViewer.Control.IsDisposed @>
+    pm.RemoveManagedWatchViewer(mwv)
+    test <@ mwv.WatchViewer.Control.IsDisposed @>
+
