@@ -1,6 +1,5 @@
 #summary preview documentation for FsEye 2.0.0 beta releases
-
-_this page is currently under construction_
+#labels Featured
 
 = Introduction =
 
@@ -107,7 +106,7 @@ We are particularly concerned and receptive about feedback on this API. It has b
 
 = For Plugin Authors =
 
-Plugin authors should be well versed in the documentation provided for all other types of users. The following are the definitions for the interfaces plugin authors are required to implement:
+Plugin authors should be well versed in the documentation provided for all other types of users. The following are the definitions for the interfaces plugin authors are required to implement, they are found in the Swensen.FsEye namespace:
 
 {{{
 ///Specifies a watch viewer interface, an instance which can add or update one or more watches with 
