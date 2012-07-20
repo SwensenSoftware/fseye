@@ -73,20 +73,20 @@ and PluginManager =
     ///removes it (and all of its associated managed watch viewers).
     member RegisterPlugin : plugin:IPlugin -> ManagedPlugin
     ///Remove the given managed plugin (and all of its managed watch viewers).
-	member RemoveManagedPlugin : mp:ManagedPlugin -> unit
+    member RemoveManagedPlugin : mp:ManagedPlugin -> unit
     ///Remove the managed plugin (and all of its managed watch viewers) by name.
-	member RemoveManagedPlugin : name:string -> unit
+    member RemoveManagedPlugin : name:string -> unit
     ///Remove the given managed watch viewer, disposing the watch viewer's Control.
-	member RemoveManagedWatchViewer : mwv:ManagedWatchViewer -> unit
+    member RemoveManagedWatchViewer : mwv:ManagedWatchViewer -> unit
     ///Remove the managed watch viewer by id, disposing the watch viewer's Control.
-	member RemoveManagedWatchViewer : id:string -> unit
-	///Create a new watch viewer for the given managed plugin, sending the given label, value and type.
+    member RemoveManagedWatchViewer : id:string -> unit
+    ///Create a new watch viewer for the given managed plugin, sending the given label, value and type.
     ///Returns the ManagedWatchViewer which wraps the created watch viewer.
     member
       SendTo : managedPlugin:ManagedPlugin * label:string * value:obj *
                valueTy:System.Type -> ManagedWatchViewer
     ///Send the given label, value and type to the given, existing managed watch viewer.
-	member
+    member
       SendTo : mwv:ManagedWatchViewer * label:string * value:obj *
                valueTy:System.Type -> unit
     member ManagedPlugins : seq<ManagedPlugin>
@@ -118,20 +118,20 @@ type IWatchViewer =
     abstract member Watch : string * 'a * System.Type -> unit
     ///The underlying watch viewer control. Exists as a property of IWatchViewer 
     ///since you may or may not own the control (i.e. you cannot directly implement IWatchViewer on the control).
-	abstract member Control : System.Windows.Forms.Control
+    abstract member Control : System.Windows.Forms.Control
   end
   
 ///Specificies a watch view plugin, capable of creating watch viewer instances
 type IPlugin =
   interface
     ///Create an instance of this plugin's watch viewer
-	abstract member CreateWatchViewer : unit -> IWatchViewer
+    abstract member CreateWatchViewer : unit -> IWatchViewer
     ///Returns true or false depending on whether the given instance and its type (which we may need if 
     ///the instance is null) are watchable: if false, then FsEye will not allow creating a watch for a value 
     ///of the given type. Plugin authors should be mindful of the performance impact this method may have.
-	abstract member IsWatchable : obj * System.Type -> bool
+    abstract member IsWatchable : obj * System.Type -> bool
     //The name of the plugin
-	abstract member Name : string
+    abstract member Name : string
   end
 }}}
   
