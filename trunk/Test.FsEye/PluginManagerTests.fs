@@ -117,30 +117,24 @@ let ``watch label: archive`` () =
     let tn = findTreeNode tree "Archive (0)/watch"
     test <@ tree?calcNodeLabel(tn) = "[Archive (0)] watch" @>
 
-type MockWatchViewer() =
-    let mutable result = "", new obj(), typeof<MockWatchViewer>
-    interface IWatchViewer with
-        member __.Watch(x,y,z) =
-            result <- (x,y :> obj,z)
-        member __.Control = null
-    member __.Result = result
-
-let mkPlugin() =
+let mkPlugin name mkControl =
     {
         new IPlugin with
-            member __.Name = "Plugin"
+            member __.Name = name
             member __.IsWatchable(_,_) = true
             member __.CreateWatchViewer() =
                 { 
                     new IWatchViewer with
                         member __.Watch(_,_,_) = ()
-                        member __.Control = new Control()
+                        member __.Control = mkControl()
                 }
     }
 
+let mkControl = fun () -> new Control()
+
 [<Fact>]
 let ``SendTo plugin creates watch viewers with absolute count ids`` () =
-    let plugin = mkPlugin()
+    let plugin = mkPlugin "Plugin" mkControl
     let pm = new PluginManager()
     let mp = pm.RegisterPlugin(plugin)
     test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 1" @>
@@ -148,3 +142,39 @@ let ``SendTo plugin creates watch viewers with absolute count ids`` () =
     test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 3" @>
     pm.RemoveManagedWatchViewer("Plugin 3")
     test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 4" @>
+
+[<Fact>]
+let ``removing a plugin removes its watch viewers`` () =
+    let pluginA = mkPlugin "PluginA" mkControl
+    let pluginB = mkPlugin "PluginB" mkControl
+
+    let pm = new PluginManager()
+    let mpA = pm.RegisterPlugin(pluginA)
+    let mpB = pm.RegisterPlugin(pluginB)
+    pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
+    pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
+    pm.SendTo(mpB, "", null, typeof<obj>) |> ignore
+
+    pm.RemoveManagedPlugin(mpB)
+
+    test <@ pm.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginA 1"; "PluginA 2"]  @>
+
+[<Fact>]
+let ``registering a plugin of the same name removes the previous version of the plugin`` () =
+    let pluginA = mkPlugin "PluginA" mkControl
+    let pluginB = mkPlugin "PluginB" mkControl
+
+    let pm = new PluginManager()
+    let mpA = pm.RegisterPlugin(pluginA)
+    let mpB = pm.RegisterPlugin(pluginB)
+    pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
+    pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
+    pm.SendTo(mpB, "", null, typeof<obj>) |> ignore
+
+    let pluginB' = mkPlugin "PluginB" mkControl
+    let mpB' = pm.RegisterPlugin(pluginB')
+
+    ///i.e. all of the original PluginB watch viewers were removed when the new version of registered
+    test <@ pm.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginA 1"; "PluginA 2"]  @>
+
+    test <@ pm.ManagedPlugins |> Seq.map (fun x -> x.Plugin) |> Seq.toList = [pluginA; pluginB']  @>
