@@ -255,6 +255,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 | :? FieldInfo as fi -> fi.IsPublic
                 | :? MethodInfo as mi -> mi.IsPublic
                 | :? PropertyInfo as pi -> pi.GetGetMethod(true).IsPublic
+                | _ -> false //shouldn't be possible: we should log this, but not fail hard.
 
             { Expression=expression; ExplicitInterfaceName=explicitInterfaceName; IsPublic=isPublic }
 
