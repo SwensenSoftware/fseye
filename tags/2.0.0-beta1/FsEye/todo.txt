@@ -1,0 +1,71 @@
+﻿TODO 
+
+Issue 25, Plugin Architecture: 
+* DONE Decouple TabContainer from PluginManager
+* DONE Create PluginTabContainer control
+* DONE Add optional ValueInfo property to Watch to include Value, Type, and Text
+* DONE Add ExpressionInfo property to Watch to include Expression (e.g. [0], GetBla(), PropHere),
+  optional InterfaceName, IsNonPublic (or maybe IsPublic to avoid the double negative).
+* Refactor PluginManager: not happy yet, look for appropriate design patterns (i.e. we have the
+  PluginManager, ManagedPlugins, and ManagedWatchViewers that are tightly couple but we want to
+  limit mutable surface)
+* DONE Consider whether we want IPlugin.IsWatchable to be Type -> bool or obj -> Type -> bool (where obj is
+  the actual obj instance of the watch candidate.
+  STATUS: chose second option
+* Per Howards latest feedback, consider renaming IWatchViewer to something more general like IWatchReceiver with the following signature:
+
+type IWatchReceiver =
+    ///Add or update a the receiver with the given label, value, and type. Note: you can choose to 
+    ///disregard the label and type if desired, but will almost certainly need the value.
+    abstract Receive : string * 'a * System.Type -> unit
+    ///An optional control which provides a viewer for the receiver. If Some, then
+	///will be displayed in a tab by FsEye and can be updated. If None, then is for one-time use
+	///and will not have any visual representation in FsEye.
+    abstract Control : Control option
+
+* Per Howards latest feedback, related to the previous item, consider renaming IPlugin.IsWatchable to IPlugin.IsSupported and prefer the following signature:
+
+///Used by plugin authors to indicate how the plugin should be displayed in the context menu based on a watch instance and type.
+type Supported =
+	| Enabled
+	| Disabled
+	| Hidden
+
+type IPlugin =    
+    //The name of the plugin
+    abstract Name : string
+    ///Create an instance of this plugin's watch receiver
+    abstract CreateWatchReceiver : unit -> IWatchReceiver
+    ///Returns the Supported choice depending on whether the given instance and its type (which we may need if the instance is null)
+	///is supported (receivable): if false, then FsEye will not allow creating a watch for a value of the given type
+    abstract IsSupported : obj -> Type -> Supported
+
+CURRENT THOUGHTS regarding previous two items: 
+
+	I worry about growing the complexity of the plugin interfaces, for fear it will 
+	become prohibitive for would-be plugin authors and become less-intuitive for plugin users. For example, the tri-state Support
+	value may be confusing for plugin users since it would not be transparent to them why a given plugin should be Enabled, Disabled, or Hidden.
+	
+	So in that regard I think we should stick to just Enabled / Disabled, preferring Disabled to Hidden since the availability is determined
+	DYNAMICALLY by all WATCHABLE values. I believe in this classification it leaves a user in less wonder to see a menu item disabled versus  
+	hidden (principle of least surprise: "is my plugin loaded?"). On the other hand, we hide menu items for STATIC availability of nodes of a given
+	clasification (e.g. Archive nodes are never watchable no matter what their state, so we never show them the "Send To" menu item). But I do
+	see the concern that the list of plugins may be very large and cluttered if we merely disable rather than hide... perhaps we making this a Settings option
+	(i.e. user choice rather than plugin author's choice -- default to disabled).
+
+	Regarding expanding the generality of plugins, i.e. IWatchReceiver with an optional control which indicates it is not a visual "watch", that
+	again increases complexity. It seems to me it would be perfectly usable to have an e.g. "Send To Excel" plugin that also exposes a Control
+	for a watch that e.g. displays info about or allows configuration for the excel file that is to be generated.
+
+* If one plugin throws an exception while loading, should continue to try to load the rest
+
+* DONE Should it be IWatchViewer.IsWatchable obj * Type -> bool or IWatchViewer.IsWatchable 'a * Type -> bool? The latter is consistent but seems
+  like an anti pattern we adopted to give benifit in F#'s type system.
+  SOLUTION: keeping obj * Type -> bool, changed WatchTreeView.Watch to string * obj * Type 
+
+* ON HOLD Add Send To Active under Send To -> context menu item for conviences (navigating 3 levels deeps is a bit burdonsome.)
+
+* Write tests for add / remove plugin functionality on PluginManager.
+
+Issue 26, PropertyGrid:
+* Consider SelectedObjects vs. SelectedObject. Maybe save for future enhancement.
