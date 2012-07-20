@@ -142,3 +142,5 @@ these should be implemented as class libraries (.dll assembly files) targeting .
 The out-of-the-box [https://code.google.com/p/fseye/source/browse/trunk/FsEye.PropertyGrid.Plugin/PropertyGridPlugin.fs?r=379 PropertyGrid] and [https://code.google.com/p/fseye/source/browse/trunk/FsEye.TreeView.Plugin/TreeViewPlugin.fs?r=379 TreeView] plugins may service as an implementation reference (see links to code).
 
 We are interested in feedback regarding the robustness and suitability of the plugin interfaces for plugin author purposes. One of the concerns we have is regarding version: Plugin authors must reference FsEye.dll to implement the required interfaces: does this present a problem when FsEye increments its assembly version number when a plugin it tries to load was built against a previous version of FsEye? Do we need binding redirects or something like that?
+
+If you are developing a plugin, we'd be interested to hear about it! Eventually, we plan to have a "PluginGallery" wiki page to feature links to 3rd party FsEye plugins.
