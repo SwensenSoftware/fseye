@@ -25,7 +25,7 @@ open Microsoft.FSharp.Collections
 type IWatchViewer =
     ///Add or update a watch with the given label, value, and type. Note: you can choose to 
     ///disregard the label and type if desired, but will almost certainly need the value.
-    abstract Watch : string * 'a * System.Type -> unit
+    abstract Watch : string * obj * System.Type -> unit
     ///The underlying watch viewer control. Exists as a property of IWatchViewer 
     ///since you may or may not own the control (i.e. you cannot directly implement IWatchViewer on the control).
     abstract Control : Control
@@ -70,6 +70,8 @@ and PluginManager() as this =
 
     let showErrorDialog (text:string) (caption:string) =
         MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
+
+    let showPluginErrorDialog text = showErrorDialog text "FsEye Plugin Loading Error"
     
     let managedPlugins = 
         try
@@ -78,15 +80,25 @@ and PluginManager() as this =
                 let pluginSeq =
                     Directory.GetFiles(pluginDir)
                     |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
-                    |> Seq.collect (fun assembly -> assembly.GetTypes())
+                    |> Seq.collect (fun assembly -> 
+                        try
+                            assembly.GetTypes()    
+                        with
+                        | :? ReflectionTypeLoadException as x ->
+                            for le in x.LoaderExceptions do
+                                let msg = sprintf "Error loading types in assembly '%s'.\n\n%s" assembly.FullName le.Message
+                                showPluginErrorDialog msg
+                            [||]
+                    )
                     |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
                     |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
                     |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
                 ResizeArray(pluginSeq)
             else
                 ResizeArray()
-        with x ->
-            showErrorDialog x.Message "FsEye Plugin Loading Error"
+        with
+        | x ->
+            showPluginErrorDialog x.Message
             ResizeArray()
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()
