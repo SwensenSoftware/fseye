@@ -5,9 +5,11 @@
 
 This wiki page is dedicated to documenting the current FsEye 2.0.0 beta release. 
 
-One of the key features in this release is the implementation of plugin system for FsEye, see issue 25. We are very interested in feedback from FsEye users and prospective plugin authors alike. Feedback may be added as comments at the bottom of this page. Although this is a beta release, it is well-tested and very functional as-is.
+One of the key features in this release is the implementation of plugin system for FsEye, see issue 25. The other big feature that can be expected for the final FsEye 2.0.0 release is a robust settings system, see issue 22 and other related issues.
 
-The other big feature that can be expected for the final FsEye 2.0.0 release is a robust settings system, see issue 22 and other related issues. 
+We are very interested in feedback from FsEye users and prospective plugin authors alike. Bug reports or feature requests may be created as new issues in the [http://code.google.com/p/fseye/issues/list Issues] tab. General feedback may be added as comments at the bottom of this page.
+
+Although this is a beta release, it is well-tested and very usable as-is. 
 
 = All Users =
 
