@@ -7,13 +7,8 @@
 
 This beta release primarily features work on a plugin system for FsEye. See the FsEye2Beta wiki page for documentation. 
 
-The following issues are partially completed in this release:
-
   * Issue 25, Create plugin architecture and managerSystem.Windows.Forms.WebBrowser
   * Issue 26, Create "View PropertyGrid" right-click context menu action
-
-The following issue is fully completed in this release:
-
   * Issue 27, Should not show "Copy Value" context menu item for organizational nodes such as "Non-public" and "Rest"
 
 == v1.0.1, 4/13/12 ==
