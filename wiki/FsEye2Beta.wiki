@@ -11,7 +11,7 @@ We are very interested in feedback from FsEye users and prospective plugin autho
 
 Although this is a beta release, it is well-tested and very usable as-is. 
 
-= All Users =
+= For All Users =
 
 Plugins are dlls that contain types that implement two interfaces: `IPlugin` and `IWatchViewer`. `IPlugin`s produce `IWatchViewer`s from traditional FsEye tree view watches to provide alternative views of a watch value. Plugins are deployed to a "plugins" folder which is the immediate child of the FsEye.dll location (FsEye automatically loads these upon start-up, though plugins may also be programmatically registered or removed). 
 
