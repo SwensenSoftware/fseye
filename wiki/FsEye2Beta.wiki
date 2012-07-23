@@ -13,7 +13,9 @@ Although this is a beta release, it is well-tested and very usable as-is.
 
 = All Users =
 
-Plugins are dlls that contain types that implement two interfaces: `IPlugin` and `IWatchViewer`. `IPlugin`s produce `IWatchViewer`s from traditional FsEye tree view watches to provide alternative views of a watch value. Plugins are deployed to a "plugin" folder which is the immediate child of the FsEye.dll location (FsEye automatically loads these upon start-up, though plugins may also be programmatically registered or removed). FsEye includes two plugins out-of-the-box: FsEye.TreeView.Plugin.dll and FsEye.PropertyGrid.Plugin.dll. The former is simply the traditional FsEye `TreeView`-based watch viewer wrapped as a plugin. The latter wraps the WinForms `PropertyGrid` control.
+Plugins are dlls that contain types that implement two interfaces: `IPlugin` and `IWatchViewer`. `IPlugin`s produce `IWatchViewer`s from traditional FsEye tree view watches to provide alternative views of a watch value. Plugins are deployed to a "plugins" folder which is the immediate child of the FsEye.dll location (FsEye automatically loads these upon start-up, though plugins may also be programmatically registered or removed). 
+
+FsEye includes two plugins out-of-the-box: FsEye.TreeView.Plugin.dll and FsEye.PropertyGrid.Plugin.dll. The former is simply the traditional FsEye `TreeView`-based watch viewer wrapped as a plugin. The latter wraps the WinForms `PropertyGrid` control.
 
 = For GUI Users =
 
