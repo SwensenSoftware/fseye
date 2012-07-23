@@ -39,7 +39,7 @@ The created or updated plugin watch viewer tab will receive receive focus.
 
 Various options for closing plugin tabs are available by right-clicking a given tab. These are Close, Close Others, and Close All.  Close Others will be disabled if there is only one tab. When all tabs are closed, the plugin panel will become hidden.
 
-== For API Users ==
+= For API Users =
 
 The following public classes have been renamed to reflect the growing breadth of functionality they now handle:
 
