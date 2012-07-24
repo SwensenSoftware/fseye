@@ -119,7 +119,7 @@ type IWatchViewer =
   interface
     ///Add or update a watch with the given label, value, and type. Note: you can choose to 
     ///disregard the label and type if desired, but will almost certainly need the value.
-    abstract member Watch : string * 'a * System.Type -> unit
+    abstract member Watch : string * obj * System.Type -> unit
     ///The underlying watch viewer control. Exists as a property of IWatchViewer 
     ///since you may or may not own the control (i.e. you cannot directly implement IWatchViewer on the control).
     abstract member Control : System.Windows.Forms.Control
