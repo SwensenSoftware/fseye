@@ -1,4 +1,4 @@
-#summary preview documentation for FsEye 2.0.0 beta releases
+#summary Preview documentation for FsEye 2.0.0 beta releases
 #labels Featured
 
 = Introduction =
