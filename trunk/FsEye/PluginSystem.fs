@@ -75,10 +75,18 @@ and PluginManager() as this =
     
     let managedPlugins = 
         try
-            let pluginDir = sprintf "%s%cplugins" (Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) Path.DirectorySeparatorChar
-            if Directory.Exists(pluginDir) then
-                let pluginSeq =
+            let executingAsm = Assembly.GetExecutingAssembly()
+            let executingDir = Path.GetDirectoryName(executingAsm.Location)
+            let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
+            let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
+
+            let pluginSeq =
+                [pluginDir; executingDir]
+                |> Seq.filter Directory.Exists
+                |> Seq.collect (fun pluginDir ->
                     Directory.GetFiles(pluginDir)
+                    |> Seq.filter(fun assemblyFile -> 
+                        assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
                     |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
                     |> Seq.collect (fun assembly -> 
                         try
@@ -91,11 +99,10 @@ and PluginManager() as this =
                             [||]
                     )
                     |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
-                    |> Seq.map (fun pluginTy -> Activator.CreateInstance(pluginTy) :?> IPlugin)
-                    |> Seq.map (fun plugin -> {Plugin=plugin; PluginManager=this})
-                ResizeArray(pluginSeq)
-            else
-                ResizeArray()
+                    |> Seq.map (fun pluginTy -> 
+                        let plugin = Activator.CreateInstance(pluginTy) :?> IPlugin
+                        {Plugin=plugin; PluginManager=this}))
+            ResizeArray(pluginSeq)
         with
         | x ->
             showPluginErrorDialog x.Message
