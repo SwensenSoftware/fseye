@@ -3,6 +3,13 @@
 
 = Release Notes =
 
+== v2.0.0 beta 3, 7/31/12 == 
+
+This release includes fixes and enhancements affecting plugin authors.
+
+  * Issue 34, Include FsEye.dll dir in plugin search
+  * Issue 35, Plugins fail to load if the plugin dir contains any non-dlls
+
 == v2.0.0 beta 2, 7/23/12 == 
 
 This release includes a high-priority fix affecting plugin authors.
