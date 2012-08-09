@@ -27,48 +27,56 @@ let (|CreatedValue|_|) (l:'a Lazy) =
 
 //how to add icons to tree view: http://msdn.microsoft.com/en-us/library/aa983725(v=vs.71).aspx
 
-type Root = { Text: string
-              Children:seq<Watch>
-              ValueInfo:ValueInfo
-              Name: String
-              ExpressionInfo:ExpressionInfo }
+type Root = { 
+    Text: string
+    Children:seq<Watch>
+    ValueInfo:ValueInfo
+    Name: String
+    ExpressionInfo:ExpressionInfo }
 
-and Organizer = { OrganizerKind: OrganizerKind
-                  Children:seq<Watch> }
+and Organizer = { 
+    OrganizerKind: OrganizerKind
+    Children:seq<Watch> }
 
 and OrganizerKind = 
     | Rest
     | NonPublic
 
-and EnumeratorElement = { Text:string
-                          Children:seq<Watch>
-                          ValueInfo:ValueInfo 
-                          ExpressionInfo:ExpressionInfo }
+and EnumeratorElement = { 
+    Text:string
+    Children:seq<Watch>
+    ValueInfo:ValueInfo 
+    ExpressionInfo:ExpressionInfo }
 
-and DataMember = { LoadingText: string
-                   LazyMemberValue: Lazy<MemberValue>
-                   Image:ImageResource
-                   MemberInfo:MemberInfo 
-                   ExpressionInfo:ExpressionInfo }
+and DataMember = { 
+    LoadingText: string
+    LazyMemberValue: Lazy<MemberValue>
+    Image:ImageResource
+    MemberInfo:MemberInfo 
+    ExpressionInfo:ExpressionInfo }
 
-and CallMember = { InitialText: string
-                   LoadingText: string
-                   LazyMemberValue: Lazy<MemberValue>
-                   Image:ImageResource
-                   MemberInfo:MemberInfo 
-                   ExpressionInfo:ExpressionInfo }
+and CallMember = { 
+    InitialText: string
+    LoadingText: string
+    LazyMemberValue: Lazy<MemberValue>
+    Image:ImageResource
+    MemberInfo:MemberInfo 
+    ExpressionInfo:ExpressionInfo }
 
-and MemberValue = { LoadedText: string
-                    Children:seq<Watch>
-                    ValueInfo: ValueInfo option }
+and MemberValue = { 
+    LoadedText: string
+    Children:seq<Watch>
+    ValueInfo: ValueInfo option }
 
-and ValueInfo = { Text: string
-                  Value: obj
-                  Type : Type }
+and ValueInfo = { 
+    Text: string
+    Value: obj
+    Type : Type }
 
-and ExpressionInfo = { Expression: string
-                       IsPublic: bool
-                       ExplicitInterfaceName: string option }
+and ExpressionInfo = { 
+    Expression: string
+    IsPublic: bool
+    ExplicitInterfaceName: string option }
 
 and Watch =
     | Root              of Root
@@ -76,50 +84,49 @@ and Watch =
     | CallMember        of CallMember
     | Organizer         of Organizer
     | EnumeratorElement of EnumeratorElement
-    with 
-        ///Get the "default text" of this Watch (i.e. the text which is displayed when a watch node is first created which may or may not be updated later).
-        member this.DefaultText =
-            match this with
-            | Root {Text=text} 
-            | DataMember {LoadingText=text}
-            | CallMember {InitialText=text} 
-            | EnumeratorElement {Text=text}-> text
-            | Organizer {OrganizerKind=Rest} -> "Rest"
-            | Organizer {OrganizerKind=NonPublic} -> "Non-public"
-        ///Get the children of this Watch. If the children are taken from a Lazy property,
-        ///evaluation is forced.
-        member this.Children =
-            match this with
-            | Root {Children=children} 
-            | Organizer {Children=children} 
-            | EnumeratorElement {Children=children} -> children
-            | CallMember {LazyMemberValue=l} 
-            | DataMember {LazyMemberValue=l} -> l.Value.Children
-        ///Returns the value info for this watch if a) the watch is fully initialized (it is not forced), b) it is even supported
-        member this.ValueInfo =
-            match this with
-            | Root {ValueInfo=vi} 
-            | EnumeratorElement {ValueInfo=vi}-> Some(vi)
-            | DataMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} 
-            | CallMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} -> optionalVi
-            | _ -> None
-        member this.Image =
-            match this with
-            | DataMember {Image=image}       
-            | CallMember {Image=image} -> image
-            | _ -> ImageResource.Default
-        member this.MemberInfo =
-            match this with
-            | DataMember { MemberInfo=mi } 
-            | CallMember { MemberInfo=mi } -> Some(mi)
-            | _ -> None
-        member this.ExpressionInfo =
-            match this with
-            | Root {ExpressionInfo=ei}  
-            | EnumeratorElement {ExpressionInfo=ei}
-            | CallMember {ExpressionInfo=ei}
-            | DataMember {ExpressionInfo=ei} -> Some(ei)
-            | Organizer _ -> None
+    ///Get the "default text" of this Watch (i.e. the text which is displayed when a watch node is first created which may or may not be updated later).
+    member this.DefaultText =
+        match this with
+        | Root {Text=text} 
+        | DataMember {LoadingText=text}
+        | CallMember {InitialText=text} 
+        | EnumeratorElement {Text=text}-> text
+        | Organizer {OrganizerKind=Rest} -> "Rest"
+        | Organizer {OrganizerKind=NonPublic} -> "Non-public"
+    ///Get the children of this Watch. If the children are taken from a Lazy property,
+    ///evaluation is forced.
+    member this.Children =
+        match this with
+        | Root {Children=children} 
+        | Organizer {Children=children} 
+        | EnumeratorElement {Children=children} -> children
+        | CallMember {LazyMemberValue=l} 
+        | DataMember {LazyMemberValue=l} -> l.Value.Children
+    ///Returns the value info for this watch if a) the watch is fully initialized (it is not forced), b) it is even supported
+    member this.ValueInfo =
+        match this with
+        | Root {ValueInfo=vi} 
+        | EnumeratorElement {ValueInfo=vi}-> Some(vi)
+        | DataMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} 
+        | CallMember {LazyMemberValue=CreatedValue({ValueInfo=optionalVi})} -> optionalVi
+        | _ -> None
+    member this.Image =
+        match this with
+        | DataMember {Image=image}       
+        | CallMember {Image=image} -> image
+        | _ -> ImageResource.Default
+    member this.MemberInfo =
+        match this with
+        | DataMember { MemberInfo=mi } 
+        | CallMember { MemberInfo=mi } -> Some(mi)
+        | _ -> None
+    member this.ExpressionInfo =
+        match this with
+        | Root {ExpressionInfo=ei}  
+        | EnumeratorElement {ExpressionInfo=ei}
+        | CallMember {ExpressionInfo=ei}
+        | DataMember {ExpressionInfo=ei} -> Some(ei)
+        | Organizer _ -> None
 
 open System.Text.RegularExpressions
 ///Sprint the given value with the given Type. Precondition: Type cannot be null.
