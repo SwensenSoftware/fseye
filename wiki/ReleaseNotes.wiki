@@ -7,7 +7,7 @@
 
 Critical bug fix for issue affecting both plugin authors and users.
 
-  * Issue 35, FsEye Plugin Loading Error when loading plugins marked as from "unsafe" internet location (affects included plugins)
+  * Issue 36, FsEye Plugin Loading Error when loading plugins marked as from "unsafe" internet location (affects included plugins)
 
 == v2.0.0 beta 3, 7/31/12 == 
 
