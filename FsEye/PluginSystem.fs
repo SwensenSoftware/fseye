@@ -87,7 +87,8 @@ and PluginManager() as this =
                     Directory.GetFiles(pluginDir)
                     |> Seq.filter(fun assemblyFile -> 
                         assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
-                    |> Seq.map (fun assemblyFile -> Assembly.LoadFile(assemblyFile))
+                    //Issue 36: need to use Assembly.UnsafeLoadFrom to avoid plugin loading errors
+                    |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile))
                     |> Seq.collect (fun assembly -> 
                         try
                             assembly.GetTypes()    
