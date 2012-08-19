@@ -141,7 +141,7 @@ type IPlugin =
   
 these should be implemented as class libraries (.dll assembly files) targeting .NET <=4.5 with processor AnyCPU or x86 platforms (FsEye.dll, FsEye.PropertyGrid.Plugin.dll, and FsEye.TreeView.Plugin.dll all target .NET 4.0 with processor AnyCPU platform).
 
-`PluginManager.RegisterPlugin` is a nice was to interactively develop and test plugins through FSI.
+`PluginManager.RegisterPlugin` is a nice way to interactively develop and test plugins through FSI.
 
 The out-of-the-box [https://code.google.com/p/fseye/source/browse/trunk/FsEye.PropertyGrid.Plugin/PropertyGridPlugin.fs?r=379 PropertyGrid] and [https://code.google.com/p/fseye/source/browse/trunk/FsEye.TreeView.Plugin/TreeViewPlugin.fs?r=379 TreeView] plugins may service as an implementation reference (see links to code).
 
