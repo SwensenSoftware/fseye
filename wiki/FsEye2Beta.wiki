@@ -19,7 +19,7 @@ FsEye includes two plugins out-of-the-box: FsEye.TreeView.Plugin.dll and FsEye.P
 
 = For GUI Users =
 
-Plugin watch viewers are displayed in tabs on the right-hand-side of a split panel (the "plugin panel") with the traditional FsEye watch viewer kept on the left-hand-side (the "main panel").  When no plugin watch tabs are open, the plugin panel is hidden. When a watch in the main panel is right-clicked, you will be presented with a context menu containing a `Send To` menu item (when may be hidden or disable based on the context, such as whether the selected watch has its value loaded) which has the following organization
+Plugin watch viewers are displayed in tabs on the right-hand-side of a split panel (the "plugin panel") with the traditional FsEye watch viewer kept on the left-hand-side (the "main panel").  When no plugin watch tabs are open, the plugin panel is hidden. When a watch in the main panel is right-clicked, you will be presented with a context menu containing a `Send To` menu item (which may be hidden or disable based on the context, such as whether the selected watch has its value loaded) which has the following organization
 
 {{{
 Send To -> PluginA -> New
