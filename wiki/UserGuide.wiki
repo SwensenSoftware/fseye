@@ -7,6 +7,12 @@
   * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}} or add `--load:"C:\FsEye\FsEye.fsx"` to the F# Interactive options under Tools -> F# Tools to have it load on startup. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches.
   * Open Swensen.FsEye.Fsi within .fs files in order to gain intellisense to the open {{{eye}}} instance.
 
+== Mono Support ==
+
+FsEye is not officially supported on Mono, however, there is an experimental branch at http://fseye.googlecode.com/svn/branches/mono/ exploring this possibility (with MonoDevelop 3.0.3.2, Mono 2.10.8.1 (Debian 2.10.8.1-5ubuntu1), and a version of F# 3.0 built from the github sources).
+
+So far, with some minor tweaks we have seen it run well except for an occasional crash when using the new FsEye 2.0 beta 4 "Send To" plugin feature. To use within the F# 3.0 open source edition of FSI, make sure to start fsharpi with the --gui+ option so that the WinForms event loop is enabled.
+
 = Manual =
 
 == Adding and updating watches ==
