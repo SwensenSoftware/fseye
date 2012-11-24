@@ -4,6 +4,7 @@ open System.Reflection
 
 ///Icon resource used to identify tree view node member classifications and provide FsEye form icon.
 type IconResource (name:string) = //should probably make IDisposible to dispose of Icon
+    let name = "Resources." + name
     let loadIconResource =
         let assm = Assembly.GetExecutingAssembly()
         fun name -> new System.Drawing.Icon(assm.GetManifestResourceStream(name))

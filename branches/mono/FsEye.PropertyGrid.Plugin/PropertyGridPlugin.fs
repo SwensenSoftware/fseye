@@ -14,7 +14,7 @@ type PropertyGridWatchViewer() =
         panel.Controls.Add(propGrid)
     
     let labelPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true, Padding=Padding(0,3,3,5))
-    let labelLabel = new Label(Text="Source Expression:", AutoSize=true)
+    let labelLabel = new Label(Text="Source Expression:", AutoSize=true, Padding=Padding(0,0,0,5))
     let expressionLabel = new Label(AutoSize=true)
     do
         labelLabel.Font <- new Font(labelLabel.Font, FontStyle.Bold)

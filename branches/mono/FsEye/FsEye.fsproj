@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Swensen.FsEye</RootNamespace>
     <AssemblyName>FsEye</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>FsEye</Name>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -99,8 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -109,9 +106,11 @@
     <ProjectReference Include="..\Utils\Utils.fsproj">
       <Name>Utils</Name>
       <Project>{46b72fed-e4b4-4ce3-ae7b-97e43837ba2b}</Project>
-      <Private>True</Private>
     </ProjectReference>
     <Reference Include="WindowsBase" />
+    <Reference Include="FSharp.Core">
+      <HintPath>..\..\..\..\..\..\usr\local\lib\mono\gac\FSharp.Core\4.3.0.0__b03f5f7f11d50a3a\FSharp.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
