@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Test.FsEye</RootNamespace>
     <AssemblyName>Test.FsEye</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>Test.FsEye</Name>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -57,15 +56,12 @@
   <ItemGroup>
     <Reference Include="ImpromptuInterface">
       <HintPath>..\packages\ImpromptuInterface.5.6.7\lib\net40\ImpromptuInterface.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="ImpromptuInterface.FSharp">
       <HintPath>..\packages\ImpromptuInterface.FSharp.1.1.0\lib\net40\ImpromptuInterface.FSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -73,11 +69,12 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Unquote">
       <HintPath>..\packages\Unquote.2.2.2\lib\net40\Unquote.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\..\..\..\..\..\usr\local\lib\mono\gac\FSharp.Core\4.3.0.0__b03f5f7f11d50a3a\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -91,12 +88,10 @@
     <ProjectReference Include="..\FsEye\FsEye.fsproj">
       <Name>FsEye</Name>
       <Project>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</Project>
-      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.fsproj">
       <Name>Utils</Name>
       <Project>{46b72fed-e4b4-4ce3-ae7b-97e43837ba2b}</Project>
-      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

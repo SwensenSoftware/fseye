@@ -34,8 +34,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
     inherit TreeView()
     
     static let requiresUIThread (ty:System.Type) =
-        [typeof<System.Windows.Forms.Control>
-         typeof<System.Windows.UIElement>] 
+        [typeof<System.Windows.Forms.Control>] 
         |> Seq.exists ty.IsAssignableFrom
 
     static let (|Archive|Watch|) (tn:TreeNode) =

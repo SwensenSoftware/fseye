@@ -4,6 +4,7 @@ open System.Reflection
 
 ///Image resource used to identify tree view node member classifications and provide FsEye form icon.
 type ImageResource (name:string) =
+    let name = "Resources." + name
     let loadImageResource =
         let assm = Assembly.GetExecutingAssembly()
         fun name -> System.Drawing.Image.FromStream(assm.GetManifestResourceStream(name))
