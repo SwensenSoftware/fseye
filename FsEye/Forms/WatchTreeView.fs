@@ -35,7 +35,8 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
     
     static let requiresUIThread (ty:System.Type) =
         [typeof<System.Windows.Forms.Control>
-         typeof<System.Windows.UIElement>] 
+         System.Type.GetType("System.Windows.UIElement", false)] //mono does not support WPF
+        |> Seq.filter ((<>&) null)
         |> Seq.exists ty.IsAssignableFrom
 
     static let (|Archive|Watch|) (tn:TreeNode) =
