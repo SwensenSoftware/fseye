@@ -12,6 +12,7 @@ module Main =
         eye.Watch("some null value", null, typeof<System.Collections.Generic.Dictionary<int,string>>)
         let value = ([|3.2; 2.; 1.; -3.; 23.|],[|"a";"b";"c";"d";"e"|])
         eye.Watch("series", value, value.GetType())
+        eye.Watch("eye", eye, eye.GetType())
         eye
 
 
