@@ -3,7 +3,7 @@
 
 = Installation =
 
-FsEye is currently supported on .NET 4.0 and above. Mono support is planned but not yet ready (see Issue 37).
+FsEye is currently supported on .NET 4.0 and above. Mono support is planned but not yet ready (see Issue 37; the .NET 4.0 build works well with version 1.0.0 of FsEye, but not 1.0.1).
 
 Installation instructions are as follows:
   * Download and unzip featured release of FsEye from the [http://code.google.com/p/fseye/downloads/list Downloads] page
