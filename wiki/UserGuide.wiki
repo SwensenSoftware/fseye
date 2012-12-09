@@ -60,3 +60,29 @@ By default, FsEye in enabled to listen to FSI adding and updating watches as com
 == Window visibility ==
 
 The FsEye window is designed never to dispose, even if it is closed. It shows automatically whenever a watch is added or updated through FSI listening, and whenever an "async breakpoint" is encountered. It is not shown automatically when watches are added or updated programmatically. It may also be manually shown using {{{eye.Show()}}} or manually hidden using {{{eye.Hide()}}}
+
+== Plugins ==
+
+Plugins are dlls that contain types that implement two interfaces: `IPlugin` and `IWatchViewer`. `IPlugin`s produce `IWatchViewer`s from traditional FsEye tree view watches to provide alternative views of a watch value. Plugins are deployed either along side FsEye.dll or in the `plugins` sub-folder (preferred) (FsEye automatically loads these upon start-up, though plugins may also be programmatically registered or removed). 
+
+FsEye includes two plugins out-of-the-box: FsEye.TreeView.Plugin.dll and FsEye.PropertyGrid.Plugin.dll. The former is simply the traditional FsEye `TreeView`-based watch viewer wrapped as a plugin. The latter wraps the WinForms `PropertyGrid` control.
+
+Plugin watch viewers are displayed in tabs on the right-hand-side of a split panel (the "plugin panel") with the traditional FsEye watch viewer kept on the left-hand-side (the "main panel").  When no plugin watch tabs are open, the plugin panel is hidden. When a watch in the main panel is right-clicked, you will be presented with a context menu containing a `Send To` menu item (which may be hidden or disable based on the context, such as whether the selected watch has its value loaded) which has the following organization
+
+{{{
+Send To -> PluginA -> New
+                      -
+		      PluginA 1
+		      PluginA 2
+	-> PluginB -> New
+		      -
+     		      PluginB 1
+}}}
+					  
+If we chose `Send To -> PluginA -> New` we would send the selected watch to a new watch viewer instance for the given plugin.
+
+If we chose `Send To -> PluginA -> PluginA 1` we would send the selected watch to the existing watch viewer instance for PluginA (replacing or updating it according to the rules implemented by the plugin author).
+
+The created or updated plugin watch viewer tab will receive receive focus.
+
+Various options for closing plugin tabs are available by right-clicking a given tab. These are Close, Close Others, and Close All.  Close Others will be disabled if there is only one tab. When all tabs are closed, the plugin panel will become hidden.
