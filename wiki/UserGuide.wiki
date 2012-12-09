@@ -87,4 +87,4 @@ The created or updated plugin watch viewer tab will receive receive focus.
 
 Various options for closing plugin tabs are available by right-clicking a given tab. These are Close, Close Others, and Close All.  Close Others will be disabled if there is only one tab. When all tabs are closed, the plugin panel will become hidden.
 
-For more information about Plugins, including details on the plugin API and plugin developer, see Plugins.
+For more information about Plugins, including details on the plugin API and plugin developer, see [http://code.google.com/p/fseye/wiki/Plugins Plugins].
