@@ -3,6 +3,12 @@
 
 = Release Notes =
 
+== v2.0.0, 12/9/12 == 
+
+Final non-beta release of v2.0.0, which includes the new plugin system as well as new support for Mono.
+
+  * Issue 37, Add support for Mono
+
 == v2.0.0 beta 4, 8/9/12 == 
 
 Critical bug fix for issue affecting both plugin authors and users.
