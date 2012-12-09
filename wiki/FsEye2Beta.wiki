@@ -1,5 +1,5 @@
 #summary Preview documentation for FsEye 2.0.0 beta releases
-#labels Featured
+#labels Featured,Deprecated
 
 = Introduction =
 
