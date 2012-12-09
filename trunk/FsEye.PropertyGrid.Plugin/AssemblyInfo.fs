@@ -10,9 +10,9 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyTitle("FsEye.PropertyGrid.Plugin")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
-[<assembly: AssemblyCompany("Microsoft")>]
+[<assembly: AssemblyCompany("")>]
 [<assembly: AssemblyProduct("FsEye.PropertyGrid.Plugin")>]
-[<assembly: AssemblyCopyright("Copyright © Microsoft 2011")>]
+[<assembly: AssemblyCopyright("Copyright © Stephen Swensen 2012")>]
 [<assembly: AssemblyTrademark("")>]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
