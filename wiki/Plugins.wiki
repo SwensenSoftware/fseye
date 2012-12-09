@@ -1,4 +1,4 @@
-#summary plugin system overview for developers and users
+#summary Plugin system overview for developers and users
 #labels Featured
 
 = Introduction =
