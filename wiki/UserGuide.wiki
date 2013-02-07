@@ -7,7 +7,7 @@ FsEye is currently supported on .NET 4.0 and above including on Mono 2.10.8.1 an
 
 Installation instructions are as follows:
   * Download and unzip featured release of FsEye from the [http://code.google.com/p/fseye/downloads/list Downloads] page
-  * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}} or in Visual Studio add `--load:"C:\FsEye\FsEye.fsx"` to the F# Interactive options under Tools -> F# Tools to have it load on startup. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches. _Ensure sure that the --gui+ FSI option is set, to enable the WinForms event loop required by FsEye._
+  * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}} or in Visual Studio add `--load:"C:\FsEye\FsEye.fsx"` to the F# Interactive options under Tools -> F# Tools to have it load on startup. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches. On Mono, _Ensure sure that the --gui+ FSI option is set to enable the WinForms event loop required by FsEye_, as it is not set by default as it is on .NET.
   * Open Swensen.FsEye.Fsi within .fs files in order to gain intellisense to the open {{{eye}}} instance.
 
 = Manual =
