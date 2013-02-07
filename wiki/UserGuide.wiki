@@ -10,7 +10,7 @@ Installation instructions are as follows:
   * Load FsEye.fsx within an FSI session, e.g. {{{#load @"C:\FsEye\FsEye.fsx"}}} or in Visual Studio add `--load:"C:\FsEye\FsEye.fsx"` to the F# Interactive options under Tools -> F# Tools to have it load on startup. This will automatically bring {{{eye}}} into scope for programmatically manipulating FsEye as well as attaching a listener to the FSI session to automatically add and update FsEye watches.
   * Open Swensen.FsEye.Fsi within .fs files in order to gain intellisense to the open {{{eye}}} instance.
 
-_On Mono, ensure sure that the --gui+ FSI option is set to enable the WinForms event loop required by FsEye, as it is not set by default as it is on .NET._
+_On Mono, ensure sure that the --gui+ FSI option is set to enable the WinForms event loop required by FsEye, since unlike .NET it is not set by default._
 
 = Manual =
 
