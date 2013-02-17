@@ -44,13 +44,11 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
         | :? Watch as w -> Watch(w)
         | _ -> Archive
 
-    static let isWatch (tn:TreeNode) =
-        match tn with
+    static let isWatch = function
         | Watch _ -> true
         | _ -> false
 
-    static let isArchive (tn:TreeNode) =
-        match tn with
+    static let isArchive = function
         | Archive -> true
         | _ -> false
 
