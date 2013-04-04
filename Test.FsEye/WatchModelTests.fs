@@ -104,14 +104,14 @@ type Foo =
     member public __.HideProperty = ()
 
 [<Fact>]
-let ``do not show properties marked with DebuggerBrowsableState.Never attribute``() =
+let ``do not show properties marked with DebuggerBrowsableState dot Never attribute``() =
     let foo = Foo()
     
     let hideProperty = watch foo |> tryFindChildByName "HideProperty"
     test <@ hideProperty.IsNone @>
 
 [<Fact>]
-let ``do not show fields marked with DebuggerBrowsableState.Never attribute``() =
+let ``do not show fields marked with DebuggerBrowsableState dot Never attribute``() =
     let foo = Foo()
 
     let hideField = watch foo |> tryFindChildByName "hideField"
