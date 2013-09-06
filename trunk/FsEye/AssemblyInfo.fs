@@ -27,7 +27,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
 [<assembly: AssemblyProduct("FsEye")>]
-[<assembly: AssemblyCopyright("Copyright © Stephen Swensen 2012")>]
+[<assembly: AssemblyCopyright("Copyright © Stephen Swensen 2012-2013")>]
 [<assembly: AssemblyTrademark("")>]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
