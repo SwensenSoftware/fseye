@@ -40,7 +40,7 @@ type Eye() as this =
                 let original = System.Threading.SynchronizationContext.Current
 
                 do! Async.Sleep(100)
-                do! Async.Sleep(0) //nop to force cancellation check
+                do! async.Return () //nop to force cancellation check
 
                 let watchVars = SessionQueries.getWatchableVariables() 
                 
