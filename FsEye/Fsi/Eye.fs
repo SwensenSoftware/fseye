@@ -42,7 +42,7 @@ type Eye() as this =
                         do! Async.SwitchToContext gui
                         
                         this.Show()
-                        watchVars |> Array.iter eyeForm.Watch
+                        watchVars |> Seq.iter eyeForm.Watch
 
                         do! Async.SwitchToContext original
                         do! Async.Sleep 100
