@@ -22,44 +22,37 @@ type Eye() as this =
     do
         ///prevent form from disposing when closing
         eyeForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
-    
-    ///Indicates whether or not FSI session listening is turned on
-    let mutable listen = true
 
-    ///The listener event handler
-    let listener =
-        //need to figure out a way to not call repeatedly for single evaluation
-        fun (_:obj) ->
-            if listen then
-                listen <- false //we are going to try to not fire every time a 100 item list for example is entered into FSI
-                let gui = System.Threading.SynchronizationContext.Current
-                async {
-                    try
-                        let original = System.Threading.SynchronizationContext.Current
-                        
-                        let watchVars = SessionQueries.getWatchableVariables() 
-                        
-                        do! Async.SwitchToContext gui
-                        
-                        this.Show()
-                        watchVars |> Seq.iter eyeForm.Watch
+     ///Indicates whether or not FSI session listening is turned on
+    let mutable listen = true   
 
-                        do! Async.SwitchToContext original
-                        do! Async.Sleep 100
-                        do! Async.SwitchToContext gui
-                        listen <- true
-                        do! Async.SwitchToContext original
-                    with e ->
-                        let original = System.Threading.SynchronizationContext.Current
-                        do! Async.SwitchToContext gui
-                        listen <- true //want to make sure we don't leave this as false if there is a problem!
-                        printfn "%A" (e.InnerException)
-                        do! Async.SwitchToContext original
-                } |> Async.Start
-                null
-            else
-                //printfn "listen is false"
-                null
+    let mutable listenerCts = new System.Threading.CancellationTokenSource()
+
+    ///The listener event handler. Takes care to throttle fast repeated calls (discards those leading up to the last in <100ms succession).
+    let listener (_:obj) =
+        if not listen then
+            null
+        else    
+            listenerCts.Cancel()
+            listenerCts <- new System.Threading.CancellationTokenSource()
+            let gui = System.Threading.SynchronizationContext.Current
+            let computation = async {
+                let original = System.Threading.SynchronizationContext.Current
+
+                do! Async.Sleep(100)
+                do! Async.Sleep(0) //nop to force cancellation check
+
+                let watchVars = SessionQueries.getWatchableVariables() 
+                
+                do! Async.SwitchToContext gui
+                
+                this.Show()
+                watchVars |> Seq.iter eyeForm.Watch
+
+                do! Async.SwitchToContext original
+            }
+            Async.Start(computation, listenerCts.Token)
+            null
 
     ///Add or update a watch with the given name, value, and type.
     member __.Watch(name, value:obj, ty) =
