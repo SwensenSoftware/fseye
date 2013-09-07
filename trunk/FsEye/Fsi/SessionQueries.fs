@@ -21,39 +21,24 @@ open System.Reflection
 //The following method for extracting FSI session variables using reflection was 
 //adapted from Tomas Petricek's (http://stackoverflow.com/users/33518/tomas-petricek) answer at
 //http://stackoverflow.com/questions/4997028/f-interactive-how-to-see-all-the-variables-defined-in-current-session/4998232#4998232
-let getRawVariables =
+let getWatchableVariables =
     let fsiAssembly = 
         System.AppDomain.CurrentDomain.GetAssemblies() 
-        |> Array.find (fun assm -> assm.GetName().Name = "FSI-ASSEMBLY")
+        |> Seq.find (fun assm -> assm.GetName().Name = "FSI-ASSEMBLY")
 
     fun () ->
-        [|
-            let types = fsiAssembly.GetTypes()
-            types |> Array.sortInPlaceBy (fun t -> t.Name)
-
-            for t in types do
-                if t.Name.StartsWith("FSI_") then 
-                    let flags = BindingFlags.Static ||| BindingFlags.NonPublic ||| BindingFlags.Public
-                    for pi in t.GetProperties(flags) do //i checked, nothing interesting in GetFields
-                        if pi.GetIndexParameters().Length > 0 |> not then
-                            yield pi.Name, lazy pi.GetValue(null, Array.empty), pi.PropertyType
-        |]
-
-///get all non-lambda variables, including the most recently updated "it"
-let getWatchableVariables() =
-    [|
-        let fsiVars = getRawVariables()
-        //last "it" should be most recent, show it first
-        let it =
-            seq { for i in (fsiVars.Length-1)..(-1)..0 do yield fsiVars.[i] }
-            |> Seq.tryFind (fun (name,_,__) -> name = "it")
-
-        match it with
-        | Some(name, lval, ty) -> yield name, lval.Value, ty
-        | _ -> ()
-
-        //show the rest of the non-"@" vars
-        for name, lval, ty in fsiVars do
-            if name <> "it" && (name.Contains("@") |> not) then
-                yield name, lval.Value, ty
-    |]
+        fsiAssembly.GetTypes()//FSI types have the name pattern FSI_####, where #### is the order in which they were created
+        |> Seq.filter (fun ty -> ty.Name.StartsWith("FSI_"))
+        |> Seq.sortBy (fun ty -> ty.Name.Split('_').[1] |> int)
+        |> Seq.collect (fun ty ->
+            let flags = BindingFlags.Static ||| BindingFlags.NonPublic ||| BindingFlags.Public
+            ty.GetProperties(flags) 
+            |> Seq.filter (fun pi -> pi.GetIndexParameters().Length > 0 |> not && pi.Name.Contains("@") |> not))
+        //|> Seq.map (fun pi -> printfn "%A" (pi.Name, pi.GetValue(null, Array.empty), pi.PropertyType); pi)
+        //the next sequence of pipes removes leading duplicates 
+        |> Seq.mapi (fun i pi -> pi.Name, (i, pi)) //remember the order
+        |> Map.ofSeq //remove leading duplicates (but now ordered by property name)
+        |> Map.toSeq //reconstitue
+        |> Seq.sortBy (fun (_,(i,_)) -> i) //order by original index
+        |> Seq.map (fun (_,(_,pi)) -> pi.Name, pi.GetValue(null, Array.empty), pi.PropertyType) //discard ordering index, project usuable watch value
+        //|> Seq.map (fun it -> printfn "%A" it; it)
