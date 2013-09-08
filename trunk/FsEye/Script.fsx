@@ -13,13 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 *)
-//#r "FsEye.dll" //release deployment expects this file next to the dll
-#r "bin/Release/FsEye.dll"
-#load "bin\Release\FsEye.fsx"
-//#time
-//#load "bin\Debug\FsEye.fsx"
 
-//open Swensen.FsEye.Fsi
+//we use Debug.FsEye since it has the plugins.
+#r "../Debug.FsEye/bin/Release/FsEye.dll"
+#load @"..\Debug.FsEye\bin\Release\FsEye.fsx"
+
 
 //----NEW FEATURE IDEAS
 //add "Refresh Watches" button to top left
