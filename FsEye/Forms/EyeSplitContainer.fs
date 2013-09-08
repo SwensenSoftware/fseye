@@ -50,8 +50,20 @@ type internal EyeSplitContainer(pluginManager:PluginManager) as this =
     //Auto-update splitter distance to a percentage on resize
     let mutable splitterDistancePercentage = 0.5
     do     
-        let updateSplitterDistancePercentage() = splitterDistancePercentage <- (float this.SplitterDistance) / (float this.Width)
-        let updateSplitterDistance() = this.SplitterDistance <- int ((float this.Width) * splitterDistancePercentage)
+        let inline ensureBounds lower upper num =
+            if num > upper then upper
+            elif num < lower then lower
+            else num
+        let updateSplitterDistancePercentage() = 
+            if this.Width > 0 then
+                splitterDistancePercentage <- 
+                    let pct = (float this.SplitterDistance) / (float this.Width)
+                    ensureBounds 0. 100. pct
+        let updateSplitterDistance() = 
+            if this.Width > 0 then
+                this.SplitterDistance <- 
+                    let dist = int ((float this.Width) * splitterDistancePercentage)
+                    ensureBounds this.Panel1MinSize (this.Width - this.Panel2MinSize) dist
         updateSplitterDistance() //since SplitterMoved fires first, need to establish default splitter distance
         this.SplitterMoved.Add(fun _ -> updateSplitterDistancePercentage())
         this.SizeChanged.Add(fun _ -> updateSplitterDistance())
