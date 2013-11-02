@@ -38,11 +38,12 @@ type DataGridViewWatchViewer() =
         ///Set or refresh the DataGridView DataSource with the given value.
         member this.Watch(label, value, ty) =
             expressionLabel.Text <- label
-//            let value =
-//                if not (Helpers.ValidDataSourceTypes |> List.exists (fun validTy -> validTy.IsAssignableFrom(ty))) then //must be non-generic IEnumerable
-//                    value :?> System.Collections.IEnumerable |> Seq.cast<obj> |> Seq.toArray :> obj //arrays implement IList
-//                else    
-//                    value
+            let value =
+                if not (Helpers.ValidDataSourceTypes |> List.exists (fun validTy -> validTy.IsAssignableFrom(ty))) then //must be non-generic IEnumerable
+                    //note: List<T> works but T[] does not
+                    System.Collections.Generic.List(value :?> System.Collections.IEnumerable |> Seq.cast<obj>) :> obj
+                else    
+                    value
             dgv.DataSource <- value
         ///Get the underlying Control of this watch view
         member this.Control = panel :> Control
@@ -57,6 +58,5 @@ type DataGridViewPlugin() =
         ///Returns true if and only if the given value is not null and the given type implements one of the interfaces supported by DataGridView.DataSource.
         member this.IsWatchable(value:obj, ty:Type) =
             //we convert non-generic IEnumerables to ILists for convenience
-            //let validTys = typeof<System.Collections.IEnumerable> :: Helpers.ValidDataSourceTypes
-            let validTys = Helpers.ValidDataSourceTypes
+            let validTys = typeof<System.Collections.IEnumerable> :: Helpers.ValidDataSourceTypes
             value <> null && (validTys |> List.exists (fun validTy -> validTy.IsAssignableFrom(ty)))
