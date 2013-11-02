@@ -20,6 +20,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.TreeView.Plugin", "Fs
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.PropertyGrid.Plugin", "FsEye.PropertyGrid.Plugin\FsEye.PropertyGrid.Plugin.fsproj", "{1F9B8CB8-8C0C-424C-9035-6562B637A233}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.DataGridView.Plugin", "FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin.fsproj", "{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,16 @@ Global
 		{1F9B8CB8-8C0C-424C-9035-6562B637A233}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1F9B8CB8-8C0C-424C-9035-6562B637A233}.Release|x86.ActiveCfg = Release|x86
 		{1F9B8CB8-8C0C-424C-9035-6562B637A233}.Release|x86.Build.0 = Release|x86
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
