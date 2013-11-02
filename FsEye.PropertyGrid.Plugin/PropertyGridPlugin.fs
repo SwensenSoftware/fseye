@@ -25,7 +25,7 @@ type PropertyGridWatchViewer() =
         panel.Controls.Add(labelPanel)
    
     interface IWatchViewer with 
-        ///Set or refresh the PropertyGride SelectedObject with the given value (the label and type are not currently used).
+        ///Set or refresh the PropertyGrid SelectedObject with the given value (the label and type are not currently used).
         member this.Watch(label, value, _) =
             expressionLabel.Text <- label
             propGrid.SelectedObject <- value
