@@ -63,7 +63,8 @@ and ManagedPlugin = {
         member this.ManagedWatchViewers = this.PluginManager.ManagedWatchViewers |> Seq.filter (fun (x:ManagedWatchViewer) -> x.ManagedPlugin = this)
 
 ///Manages FsEye watch viewer plugins
-and PluginManager() as this =
+and PluginManager(?scanForPlugins:bool) as this =
+    let scanForPlugins = defaultArg scanForPlugins true
     let watchAdded = new Event<ManagedWatchViewer>()
     let watchUpdated = new Event<ManagedWatchViewer>()
     let watchRemoved = new Event<ManagedWatchViewer>()
@@ -74,39 +75,42 @@ and PluginManager() as this =
     let showPluginErrorDialog text = showErrorDialog text "FsEye Plugin Loading Error"
     
     let managedPlugins = 
-        try
-            let executingAsm = Assembly.GetExecutingAssembly()
-            let executingDir = Path.GetDirectoryName(executingAsm.Location)
-            let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
-            let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
+        if scanForPlugins then
+            try
+                let executingAsm = Assembly.GetExecutingAssembly()
+                let executingDir = Path.GetDirectoryName(executingAsm.Location)
+                let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
+                let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
 
-            let pluginSeq =
-                [pluginDir; executingDir]
-                |> Seq.filter Directory.Exists
-                |> Seq.collect (fun pluginDir ->
-                    Directory.GetFiles(pluginDir)
-                    |> Seq.filter(fun assemblyFile -> 
-                        assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
-                    //Issue 36: need to use Assembly.UnsafeLoadFrom to avoid plugin loading errors
-                    |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile))
-                    |> Seq.collect (fun assembly -> 
-                        try
-                            assembly.GetTypes()    
-                        with
-                        | :? ReflectionTypeLoadException as x ->
-                            for le in x.LoaderExceptions do
-                                let msg = sprintf "Error loading types in assembly '%s'.\n\n%s" assembly.FullName le.Message
-                                showPluginErrorDialog msg
-                            [||]
-                    )
-                    |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
-                    |> Seq.map (fun pluginTy -> 
-                        let plugin = Activator.CreateInstance(pluginTy) :?> IPlugin
-                        {Plugin=plugin; PluginManager=this}))
-            ResizeArray(pluginSeq)
-        with
-        | x ->
-            showPluginErrorDialog x.Message
+                let pluginSeq =
+                    [pluginDir; executingDir]
+                    |> Seq.filter Directory.Exists
+                    |> Seq.collect (fun pluginDir ->
+                        Directory.GetFiles(pluginDir)
+                        |> Seq.filter(fun assemblyFile -> 
+                            assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
+                        //Issue 36: need to use Assembly.UnsafeLoadFrom to avoid plugin loading errors
+                        |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile))
+                        |> Seq.collect (fun assembly -> 
+                            try
+                                assembly.GetTypes()    
+                            with
+                            | :? ReflectionTypeLoadException as x ->
+                                for le in x.LoaderExceptions do
+                                    let msg = sprintf "Error loading types in assembly '%s'.\n\n%s" assembly.FullName le.Message
+                                    showPluginErrorDialog msg
+                                [||]
+                        )
+                        |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
+                        |> Seq.map (fun pluginTy -> 
+                            let plugin = Activator.CreateInstance(pluginTy) :?> IPlugin
+                            {Plugin=plugin; PluginManager=this}))
+                ResizeArray(pluginSeq)
+            with
+            | x ->
+                showPluginErrorDialog x.Message
+                ResizeArray()
+        else
             ResizeArray()
                                         
     let managedWatchViewers = ResizeArray<ManagedWatchViewer>()

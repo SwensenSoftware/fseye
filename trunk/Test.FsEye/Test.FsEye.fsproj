@@ -86,8 +86,24 @@
     <Compile Include="PluginManagerTests.fs" />
     <Compile Include="WatchTreeViewTests.fs" />
     <Compile Include="WatchTreeViewLabelCalculatorTests.fs" />
+    <Compile Include="DataGridViewPluginTests.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin.fsproj">
+      <Name>FsEye.DataGridView.Plugin</Name>
+      <Project>{cc563dcc-2eaf-4822-b4ce-9d80acca6b5e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FsEye.PropertyGrid.Plugin\FsEye.PropertyGrid.Plugin.fsproj">
+      <Name>FsEye.PropertyGrid.Plugin</Name>
+      <Project>{1f9b8cb8-8c0c-424c-9035-6562b637a233}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FsEye.TreeView.Plugin\FsEye.TreeView.Plugin.fsproj">
+      <Name>FsEye.TreeView.Plugin</Name>
+      <Project>{669bc59d-958a-4096-affe-7776cf68b46e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FsEye\FsEye.fsproj">
       <Name>FsEye</Name>
       <Project>{20de2466-d7b1-4f72-b8f8-51f10f5f186e}</Project>

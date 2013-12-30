@@ -6,6 +6,7 @@ open Xunit
 open Swensen.FsEye.WatchModel
 open Swensen.FsEye.Forms
 open Swensen.FsEye
+open Swensen.FsEye.Plugins
 
 open Swensen.Utils
 open System.Windows.Forms
@@ -32,7 +33,7 @@ let mkControl = fun () -> new Control()
 [<Fact>]
 let ``SendTo plugin creates watch viewers with absolute count ids`` () =
     let plugin = mkPlugin "Plugin" mkControl
-    let pm = new PluginManager()
+    let pm = new PluginManager(false)
     let mp = pm.RegisterPlugin(plugin)
     test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 1" @>
     test <@ pm.SendTo(mp, "", null, typeof<obj>).ID = "Plugin 2" @>
@@ -45,7 +46,7 @@ let ``removing a plugin removes its watch viewers`` () =
     let pluginA = mkPlugin "PluginA" mkControl
     let pluginB = mkPlugin "PluginB" mkControl
 
-    let pm = new PluginManager()
+    let pm = new PluginManager(false)
     let mpA = pm.RegisterPlugin(pluginA)
     let mpB = pm.RegisterPlugin(pluginB)
     pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
@@ -61,7 +62,7 @@ let ``registering a plugin of the same name removes the previous version of the 
     let pluginA = mkPlugin "PluginA" mkControl
     let pluginB = mkPlugin "PluginB" mkControl
 
-    let pm = new PluginManager()
+    let pm = new PluginManager(false)
     let mpA = pm.RegisterPlugin(pluginA)
     let mpB = pm.RegisterPlugin(pluginB)
     pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
@@ -81,7 +82,7 @@ let ``removing a managed watch viewer disposes of its control`` () =
     let control = new Control()
     let pluginA = mkPlugin "PluginA" (fun () -> control)
 
-    let pm = new PluginManager()
+    let pm = new PluginManager(false)
     let mpA = pm.RegisterPlugin(pluginA)
     let mwv = pm.SendTo(mpA, "", null, typeof<obj>)
     
@@ -94,7 +95,7 @@ let ``ManagedPlugin ManagedWatchViewers filtered correctly`` () =
     let pluginA = mkPlugin "PluginA" mkControl
     let pluginB = mkPlugin "PluginB" mkControl
 
-    let pm = new PluginManager()
+    let pm = new PluginManager(false)
     let mpA = pm.RegisterPlugin(pluginA)
     let mpB = pm.RegisterPlugin(pluginB)
     pm.SendTo(mpA, "", null, typeof<obj>) |> ignore
@@ -103,3 +104,12 @@ let ``ManagedPlugin ManagedWatchViewers filtered correctly`` () =
 
     test <@ mpA.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginA 1"; "PluginA 2"]  @>
     test <@ mpB.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginB 1";]  @>
+
+[<Fact>]
+let ``PluginManager finds plugins with scanForPlugins, the default, true`` () =
+    let pm = new PluginManager()
+    //we assert that the plugins referenced in this project (the out-of-the-box plugins we provided) are available
+    test <@ pm.ManagedPlugins |> Seq.length = 3 @>
+    test <@ pm.ManagedPlugins |> Seq.exists (fun x -> x.Plugin.GetType() = typeof<DataGridViewPlugin>) @>
+    test <@ pm.ManagedPlugins |> Seq.exists (fun x -> x.Plugin.GetType() = typeof<PropertyGridPlugin>) @>
+    test <@ pm.ManagedPlugins |> Seq.exists (fun x -> x.Plugin.GetType() = typeof<TreeViewPlugin>) @>
