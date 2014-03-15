@@ -40,3 +40,7 @@ The latest revision in trunk is ready for release and all unit tests pass.
 = Finalize =
 
 Tag the head revision of the trunk with the name `<version number>`.
+
+= Process Improvement =
+
+Eliminate manual Visual Studio 2010 build step, this should be automated with a script.
