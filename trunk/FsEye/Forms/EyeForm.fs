@@ -22,7 +22,10 @@ type EyeForm() as this =
     inherit Form(
         Name = "FsEye",
         Icon = IconResource.FsEye.Icon,
-        Text = "FsEye v2.0.1 by Stephen Swensen", 
+        Text = (
+            let version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version
+            sprintf "FsEye v%i.%i.%i by Stephen Swensen" version.Major version.Minor version.Build
+        ),
         Size = (
             let size = SystemInformation.PrimaryMonitorSize
             System.Drawing.Size((2 * size.Width) / 3, size.Height / 2)
