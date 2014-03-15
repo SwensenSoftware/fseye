@@ -27,7 +27,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
 [<assembly: AssemblyProduct("FsEye")>]
-[<assembly: AssemblyCopyright("Copyright © Stephen Swensen 2011-2013")>]
+[<assembly: AssemblyCopyright("Copyright © Stephen Swensen 2011-2014")>]
 [<assembly: AssemblyTrademark("")>]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -48,7 +48,7 @@ open System.Runtime.InteropServices
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[<assembly: AssemblyVersion("2.0.1.*")>] //the fourth position is for beta release numbers
-[<assembly: AssemblyFileVersion("2.0.1.*")>]
+[<assembly: AssemblyVersion("2.1.0.*")>] //the fourth position is for beta release numbers
+[<assembly: AssemblyFileVersion("2.1.0.*")>]
 
 ()
