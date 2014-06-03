@@ -35,7 +35,8 @@ The latest revision in trunk is ready for release and all unit tests pass.
     # Delete all columns except for the ID and Summary columns from the csv
     # Open up the ReleaseNotes wiki page for edit
     # Copy and paste the records from the csv into the ReleaseNotes following the existing formatting conventions and save
-  * Upload zip to bintray.com fseye repository at https://bintray.com/stephen-swensen/fseye?repoName=fseye
+  * Upload zip (now hosted by Swensen Software)
+    # TODO
 
 = Finalize =
 
