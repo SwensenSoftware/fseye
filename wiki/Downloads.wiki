@@ -1,5 +1,3 @@
 #summary Information about Downloads
 
-As of 2014, Google Code no longer offers download hosting.
-
-Downloads are now hosted by [http://www.swensensoftware.com Swensen Software] at http://www.swensensoftware.com/fseye/downloads.
+[http://www.swensensoftware.com/fseye Downloads are now hosted by Swensen Software] (Google Code no longer offers this service).
