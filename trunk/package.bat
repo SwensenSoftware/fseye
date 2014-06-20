@@ -2,6 +2,7 @@ set /p versionNumber=
 
 REM clean up
 del builds\FsEye-%versionNumber%.zip
+del builds\FsEye.%versionNumber%.nupkg
 rd /q /s builds\FsEye-%versionNumber%
 rd /q /s builds\FsEye
 
@@ -29,7 +30,28 @@ REM extract build
 "tools\7z\7za.exe" x "builds\FsEye-%versionNumber%.zip" -o"builds\FsEye-%versionNumber%"
 "tools\7z\7za.exe" x "builds\FsEye-%versionNumber%.zip" -o"builds\FsEye"
 
-REM clean up
+REM preparing nuget dirs
+
+mkdir nuget
+mkdir nuget\lib
+mkdir nuget\lib\net40
+copy FsEye.nuspec nuget
+
+REM copy staging builds to nuget package...
+
+copy staging\FsEye.dll nuget\lib\net40\FsEye.dll
+copy staging\plugins\* nuget\lib\net40\
+copy staging\FsEye.xml nuget\lib\net40\FsEye.xml
+
+REM create nuget package...
+
+".nuget\nuget.exe" pack nuget\FsEye.nuspec -Version %versionNumber%
+copy FsEye.%versionNumber%.nupkg builds
+del FsEye.%versionNumber%.nupkg
+
+REM cleanup...
+
 rd /q /s staging
+rd /q /s nuget
 
 pause
