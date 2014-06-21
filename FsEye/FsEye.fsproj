@@ -91,11 +91,14 @@
     <Compile Include="Forms\EyeForm.fs" />
     <Compile Include="Fsi\SessionQueries.fs" />
     <Compile Include="Fsi\Eye.fs" />
-    <None Include="FsEye.fsx">
+    <None Include="FsEye.NuGet.fsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Script.fsx" />
     <Content Include="todo.txt" />
+    <None Include="FsEye.fsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
