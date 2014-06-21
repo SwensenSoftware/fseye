@@ -33,15 +33,17 @@ REM extract build
 REM preparing nuget dirs
 
 mkdir nuget
+mkdir nuget\content
 mkdir nuget\lib
 mkdir nuget\lib\net40
+mkdir nuget\lib\net40\plugins
 copy FsEye.nuspec nuget
 
 REM copy staging builds to nuget package...
 
 copy staging\FsEye.dll nuget\lib\net40\FsEye.dll
-copy staging\plugins\* nuget\lib\net40\
-copy staging\FsEye.xml nuget\lib\net40\FsEye.xml
+copy staging\plugins\* nuget\lib\net40\plugins\
+copy FsEye\bin\Release\FsEye.NuGet.fsx nuget\content\FsEye.fsx
 
 REM create nuget package...
 
