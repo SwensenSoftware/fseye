@@ -12,6 +12,7 @@ Installation instructions are as follows:
 
 _On Mono, ensure sure that the --gui+ FSI option is set to enable the WinForms event loop required by FsEye, since unlike on .NET, it is not set by default._
 
+[https://www.nuget.org/packages/FsEye NuGet packages] are also available for use by plugin authors or as an alternative quick installation method.
 = Manual =
 
 == Adding and updating watches ==
