@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>FsEye</id>
+	<version>0.0.0</version> <!-- version is required but we override it in our build script with parameterized version number -->
+    <authors>Stephen Swensen</authors>
+    <owners>Stephen Swensen</owners>
+	<iconUrl>https://fseye.googlecode.com/svn/images/logo.png</iconUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://code.google.com/p/fseye/</projectUrl>
+	<tags>F# fsharp fsi</tags>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<summary>A visual object tree inspector for the F# Interactive.</summary>
+    <description>FsEye listens for additions and updates to variables within FSI sessions, allowing you to reflectively examine properties of captured values through a visual interface. It also allows you to programmatically add and update eye watches, effectively ending the era of printf REPL debugging.</description>
+  </metadata>
+</package>
