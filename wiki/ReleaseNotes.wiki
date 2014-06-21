@@ -3,6 +3,13 @@
 
 = Release Notes =
 
+== v2.1.0, 6/14/14 ==
+
+A new DataGridView-based plugin.
+
+  * Issue 30, Create and publish NuGet package for plugin authors to develop against
+  * Issue 43, Add DataGridView-based plugin
+
 == v2.0.1, 9/10/13 == 
 
 A couple high-priority bug fixes.
