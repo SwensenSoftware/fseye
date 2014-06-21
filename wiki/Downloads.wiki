@@ -1,3 +1,5 @@
 #summary Information about Downloads
 
 [http://www.swensensoftware.com/fseye Downloads are now hosted by Swensen Software] (Google Code no longer offers this service).
+
+[https://www.nuget.org/packages/FsEye NuGet packages are also available.]
