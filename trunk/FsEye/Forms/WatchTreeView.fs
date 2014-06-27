@@ -131,25 +131,30 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                     | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
                         let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
                         miSendTo.MenuItems.AddRange [|
-                            for managedPlugin in pluginManager.ManagedPlugins do
-                                let miPlugin = new MenuItem(managedPlugin.Plugin.Name)
-                                if managedPlugin.Plugin.IsWatchable(vi.Value, vi.Type) then
-                                    miPlugin.MenuItems.AddRange [|
-                                        //send to a new watch                                
-                                        let miWatchViewer = new MenuItem("New")
-                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
-                                        yield miWatchViewer
-                                        //send to an existing watch                                
-                                        if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
-                                            yield new MenuItem("-")
-                                            for managedWatchViewer in managedPlugin.ManagedWatchViewers do
-                                                let miWatchViewer = new MenuItem(managedWatchViewer.ID)
-                                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
-                                                yield miWatchViewer
-                                    |]
-                                else 
-                                    miPlugin.Enabled <- false
-                                yield miPlugin 
+                            let managedPlugins = 
+                                pluginManager.ManagedPlugins 
+                                |> Seq.map (fun mp -> mp.Plugin.IsWatchable(vi.Value, vi.Type), mp)
+
+                            //send to a new watch                                
+                            for (enabled, managedPlugin) in managedPlugins do
+                                let miWatchViewer = new MenuItem(managedPlugin.Plugin.Name + " (new)")
+                                miWatchViewer.Enabled <- enabled
+                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
+                                yield miWatchViewer
+                            
+                            //send to an existing watch                                
+                            let managedWatchViewers = [|
+                                for (enabled, managedPlugin) in managedPlugins do
+                                    if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
+                                        for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                            let miWatchViewer = new MenuItem(managedWatchViewer.ID)
+                                            miWatchViewer.Enabled <- enabled
+                                            miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
+                                            yield miWatchViewer
+                            |]
+                            if managedWatchViewers |> Seq.length > 0 then
+                                yield new MenuItem("-")
+                                yield! managedWatchViewers
                         |]
                     | _ -> 
                         miSendTo.Enabled <- false
