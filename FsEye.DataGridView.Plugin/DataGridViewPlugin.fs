@@ -21,6 +21,8 @@ type DataGridViewWatchViewer() =
     
     let dgv = new DataGridView(Dock=DockStyle.Fill)
     do
+        //swallow dataerror events: these can happen when we have a non-homogeneous collection
+        dgv.DataError.Add(fun target -> ())
         panel.Controls.Add(dgv)
     
     let labelPanel = new FlowLayoutPanel(Dock=DockStyle.Top, AutoSize=true, Padding=Padding(0,3,3,5))
