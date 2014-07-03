@@ -4,6 +4,8 @@ open System
 open System.Drawing
 open System.Windows.Forms
 open System.Xml
+open Swensen.FsEye
+open Swensen.FsEye.Forms
 
 type IHuman =
     abstract member Name : string
@@ -20,7 +22,7 @@ type Professor =
 
 module Main =
     let initEye() =
-        let eye = new Swensen.FsEye.Forms.EyeForm()   
+        let eye = new Swensen.FsEye.Forms.EyeForm(new PluginManager())   
         eye.Watch("x", 3)  
         eye.Watch("y", new System.Collections.Generic.List<int>(Seq.init 200 id))      
         eye.Watch("some null value", null, typeof<System.Collections.Generic.Dictionary<int,string>>)

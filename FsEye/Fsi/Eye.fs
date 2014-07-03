@@ -14,14 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 *)
 namespace Swensen.FsEye.Fsi
+open Swensen.FsEye
 open Swensen.FsEye.Forms
+
+type private ManagedEyeResources = { EyeForm: EyeForm; PluginManager: PluginManager }
 
 ///Manages a EyeForm in the context of an FSI session listening for watch additions and updates and reflecting those in the EyeForm.
 type Eye() as this = 
-    let mutable eyeForm = new EyeForm()
+    let initResources () =
+        let pluginManager = new PluginManager()
+        let eyeForm = new EyeForm(pluginManager)
+        {EyeForm=eyeForm; PluginManager=pluginManager}
+
+
+    let mutable resources = initResources()
     do
         ///prevent form from disposing when closing
-        eyeForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
+        resources.EyeForm.Closing.Add(fun args -> args.Cancel <- true ; this.Hide())
 
      ///Indicates whether or not FSI session listening is turned on
     let mutable listen = true   
@@ -47,7 +56,7 @@ type Eye() as this =
                 do! Async.SwitchToContext gui
                 
                 this.Show()
-                watchVars |> Seq.iter eyeForm.Watch
+                watchVars |> Seq.iter resources.EyeForm.Watch
 
                 do! Async.SwitchToContext original
             }
@@ -56,31 +65,31 @@ type Eye() as this =
 
     ///Add or update a watch with the given name, value, and type.
     member __.Watch(name, value:obj, ty) =
-        eyeForm.Watch(name, value, ty)
+        resources.EyeForm.Watch(name, value, ty)
 
     ///Add or update a watch with the given name and value (where the type is derived from the type paramater of the value).
     member __.Watch(name, value) =
-        eyeForm.Watch(name, value)
+        resources.EyeForm.Watch(name, value)
 
     ///Take archival snap shot of all current watches using the given label.
     member this.Archive(label) =
-        eyeForm.Archive(label)
+        resources.EyeForm.Archive(label)
 
     ///Take archival snap shot of all current watches using a default label based on an archive count.
     member __.Archive() =
-        eyeForm.Archive()
+        resources.EyeForm.Archive()
     
     ///Clear all watches (doesn't include archive nodes).
     member __.ClearArchives() =
-        eyeForm.ClearArchives()
+        resources.EyeForm.ClearArchives()
 
     ///Clear all watches (doesn't include archive nodes).
     member __.ClearWatches() =
-        eyeForm.ClearWatches()
+        resources.EyeForm.ClearWatches()
 
     ///Clear all archives (reseting archive count) and watches.
     member __.ClearAll() =
-        eyeForm.ClearAll()
+        resources.EyeForm.ClearAll()
 
     ///<summary>
     ///Use this in a sync block with do!, e.g.
@@ -94,11 +103,11 @@ type Eye() as this =
     ///<para>} |> Async.StartImmediate</para>
     ///</summary>
     member __.AsyncBreak() =
-        eyeForm.AsyncBreak()
+        resources.EyeForm.AsyncBreak()
 
     ///Continue from an AsyncBreak()
     member __.AsyncContinue() =
-        eyeForm.AsyncContinue()
+        resources.EyeForm.AsyncContinue()
 
     ///Indicates whether or not FSI session listening is turned on.
     member __.Listen 
@@ -111,19 +120,19 @@ type Eye() as this =
 
     ///Show the Watch form.
     member __.Show() =
-        if eyeForm.IsDisposed then
-            eyeForm <- new EyeForm()
+        if resources.EyeForm.IsDisposed then
+            resources <- initResources()
 
-        if eyeForm.Visible |> not then
-            eyeForm.Show()
-            eyeForm.Activate()
+        if resources.EyeForm.Visible |> not then
+            resources.EyeForm.Show()
+            resources.EyeForm.Activate()
 
     ///Hide the Watch form.
     member __.Hide() =
-        eyeForm.Hide()
+        resources.EyeForm.Hide()
 
     ///Manages plugins and plugin watch viewers
-    member this.PluginManager = eyeForm.PluginManager
+    member this.PluginManager = resources.PluginManager
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
