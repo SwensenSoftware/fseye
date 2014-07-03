@@ -18,7 +18,7 @@ open Swensen.FsEye
 open System.Windows.Forms
 open System.Reflection
 
-type EyeForm() as this =
+type EyeForm(pluginManager:PluginManager) as this =
     inherit Form(
         Name = "FsEye",
         Icon = IconResource.FsEye.Icon,
@@ -32,7 +32,7 @@ type EyeForm() as this =
         )
     )
 
-    let eyePanel = new EyePanel(Dock=DockStyle.Fill)
+    let eyePanel = new EyePanel(pluginManager, Dock=DockStyle.Fill)
 
     do
         this.Controls.Add(eyePanel)
@@ -90,6 +90,3 @@ type EyeForm() as this =
         ///Continue from an AsyncBreak()
         member this.AsyncContinue() =
             eyePanel.AsyncContinue()
-
-        ///Manages plugins and plugin watch viewers
-        member this.PluginManager = eyePanel.PluginManager

@@ -18,7 +18,7 @@ open System.Windows.Forms
 open System.Reflection
 open Swensen.FsEye
 
-type EyePanel() as this =
+type EyePanel(pluginManager:PluginManager) as this =
     inherit Panel()    
     let continueButton = new Button(Text="Async Continue", AutoSize=true, Enabled=false)
     let asyncBreak = async {
@@ -26,7 +26,6 @@ type EyePanel() as this =
         ()
     }
 
-    let pluginManager = new PluginManager() //todo: only the Eye should own this resource
     let splitContainer = new EyeSplitContainer(pluginManager, Dock=DockStyle.Fill)
 
     //must add splitContainer (with dockstyle fill) first in order for it to be flush with button panel
@@ -111,6 +110,3 @@ type EyePanel() as this =
             //the Click event for continueButton.PerformClick() doesn't fire when form is closed
             //but it does fire using InvokeOnClick
             this.InvokeOnClick(continueButton, System.EventArgs.Empty)
-
-        ///Manages plugins and plugin watch viewers
-        member this.PluginManager = pluginManager
