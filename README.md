@@ -17,4 +17,4 @@ Features
 
 You are welcome to [Pay What You Want](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BFNS7ZMAL3JZQ) for FsEye via PayPal.
 
-Copyright 2011-2014 [Swensen Software](http://www.swensensoftware.com)
+Copyright 2011-2015 [Swensen Software](http://www.swensensoftware.com)
