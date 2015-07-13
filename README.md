@@ -13,13 +13,7 @@ Features
   * Copy watch values to the Clipboard with the right-click context menu
   * Support for plugins with PropertyGrid, DataGridView, and TreeView-based plugins provided out-of-the box
 
-Please use the [Issues](http://code.google.com/p/fseye/issues/list) tab to report bugs or feature requests. General [Comments](Comments.md) are also welcome.
-
-
 ---
-
-
-&lt;wiki:gadget url="http://www.ohloh.net/p/602892/widgets/project\_factoids.xml" height="195" border="0" width="100%" /&gt;
 
 You are welcome to [Pay What You Want](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BFNS7ZMAL3JZQ) for FsEye via PayPal.
 
