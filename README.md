@@ -4,7 +4,7 @@
 
 FsEye is a visual object tree inspector for the F# Interactive. Taking advantage of the built-in WinForms event loop, it listens for additions and updates to variables within FSI sessions, allowing you to reflectively examine properties of captured values through a visual interface. It also allows you to programmatically add and update eye watches, effectively ending the era of `printf` REPL debugging.
 
-![https://fseye.googlecode.com/svn/images/front-page-example.png](https://fseye.googlecode.com/svn/images/front-page-example.png)
+![screen shot](http://www.swensensoftware.com/static/fseye/front-page-example.png)
 
 Features
   * Monitors FSI for watch additions and updates
