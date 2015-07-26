@@ -1,4 +1,4 @@
-[User Guide](wiki/UserGuide) | [Downloads](http://www.swensensoftware.com/fseye) | [Issues](issues)
+[User Guide](../../wiki/UserGuide) | [Downloads](http://www.swensensoftware.com/fseye) | [Release Notes](../../wiki/ReleaseNotes) | [Issues](../../issues)
 
 ---
 
