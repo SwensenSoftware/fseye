@@ -63,6 +63,14 @@ type Eye() as this =
             Async.Start(computation, listenerCts.Token)
             null
 
+    ///Add or replace a custom callback handler used to create the display strings for instances of objects
+    member __.SetFormatter(f) = WatchModel.customPrinter <- Some f
+
+    ///Add or replace a custom display string for a type in the format: "Some text {PropertyA} more text and {PropertyB}"
+    member __.SetDisplayString(ty:System.Type, displayString:string) =
+        if WatchModel.customSprintLookup.ContainsKey ty then WatchModel.customSprintLookup.Remove ty |> ignore
+        WatchModel.customSprintLookup.Add(ty, WatchModel.generateSprintFunction(displayString))
+
     ///Add or update a watch with the given name, value, and type.
     member __.Watch(name, value:obj, ty) =
         resources.EyeForm.Watch(name, value, ty)
@@ -133,6 +141,7 @@ type Eye() as this =
 
     ///Manages plugins and plugin watch viewers
     member this.PluginManager = resources.PluginManager
+    
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
