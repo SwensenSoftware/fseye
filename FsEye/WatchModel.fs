@@ -178,7 +178,7 @@ let private sprintValue (value:obj) (ty:Type) =
             | _ -> 
                 // attempt to use callback function if set
                 customPrinter 
-                |> Option.bind(fun f -> f value)                
+                |> Option.bind(fun f -> try f value with ex -> Some (ex.Message))                
                 |> function                   
                     | Some s -> s
                     | None -> sprintf "%A" value |> cleanString
