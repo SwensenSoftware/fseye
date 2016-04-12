@@ -108,6 +108,8 @@ let ``ManagedPlugin ManagedWatchViewers filtered correctly`` () =
 [<Fact>]
 let ``PluginManager finds plugins with scanForPlugins, the default, true`` () =
     let pm = new PluginManager()
+    stdout.WriteLine("executing assembly location: " + Assembly.GetExecutingAssembly().Location)
+    stdout.WriteLine("calling assembly location: " + Assembly.GetCallingAssembly().Location)
     //we assert that the plugins referenced in this project (the out-of-the-box plugins we provided) are available
     test <@ pm.ManagedPlugins |> Seq.length = 3 @>
     test <@ pm.ManagedPlugins |> Seq.exists (fun x -> x.Plugin.GetType() = typeof<DataGridViewPlugin>) @>
