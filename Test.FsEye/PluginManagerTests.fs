@@ -109,6 +109,12 @@ let ``ManagedPlugin ManagedWatchViewers filtered correctly`` () =
 let ``PluginManager finds plugins with scanForPlugins, the default, true`` () =
     let pm = new PluginManager()
     stdout.WriteLine("executing assembly location: " + Assembly.GetExecutingAssembly().Location)
+    let fi = (new System.IO.FileInfo(Assembly.GetExecutingAssembly().Location))
+    let files = 
+        fi.Directory.GetFiles() 
+        |> Seq.filter (fun x -> x.ToString().EndsWith(".dll")) 
+        |> Seq.fold (fun acc x -> acc + " " + x.ToString()) ""
+    stdout.WriteLine("executing assembly files: " + files)
     stdout.WriteLine("calling assembly location: " + Assembly.GetCallingAssembly().Location)
     //we assert that the plugins referenced in this project (the out-of-the-box plugins we provided) are available
     test <@ pm.ManagedPlugins |> Seq.length = 3 @>
