@@ -105,17 +105,21 @@ let ``ManagedPlugin ManagedWatchViewers filtered correctly`` () =
     test <@ mpA.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginA 1"; "PluginA 2"]  @>
     test <@ mpB.ManagedWatchViewers |> Seq.map (fun x -> x.ID) |> Seq.toList = ["PluginB 1";]  @>
 
+let dumpAssemblyInfo asm kind =
+    stdout.WriteLine("{0} assembly location: {1}", kind, asm)
+    let fi = new System.IO.FileInfo(asm)
+    let files = 
+        fi.Directory.GetFiles() 
+        //|> Seq.filter (fun x -> x.ToString().EndsWith(".dll")) 
+        |> Seq.fold (fun acc x -> acc + " " + x.ToString()) ""
+    stdout.WriteLine("{0} assembly files: {1}", kind, files)
+
 [<Fact>]
 let ``PluginManager finds plugins with scanForPlugins, the default, true`` () =
     let pm = new PluginManager()
-    stdout.WriteLine("executing assembly location: " + Assembly.GetExecutingAssembly().Location)
-    let fi = (new System.IO.FileInfo(Assembly.GetExecutingAssembly().Location))
-    let files = 
-        fi.Directory.GetFiles() 
-        |> Seq.filter (fun x -> x.ToString().EndsWith(".dll")) 
-        |> Seq.fold (fun acc x -> acc + " " + x.ToString()) ""
-    stdout.WriteLine("executing assembly files: " + files)
-    stdout.WriteLine("calling assembly location: " + Assembly.GetCallingAssembly().Location)
+    dumpAssemblyInfo (Assembly.GetExecutingAssembly().Location) "executing"
+    dumpAssemblyInfo (Assembly.GetCallingAssembly().Location) "calling"
+
     //we assert that the plugins referenced in this project (the out-of-the-box plugins we provided) are available
     test <@ pm.ManagedPlugins |> Seq.length = 3 @>
     test <@ pm.ManagedPlugins |> Seq.exists (fun x -> x.Plugin.GetType() = typeof<DataGridViewPlugin>) @>
