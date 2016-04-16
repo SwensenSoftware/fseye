@@ -19,6 +19,8 @@ Features
 
 ---
 
+[![Build status](https://ci.appveyor.com/api/projects/status/mmy4kyngu0d8lxu4?svg=true)](https://ci.appveyor.com/project/stephen-swensen/fseye)
+
 You are welcome to [Pay What You Want](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BFNS7ZMAL3JZQ) for FsEye via PayPal.
 
-Copyright 2011-2015 [Swensen Software](http://www.swensensoftware.com)
+Copyright 2011-2016 [Swensen Software](http://www.swensensoftware.com)
