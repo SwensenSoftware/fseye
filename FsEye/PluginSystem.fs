@@ -78,7 +78,11 @@ and PluginManager(?scanForPlugins:bool) as this =
         if scanForPlugins then
             try
                 let executingAsm = Assembly.GetExecutingAssembly()
-                let executingDir = Path.GetDirectoryName(executingAsm.Location)
+                let executingAsmLocation =
+                    if System.AppDomain.CurrentDomain.ShadowCopyFiles then
+                        (new System.Uri (executingAsm.EscapedCodeBase)).LocalPath
+                    else executingAsm.Location
+                let executingDir = Path.GetDirectoryName(executingAsmLocation)
                 let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
                 let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
 
