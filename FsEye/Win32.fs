@@ -4,7 +4,7 @@ open System.Reflection
 open System.Runtime.InteropServices
 open System.Drawing
 
-open FSharp.NativeInterop
+open Microsoft.FSharp.NativeInterop
 
 module Win32 =
     let WM_MOUSEWHEEL = 0x20a

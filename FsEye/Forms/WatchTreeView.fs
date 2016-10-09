@@ -17,7 +17,7 @@ namespace Swensen.FsEye.Forms
 open System.Windows.Forms
 open System.Drawing
 open System.Reflection
-open FSharp.NativeInterop
+open Microsoft.FSharp.NativeInterop
 
 open Swensen.Utils
 open Swensen.FsEye
