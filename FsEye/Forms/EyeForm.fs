@@ -38,6 +38,9 @@ type EyeForm(pluginManager:PluginManager) as this =
         this.Controls.Add(eyePanel)
         Application.AddMessageFilter this
 
+    /// Implementing message filter here allows to propagate MouseWheel messages
+    /// to the control under mouse pointer. This is needed because otherwise - only control
+    /// which currently has focus will receive these events. 
     interface IMessageFilter with
         member __.PreFilterMessage message =
             if message.Msg <> Win32.WM_MOUSEWHEEL

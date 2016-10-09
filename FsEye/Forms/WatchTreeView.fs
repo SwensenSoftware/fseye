@@ -303,6 +303,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
         new() = new WatchTreeView(None)
 
         override this.OnHandleCreated e =
+            // This way we enable double-buffering on tree view control - eliminates flickering while hovering, selecting nodes etc. 
             Win32.SendMessage(this.Handle, Win32.TVM_SETEXTENDEDSTYLE, Win32.TVS_EX_DOUBLEBUFFER |> nativeint, Win32.TVS_EX_DOUBLEBUFFER |> nativeint) |> ignore
             base.OnHandleCreated e
 
