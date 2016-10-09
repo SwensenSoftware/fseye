@@ -46,7 +46,7 @@ type EyeForm(pluginManager:PluginManager) as this =
             else
                 let hWnd = Win32.WindowFromPoint Cursor.Position 
 
-                if hWnd <> IntPtr.Zero && hWnd <> message.HWnd && (Control.FromHandle hWnd |> isNull |> not) then 
+                if hWnd <> IntPtr.Zero && hWnd <> message.HWnd && (Control.FromHandle hWnd <> null) then 
                     Win32.SendMessage (hWnd,message.Msg,message.WParam,message.LParam) |> ignore
                     true
                 else
