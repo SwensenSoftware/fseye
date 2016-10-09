@@ -15,7 +15,9 @@ limitations under the License.
 *)
 namespace Swensen.FsEye.Forms
 open System.Windows.Forms
+open System.Drawing
 open System.Reflection
+open FSharp.NativeInterop
 
 open Swensen.Utils
 open Swensen.FsEye
@@ -284,9 +286,25 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                 il.Images.Add(ir.Name, ir.Image)
 
             il
+
+        this.Font <- Font (this.Font.FontFamily, this.Font.Size, this.Font.Style)
+
+        this.MouseWheel
+        |> Event.filter (fun args -> 
+            Control.ModifierKeys = Keys.Control && args.Delta <> 0)
+        |> Event.map (fun args -> if args.Delta > 0 then 1.0f else -1.0f)
+        |> Event.add (fun fontSizeDelta ->
+            let oldFont = this.Font
+            let newFont = Font (oldFont.FontFamily, oldFont.Size + fontSizeDelta, oldFont.Style)
+            this.Font <- newFont
+            oldFont.Dispose ())
     with
         ///Initialize an instance of a WatchTreeView without a PluginManager (e.g. when a WatchTreeView is used as the basis for a plugin!).
         new() = new WatchTreeView(None)
+
+        override this.OnHandleCreated e =
+            Win32.SendMessage(this.Handle, Win32.TVM_SETEXTENDEDSTYLE, Win32.TVS_EX_DOUBLEBUFFER |> nativeint, Win32.TVS_EX_DOUBLEBUFFER |> nativeint) |> ignore
+            base.OnHandleCreated e
 
         member private this.UpdateWatch(tn:TreeNode, value, ty) =
             Control.update this <| fun () ->

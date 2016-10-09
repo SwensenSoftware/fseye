@@ -16,7 +16,7 @@ limitations under the License.
 namespace Swensen.FsEye.Forms
 open Swensen.FsEye
 open System.Windows.Forms
-open System.Reflection
+open System
 
 type EyeForm(pluginManager:PluginManager) as this =
     inherit Form(
@@ -36,6 +36,21 @@ type EyeForm(pluginManager:PluginManager) as this =
 
     do
         this.Controls.Add(eyePanel)
+        Application.AddMessageFilter this
+
+    interface IMessageFilter with
+        member __.PreFilterMessage message =
+            if message.Msg <> Win32.WM_MOUSEWHEEL
+            then 
+                false
+            else
+                let hWnd = Win32.WindowFromPoint Cursor.Position 
+
+                if hWnd <> IntPtr.Zero && hWnd <> message.HWnd && (Control.FromHandle hWnd |> isNull |> not) then 
+                    Win32.SendMessage (hWnd,message.Msg,message.WParam,message.LParam) |> ignore
+                    true
+                else
+                    false
     with
         //a lot of delegation to treeView below -- not sure how to do this better
 
