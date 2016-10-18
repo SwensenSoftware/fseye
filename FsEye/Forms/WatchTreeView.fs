@@ -295,7 +295,10 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
         |> Event.map (fun args -> if args.Delta > 0 then 1.0f else -1.0f)
         |> Event.add (fun fontSizeDelta ->
             let oldFont = this.Font
-            let newFont = Font (oldFont.FontFamily, oldFont.Size + fontSizeDelta, oldFont.Style)
+            let newSize = 
+                let s = oldFont.Size + fontSizeDelta
+                if s <= 0.0f then 1.0f else s
+            let newFont = Font (oldFont.FontFamily, newSize, oldFont.Style)
             this.Font <- newFont
             oldFont.Dispose ())
     with
