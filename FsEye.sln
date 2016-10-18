@@ -22,6 +22,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.PropertyGrid.Plugin",
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.DataGridView.Plugin", "FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin.fsproj", "{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsEye.LinqPad.Plugin", "FsEye.LinqPad.Plugin\FsEye.LinqPad.Plugin.fsproj", "{4182585B-DF88-4D96-B52F-FE93FFD364D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,6 +116,18 @@ Global
 		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CC563DCC-2EAF-4822-B4CE-9D80ACCA6B5E}.Release|x86.ActiveCfg = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Debug|x86.Build.0 = Debug|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|x86.ActiveCfg = Release|Any CPU
+		{4182585B-DF88-4D96-B52F-FE93FFD364D7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
