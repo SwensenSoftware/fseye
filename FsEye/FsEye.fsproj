@@ -84,6 +84,7 @@
     <Compile Include="Settings.fs" />
     <Compile Include="WatchModel.fs" />
     <Compile Include="PluginSystem.fs" />
+    <Compile Include="Win32.fs" />
     <Compile Include="Forms\WatchTreeView.fs" />
     <Compile Include="Forms\PluginTabControl.fs" />
     <Compile Include="Forms\EyeSplitContainer.fs" />
