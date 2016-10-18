@@ -20,6 +20,8 @@ copy FsEye\bin\Release\FsEye.xml staging
 copy "FsEye.PropertyGrid.Plugin\bin\Release\FsEye.PropertyGrid.Plugin.dll" staging\plugins
 copy "FsEye.TreeView.Plugin\bin\Release\FsEye.TreeView.Plugin.dll" staging\plugins
 copy "FsEye.DataGridView.Plugin\bin\Release\FsEye.DataGridView.Plugin.dll" staging\plugins
+copy "FsEye.LinqPad.Plugin\bin\Release\FsEye.LinqPad.Plugin.dll" staging\plugins
+copy "FsEye.LinqPad.Plugin\bin\Release\LINQPad.exe" staging\plugins
 
 REM zip staging files
 cd staging
