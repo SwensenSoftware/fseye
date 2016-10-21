@@ -128,9 +128,37 @@ and Watch =
         | DataMember {ExpressionInfo=ei} -> Some(ei)
         | Organizer _ -> None
 
+
 open System.Text.RegularExpressions
+
+// dictionary of custom display functions 
+let customSprintLookup = new System.Collections.Generic.Dictionary<System.Type,obj->string>()
+
+// custom callback function for overriding display strings
+let mutable customPrinter = None : (obj -> string option) option
+
+// create a function that will replace {Property} with the .ToString() of the properties for an object instace
+let generateSprintFunction displayString =    
+    let r = new Regex("""\{(.*?)\}""",RegexOptions.IgnoreCase|||RegexOptions.Singleline);
+    // replace instances of {PropertyName} with the property value via reflection
+    // eg : "hello world {John} and maybe {Dave}"
+    let rec getResults (m:Match) = 
+        [if m.Success then
+            yield m.Value
+            yield! getResults (m.NextMatch())]
+    let results = getResults (r.Match displayString)
+    fun (o:obj) -> 
+        let getValue name = 
+            if o = null then "null" else 
+            let prop = o.GetType().GetProperty(name)
+            if prop = null then sprintf "could not find property %s" name else 
+            let i = prop.GetGetMethod().Invoke(o, [||]) 
+            if i = null then "null" else i.ToString()
+        (displayString,results) 
+        ||> List.fold(fun acc item -> acc.Replace(item, getValue(item.Replace("{","").Replace("}",""))))
+    
 ///Sprint the given value with the given Type. Precondition: Type cannot be null.
-let private sprintValue (value:obj) (ty:Type) =
+let private sprintValue (value:obj) (ty:Type) =    
     if ty =& null then
         nullArg "ty cannot be null"
 
@@ -144,7 +172,16 @@ let private sprintValue (value:obj) (ty:Type) =
         if typeof<System.Type>.IsAssignableFrom(ty) then
             sprintf "typeof<%s>" (value :?> Type).FSharpName
         else
-            sprintf "%A" value |> cleanString
+            // always use a custom display string function if it exists
+            match customSprintLookup.TryGetValue ty with
+            | true, f -> f value
+            | _ -> 
+                // attempt to use callback function if set
+                customPrinter 
+                |> Option.bind(fun f -> try f value with ex -> Some (ex.Message))                
+                |> function                   
+                    | Some s -> s
+                    | None -> sprintf "%A" value |> cleanString
 
 ///Create lazy seq of children s for a typical valued 
 let rec createChildren ownerValue (ownerTy:Type) =
