@@ -35,6 +35,6 @@ type LinqPadPlugin() =
         member __.Name = 
             "LinqPad"
         member __.CreateWatchViewer() = 
-            () |> LinqPadWatchViewer :> IWatchViewer
+            LinqPadWatchViewer() :> IWatchViewer
         member this.IsWatchable(_,_) =
             true
