@@ -41,3 +41,4 @@ Z:\fseye\Test.FsEye\bin\Debug\net48\FSharp.Interop.Dynamic.dll
 Z:\fseye\Test.FsEye\bin\Debug\net48\Test.FsEye.pdb
 Z:\fseye\Test.FsEye\obj\Debug\net48\Test.FsEye.dll
 Z:\fseye\Test.FsEye\obj\Debug\net48\Test.FsEye.pdb
+Z:\fseye\Test.FsEye\obj\Debug\net48\Test.FsEye.fsprojAssemblyReference.cache

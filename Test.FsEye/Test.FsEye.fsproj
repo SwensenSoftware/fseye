@@ -20,6 +20,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Script1.fsx" />
     <None Include="packages.config" />
     <Compile Include="WatchModelTests.fs" />
     <Compile Include="PluginManagerTests.fs" />

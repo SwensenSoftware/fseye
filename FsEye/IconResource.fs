@@ -6,7 +6,7 @@ open System.Reflection
 type IconResource (name:string) = //should probably make IDisposible to dispose of Icon
     let loadIconResource =
         let assm = Assembly.GetExecutingAssembly()
-        fun name -> new System.Drawing.Icon(assm.GetManifestResourceStream(name))
+        fun name -> new System.Drawing.Icon(assm.GetManifestResourceStream(@"FsEye.Resources." + name))
 
     let image = loadIconResource name
 
