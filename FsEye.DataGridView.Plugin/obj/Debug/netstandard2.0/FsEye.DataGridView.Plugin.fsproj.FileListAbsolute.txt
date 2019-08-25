@@ -1,0 +1,3 @@
+Z:\fseye\FsEye.DataGridView.Plugin\obj\Debug\netstandard2.0\FsEye.DataGridView.Plugin.fsprojAssemblyReference.cache
+Z:\fseye\FsEye.DataGridView.Plugin\obj\Debug\netstandard2.0\FsEye.DataGridView.Plugin.AssemblyInfoInputs.cache
+Z:\fseye\FsEye.DataGridView.Plugin\obj\Debug\netstandard2.0\FsEye.DataGridView.Plugin.AssemblyInfo.fs

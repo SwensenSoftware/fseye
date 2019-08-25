@@ -1,0 +1,8 @@
+Z:\fseye\Utils\bin\Debug\netstandard2.0\Utils.deps.json
+Z:\fseye\Utils\bin\Debug\netstandard2.0\Utils.dll
+Z:\fseye\Utils\bin\Debug\netstandard2.0\Utils.pdb
+Z:\fseye\Utils\obj\Debug\netstandard2.0\Utils.AssemblyInfoInputs.cache
+Z:\fseye\Utils\obj\Debug\netstandard2.0\Utils.AssemblyInfo.fs
+Z:\fseye\Utils\obj\Debug\netstandard2.0\Utils.dll
+Z:\fseye\Utils\obj\Debug\netstandard2.0\Utils.pdb
+Z:\fseye\Utils\obj\Debug\netstandard2.0\Utils.fsprojAssemblyReference.cache

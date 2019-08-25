@@ -1,0 +1,3 @@
+Z:\fseye\FsEye\obj\Debug\netstandard2.0\FsEye.fsprojAssemblyReference.cache
+Z:\fseye\FsEye\obj\Debug\netstandard2.0\FsEye.AssemblyInfoInputs.cache
+Z:\fseye\FsEye\obj\Debug\netstandard2.0\FsEye.AssemblyInfo.fs
