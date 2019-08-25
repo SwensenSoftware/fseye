@@ -12,7 +12,8 @@ open System.Windows.Forms
 
 open System
 open System.Reflection
-open ImpromptuInterface.FSharp
+//open ImpromptuInterface.FSharp
+open FSharp.Interop.Dynamic
 
 ///Parses the path to find a tree node in the Tree, expanding nodes as needed. Path has form:
 ///root/child1/child2/child3 where t%he root and each child is a text starts with match

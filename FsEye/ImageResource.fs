@@ -6,7 +6,7 @@ open System.Reflection
 type ImageResource (name:string) =
     let loadImageResource =
         let assm = Assembly.GetExecutingAssembly()
-        fun name -> System.Drawing.Image.FromStream(assm.GetManifestResourceStream(name))
+        fun name -> System.Drawing.Image.FromStream(assm.GetManifestResourceStream(@"FsEye.Resources." + name))
 
     let image = loadImageResource name
 

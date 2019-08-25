@@ -1,0 +1,573 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.8": {
+      "Dynamitey/2.0.9.136": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "Microsoft.CSharp"
+        ],
+        "compile": {
+          "lib/net40/Dynamitey.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Dynamitey.dll": {}
+        }
+      },
+      "FSharp.Core/4.7.0": {
+        "type": "package",
+        "compile": {
+          "lib/net45/FSharp.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net45/FSharp.Core.dll": {}
+        },
+        "resource": {
+          "lib/net45/cs/FSharp.Core.resources.dll": {
+            "locale": "cs"
+          },
+          "lib/net45/de/FSharp.Core.resources.dll": {
+            "locale": "de"
+          },
+          "lib/net45/es/FSharp.Core.resources.dll": {
+            "locale": "es"
+          },
+          "lib/net45/fr/FSharp.Core.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/net45/it/FSharp.Core.resources.dll": {
+            "locale": "it"
+          },
+          "lib/net45/ja/FSharp.Core.resources.dll": {
+            "locale": "ja"
+          },
+          "lib/net45/ko/FSharp.Core.resources.dll": {
+            "locale": "ko"
+          },
+          "lib/net45/pl/FSharp.Core.resources.dll": {
+            "locale": "pl"
+          },
+          "lib/net45/pt-BR/FSharp.Core.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "lib/net45/ru/FSharp.Core.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/net45/tr/FSharp.Core.resources.dll": {
+            "locale": "tr"
+          },
+          "lib/net45/zh-Hans/FSharp.Core.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "lib/net45/zh-Hant/FSharp.Core.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "FSharp.Interop.Dynamic/4.0.3.130": {
+        "type": "package",
+        "dependencies": {
+          "Dynamitey": "2.0.9.136",
+          "FSharp.Core": "4.1.18"
+        },
+        "compile": {
+          "lib/net40/FSharp.Interop.Dynamic.dll": {}
+        },
+        "runtime": {
+          "lib/net40/FSharp.Interop.Dynamic.dll": {}
+        }
+      },
+      "ImpromptuInterface/7.0.1": {
+        "type": "package",
+        "dependencies": {
+          "Dynamitey": "2.0.9.136"
+        },
+        "compile": {
+          "lib/net40/ImpromptuInterface.dll": {}
+        },
+        "runtime": {
+          "lib/net40/ImpromptuInterface.dll": {}
+        }
+      },
+      "Unquote/5.0.0": {
+        "type": "package",
+        "dependencies": {
+          "FSharp.Core": "4.6.2"
+        },
+        "compile": {
+          "lib/net45/Unquote.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Unquote.dll": {}
+        }
+      },
+      "xunit/2.4.1": {
+        "type": "package",
+        "dependencies": {
+          "xunit.analyzers": "0.10.0",
+          "xunit.assert": "[2.4.1]",
+          "xunit.core": "[2.4.1]"
+        }
+      },
+      "xunit.abstractions/2.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net35/xunit.abstractions.dll": {}
+        },
+        "runtime": {
+          "lib/net35/xunit.abstractions.dll": {}
+        }
+      },
+      "xunit.analyzers/0.10.0": {
+        "type": "package"
+      },
+      "xunit.assert/2.4.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.1/xunit.assert.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.1/xunit.assert.dll": {}
+        }
+      },
+      "xunit.core/2.4.1": {
+        "type": "package",
+        "dependencies": {
+          "xunit.extensibility.core": "[2.4.1]",
+          "xunit.extensibility.execution": "[2.4.1]"
+        },
+        "build": {
+          "build/xunit.core.props": {},
+          "build/xunit.core.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/xunit.core.props": {},
+          "buildMultiTargeting/xunit.core.targets": {}
+        }
+      },
+      "xunit.extensibility.core/2.4.1": {
+        "type": "package",
+        "dependencies": {
+          "xunit.abstractions": "2.0.3"
+        },
+        "compile": {
+          "lib/net452/xunit.core.dll": {}
+        },
+        "runtime": {
+          "lib/net452/xunit.core.dll": {}
+        }
+      },
+      "xunit.extensibility.execution/2.4.1": {
+        "type": "package",
+        "dependencies": {
+          "xunit.extensibility.core": "[2.4.1]"
+        },
+        "compile": {
+          "lib/net452/xunit.execution.desktop.dll": {}
+        },
+        "runtime": {
+          "lib/net452/xunit.execution.desktop.dll": {}
+        }
+      },
+      "FsEye/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.8",
+        "dependencies": {
+          "FSharp.Core": "4.7.0",
+          "Utils": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/FsEye.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FsEye.dll": {}
+        }
+      },
+      "FsEye.DataGridView.Plugin/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.8",
+        "dependencies": {
+          "FSharp.Core": "4.7.0",
+          "FsEye": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/FsEye.DataGridView.Plugin.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FsEye.DataGridView.Plugin.dll": {}
+        }
+      },
+      "FsEye.PropertyGrid.Plugin/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.8",
+        "dependencies": {
+          "FSharp.Core": "4.7.0",
+          "FsEye": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/FsEye.PropertyGrid.Plugin.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FsEye.PropertyGrid.Plugin.dll": {}
+        }
+      },
+      "FsEye.TreeView.Plugin/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.8",
+        "dependencies": {
+          "FSharp.Core": "4.7.0",
+          "FsEye": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/FsEye.TreeView.Plugin.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FsEye.TreeView.Plugin.dll": {}
+        }
+      },
+      "Utils/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "dependencies": {
+          "FSharp.Core": "4.7.0"
+        },
+        "compile": {
+          "bin/placeholder/Utils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Utils.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Dynamitey/2.0.9.136": {
+      "sha512": "SzGWOl8nKR4r7WYiyMgJ0n/MuncdtPSyjxe1+znH8KVKOFQAckXFOeqOXgcWSMLHT+ehAYtZHPWjX+GsH7eI4Q==",
+      "type": "package",
+      "path": "dynamitey/2.0.9.136",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "dynamitey.2.0.9.136.nupkg.sha512",
+        "dynamitey.nuspec",
+        "lib/net40/Dynamitey.dll",
+        "lib/netstandard1.5/Dynamitey.dll",
+        "lib/portable-net45+sl5+win8+wp8/Dynamitey.dll"
+      ]
+    },
+    "FSharp.Core/4.7.0": {
+      "sha512": "6Bf2qzSCaJoP6tTfO+a5muUS7QbyJANqSut73zQvwQ9It5P0ITz9VKseeia2ofco30c55EQ0jA2wf2+A2gpGnw==",
+      "type": "package",
+      "path": "fsharp.core/4.7.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "fsharp.core.4.7.0.nupkg.sha512",
+        "fsharp.core.nuspec",
+        "lib/net45/FSharp.Core.dll",
+        "lib/net45/FSharp.Core.optdata",
+        "lib/net45/FSharp.Core.sigdata",
+        "lib/net45/FSharp.Core.xml",
+        "lib/net45/cs/FSharp.Core.resources.dll",
+        "lib/net45/de/FSharp.Core.resources.dll",
+        "lib/net45/es/FSharp.Core.resources.dll",
+        "lib/net45/fr/FSharp.Core.resources.dll",
+        "lib/net45/it/FSharp.Core.resources.dll",
+        "lib/net45/ja/FSharp.Core.resources.dll",
+        "lib/net45/ko/FSharp.Core.resources.dll",
+        "lib/net45/pl/FSharp.Core.resources.dll",
+        "lib/net45/pt-BR/FSharp.Core.resources.dll",
+        "lib/net45/ru/FSharp.Core.resources.dll",
+        "lib/net45/tr/FSharp.Core.resources.dll",
+        "lib/net45/zh-Hans/FSharp.Core.resources.dll",
+        "lib/net45/zh-Hant/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/FSharp.Core.dll",
+        "lib/netstandard2.0/FSharp.Core.optdata",
+        "lib/netstandard2.0/FSharp.Core.sigdata",
+        "lib/netstandard2.0/FSharp.Core.xml",
+        "lib/netstandard2.0/cs/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/de/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/es/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/fr/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/it/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/ja/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/ko/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/pl/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/pt-BR/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/ru/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/tr/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/zh-Hans/FSharp.Core.resources.dll",
+        "lib/netstandard2.0/zh-Hant/FSharp.Core.resources.dll"
+      ]
+    },
+    "FSharp.Interop.Dynamic/4.0.3.130": {
+      "sha512": "WdSj9LbRgGxCuKNC8NisTKalyHJu2bZG0wjNzZKeTgEpV7h5ltjiAaQFfWQO2s97nLMo0iUSs9PsYDt08weQiQ==",
+      "type": "package",
+      "path": "fsharp.interop.dynamic/4.0.3.130",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "fsharp.interop.dynamic.4.0.3.130.nupkg.sha512",
+        "fsharp.interop.dynamic.nuspec",
+        "lib/net40/FSharp.Interop.Dynamic.dll",
+        "lib/netstandard1.6/FSharp.Interop.Dynamic.dll",
+        "lib/portable-net45+sl5+win8/FSharp.Interop.Dynamic.dll"
+      ]
+    },
+    "ImpromptuInterface/7.0.1": {
+      "sha512": "9w44OsRuNJoAX0dbVoNqdljCqQIk33Hha5W+BcnWVwawFCEuVBDZbPQafgE1gVvvRaQhc1FOIKuJIIhXZmadvA==",
+      "type": "package",
+      "path": "impromptuinterface/7.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "impromptuinterface.7.0.1.nupkg.sha512",
+        "impromptuinterface.nuspec",
+        "lib/net40/ImpromptuInterface.dll",
+        "lib/netstandard2.0/ImpromptuInterface.dll"
+      ]
+    },
+    "Unquote/5.0.0": {
+      "sha512": "oKOfUjHv2rekFLqTNDGKRSyYUXLyY3PfTJhaIBEOBfGIWruMbmc3yFEZcBmajymukH4Lk0zXX7fN47MayGav+A==",
+      "type": "package",
+      "path": "unquote/5.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net45/Unquote.dll",
+        "lib/net45/Unquote.xml",
+        "lib/netstandard2.0/Unquote.dll",
+        "lib/netstandard2.0/Unquote.xml",
+        "unquote.5.0.0.nupkg.sha512",
+        "unquote.nuspec"
+      ]
+    },
+    "xunit/2.4.1": {
+      "sha512": "XNR3Yz9QTtec16O0aKcO6+baVNpXmOnPUxDkCY97J+8krUYxPvXT1szYYEUdKk4sB8GOI2YbAjRIOm8ZnXRfzQ==",
+      "type": "package",
+      "path": "xunit/2.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "xunit.2.4.1.nupkg.sha512",
+        "xunit.nuspec"
+      ]
+    },
+    "xunit.abstractions/2.0.3": {
+      "sha512": "pot1I4YOxlWjIb5jmwvvQNbTrZ3lJQ+jUGkGjWE3hEFM0l5gOnBWS+H3qsex68s5cO52g+44vpGzhAt+42vwKg==",
+      "type": "package",
+      "path": "xunit.abstractions/2.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net35/xunit.abstractions.dll",
+        "lib/net35/xunit.abstractions.xml",
+        "lib/netstandard1.0/xunit.abstractions.dll",
+        "lib/netstandard1.0/xunit.abstractions.xml",
+        "lib/netstandard2.0/xunit.abstractions.dll",
+        "lib/netstandard2.0/xunit.abstractions.xml",
+        "xunit.abstractions.2.0.3.nupkg.sha512",
+        "xunit.abstractions.nuspec"
+      ]
+    },
+    "xunit.analyzers/0.10.0": {
+      "sha512": "4/IDFCJfIeg6bix9apmUtIMwvOsiwqdEexeO/R2D4GReIGPLIRODTpId/l4LRSrAJk9lEO3Zx1H0Zx6uohJDNg==",
+      "type": "package",
+      "path": "xunit.analyzers/0.10.0",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "analyzers/dotnet/cs/xunit.analyzers.dll",
+        "tools/install.ps1",
+        "tools/uninstall.ps1",
+        "xunit.analyzers.0.10.0.nupkg.sha512",
+        "xunit.analyzers.nuspec"
+      ]
+    },
+    "xunit.assert/2.4.1": {
+      "sha512": "O/Oe0BS5RmSsM+LQOb041TzuPo5MdH2Rov+qXGS37X+KFG1Hxz7kopYklM5+1Y+tRGeXrOx5+Xne1RuqLFQoyQ==",
+      "type": "package",
+      "path": "xunit.assert/2.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard1.1/xunit.assert.dll",
+        "lib/netstandard1.1/xunit.assert.xml",
+        "xunit.assert.2.4.1.nupkg.sha512",
+        "xunit.assert.nuspec"
+      ]
+    },
+    "xunit.core/2.4.1": {
+      "sha512": "Zsj5OMU6JasNGERXZy8s72+pcheG6Q15atS5XpZXqAtULuyQiQ6XNnUsp1gyfC6WgqScqMvySiEHmHcOG6Eg0Q==",
+      "type": "package",
+      "path": "xunit.core/2.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/xunit.core.props",
+        "build/xunit.core.targets",
+        "buildMultiTargeting/xunit.core.props",
+        "buildMultiTargeting/xunit.core.targets",
+        "xunit.core.2.4.1.nupkg.sha512",
+        "xunit.core.nuspec"
+      ]
+    },
+    "xunit.extensibility.core/2.4.1": {
+      "sha512": "yKZKm/8QNZnBnGZFD9SewkllHBiK0DThybQD/G4PiAmQjKtEZyHi6ET70QPU9KtSMJGRYS6Syk7EyR2EVDU4Kg==",
+      "type": "package",
+      "path": "xunit.extensibility.core/2.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net452/xunit.core.dll",
+        "lib/net452/xunit.core.dll.tdnet",
+        "lib/net452/xunit.core.xml",
+        "lib/net452/xunit.runner.tdnet.dll",
+        "lib/net452/xunit.runner.utility.net452.dll",
+        "lib/netstandard1.1/xunit.core.dll",
+        "lib/netstandard1.1/xunit.core.xml",
+        "xunit.extensibility.core.2.4.1.nupkg.sha512",
+        "xunit.extensibility.core.nuspec"
+      ]
+    },
+    "xunit.extensibility.execution/2.4.1": {
+      "sha512": "7e/1jqBpcb7frLkB6XDrHCGXAbKN4Rtdb88epYxCSRQuZDRW8UtTfdTEVpdTl8s4T56e07hOBVd4G0OdCxIY2A==",
+      "type": "package",
+      "path": "xunit.extensibility.execution/2.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net452/xunit.execution.desktop.dll",
+        "lib/net452/xunit.execution.desktop.xml",
+        "lib/netstandard1.1/xunit.execution.dotnet.dll",
+        "lib/netstandard1.1/xunit.execution.dotnet.xml",
+        "xunit.extensibility.execution.2.4.1.nupkg.sha512",
+        "xunit.extensibility.execution.nuspec"
+      ]
+    },
+    "FsEye/1.0.0": {
+      "type": "project",
+      "path": "../FsEye/FsEye.fsproj",
+      "msbuildProject": "../FsEye/FsEye.fsproj"
+    },
+    "FsEye.DataGridView.Plugin/1.0.0": {
+      "type": "project",
+      "path": "../FsEye.DataGridView.Plugin/FsEye.DataGridView.Plugin.fsproj",
+      "msbuildProject": "../FsEye.DataGridView.Plugin/FsEye.DataGridView.Plugin.fsproj"
+    },
+    "FsEye.PropertyGrid.Plugin/1.0.0": {
+      "type": "project",
+      "path": "../FsEye.PropertyGrid.Plugin/FsEye.PropertyGrid.Plugin.fsproj",
+      "msbuildProject": "../FsEye.PropertyGrid.Plugin/FsEye.PropertyGrid.Plugin.fsproj"
+    },
+    "FsEye.TreeView.Plugin/1.0.0": {
+      "type": "project",
+      "path": "../FsEye.TreeView.Plugin/FsEye.TreeView.Plugin.fsproj",
+      "msbuildProject": "../FsEye.TreeView.Plugin/FsEye.TreeView.Plugin.fsproj"
+    },
+    "Utils/1.0.0": {
+      "type": "project",
+      "path": "../Utils/Utils.fsproj",
+      "msbuildProject": "../Utils/Utils.fsproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.8": [
+      "Dynamitey >= 2.0.9.136",
+      "FSharp.Core >= 4.7.0",
+      "FSharp.Interop.Dynamic >= 4.0.3.130",
+      "FsEye >= 1.0.0",
+      "FsEye.DataGridView.Plugin >= 1.0.0",
+      "FsEye.PropertyGrid.Plugin >= 1.0.0",
+      "FsEye.TreeView.Plugin >= 1.0.0",
+      "ImpromptuInterface >= 7.0.1",
+      "Unquote >= 5.0.0",
+      "Utils >= 1.0.0",
+      "xunit >= 2.4.1"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Administrator\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "Z:\\fseye\\Test.FsEye\\Test.FsEye.fsproj",
+      "projectName": "Test.FsEye",
+      "projectPath": "Z:\\fseye\\Test.FsEye\\Test.FsEye.fsproj",
+      "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
+      "outputPath": "Z:\\fseye\\Test.FsEye\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
+      "configFilePaths": [
+        "Z:\\fseye\\.nuget\\NuGet.Config",
+        "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net48"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "http://nuget.grapecity.com/nuget": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net48": {
+          "projectReferences": {
+            "Z:\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj": {
+              "projectPath": "Z:\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj"
+            },
+            "Z:\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj": {
+              "projectPath": "Z:\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj"
+            },
+            "Z:\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj": {
+              "projectPath": "Z:\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj"
+            },
+            "Z:\\fseye\\FsEye\\FsEye.fsproj": {
+              "projectPath": "Z:\\fseye\\FsEye\\FsEye.fsproj"
+            },
+            "Z:\\fseye\\Utils\\Utils.fsproj": {
+              "projectPath": "Z:\\fseye\\Utils\\Utils.fsproj"
+            }
+          }
+        }
+      }
+    },
+    "frameworks": {
+      "net48": {
+        "dependencies": {
+          "Dynamitey": {
+            "target": "Package",
+            "version": "[2.0.9.136, )"
+          },
+          "FSharp.Core": {
+            "target": "Package",
+            "version": "[4.7.0, )"
+          },
+          "FSharp.Interop.Dynamic": {
+            "target": "Package",
+            "version": "[4.0.3.130, )"
+          },
+          "ImpromptuInterface": {
+            "target": "Package",
+            "version": "[7.0.1, )"
+          },
+          "Unquote": {
+            "target": "Package",
+            "version": "[5.0.0, )"
+          },
+          "xunit": {
+            "target": "Package",
+            "version": "[2.4.1, )"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100-preview8-013656\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

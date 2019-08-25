@@ -13,7 +13,7 @@ open System.Windows.Forms
 
 open System
 open System.Reflection
-open ImpromptuInterface.FSharp
+//open ImpromptuInterface.FSharp
 
 let mkPlugin name mkControl =
     {
