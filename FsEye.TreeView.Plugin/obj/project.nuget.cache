@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "tRW/2opIkNQNw1z2yHiAU8DGS61lCLgDvjyAUt3EyBdiMz8pnA2RdMpBk6844m6CJ3DXYGjPum1Tg5Ue+X3JhA==",
+  "success": true,
+  "projectFilePath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\7.0.401\\fsharp.core.7.0.401.nupkg.sha512"
+  ],
+  "logs": []
+}

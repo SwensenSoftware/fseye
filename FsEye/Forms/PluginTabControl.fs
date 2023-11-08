@@ -75,7 +75,22 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
         tabRemoved.Trigger(tab)
     )
         
-    let createTabContextMenu (tab:TabPage) =
+    let createTabContextMenu (tab:TabPage) : TabPage =
+        //new ContextMenu [|
+        //    let mi = new MenuItem("Close Tab") 
+        //    mi.Click.Add(fun _ -> closeTab tab) 
+        //    yield mi
+
+        //    let mi = new MenuItem("Close Other Tabs")
+        //    if this.TabCount > 1 then mi.Click.Add(fun _ -> closeOtherTabs tab)
+        //    else mi.Enabled <- false
+        //    yield mi
+
+        //    let mi = new MenuItem("Close All Tabs") 
+        //    mi.Click.Add(fun _ -> closeAllTabs ()) 
+        //    yield mi
+        //|]
+
         new ContextMenu [|
             let mi = new MenuItem("Close Tab") 
             mi.Click.Add(fun _ -> closeTab tab) 
@@ -90,6 +105,8 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
             mi.Click.Add(fun _ -> closeAllTabs ()) 
             yield mi
         |]
+
+        failwith "createTabContextMenu not supported"
         
     //show the context menu on right-click
     do this.MouseClick.Add (fun e -> 
@@ -100,7 +117,8 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
                 |> Seq.mapi (fun i tab -> (i,tab)) 
                 |> Seq.find (fun (i,tab) -> this.GetTabRect(i).Contains(e.Location))
                 |> snd
-            (createTabContextMenu clickedTab).Show(this, e.Location)
+            //(createTabContextMenu clickedTab).Show(this, e.Location)
+            (createTabContextMenu clickedTab).Show()
     )
 
     [<CLIEvent>]

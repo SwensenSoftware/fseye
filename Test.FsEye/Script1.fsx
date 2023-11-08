@@ -1,4 +1,4 @@
-﻿#I @"Z:\fseye\Test.FsEye\bin\Debug\net48"
+﻿#I @"G:\coldfar_py\fseye\Test.FsEye\bin\Debug\net7.0"
 #r @"FsEye.dll"
 #r @"FsEye.DataGridView.Plugin.dll"
 #r @"FsEye.PropertyGrid.Plugin.dll"

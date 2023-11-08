@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "lnrcNjGtHmcuKPd+4ROj2zftlWnWOUoeQb4ZmDtxzPJd7fa3hKlwg12rzccR7yc87bRoTQDNxfyWtT5LEBlwWg==",
+  "success": true,
+  "projectFilePath": "G:\\coldfar_py\\fseye\\Utils\\Utils.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\4.7.0\\fsharp.core.4.7.0.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

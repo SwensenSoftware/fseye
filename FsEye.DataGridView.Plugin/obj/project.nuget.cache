@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "46p7UJOlzqHGHO4B0xVcii1E7ihD6WzKAuSw3np9pN8SQlYxm3hyJgPuGSyHzeo2z3ZEp26cfuntUSuyg8ooqw==",
+  "success": true,
+  "projectFilePath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\7.0.401\\fsharp.core.7.0.401.nupkg.sha512"
+  ],
+  "logs": []
+}

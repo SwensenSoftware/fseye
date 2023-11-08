@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MZBVjkyO/YCIeB1rekdKVYKZUi65os0pdr7rKX4L3mHtcpvBM/LxlDHf0Y1ldzwA1ig83B0MsWHcR48UD4C+3Q==",
+  "success": true,
+  "projectFilePath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\7.0.401\\fsharp.core.7.0.401.nupkg.sha512"
+  ],
+  "logs": []
+}

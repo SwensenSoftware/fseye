@@ -20,7 +20,7 @@ open FSharp.Interop.Dynamic
 let findTreeNode (tree:TreeView) (path:string) =
     let parts = path.Split('/') |> Seq.toList
 
-    let tryFind (nodes:TreeNodeCollection) p = nodes |> Seq.cast<TreeNode> |> Seq.tryFind (fun x -> x.Text.StartsWith(p))
+    let tryFind (nodes:TreeNodeCollection) (p:string) = nodes |> Seq.cast<TreeNode> |> Seq.tryFind (fun x -> x.Text.StartsWith(p))
 
     let rec loop tn parts =
         match parts with

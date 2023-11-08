@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+	  <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Forms\**" />
+    <EmbeddedResource Remove="Fsi\**" />
+    <EmbeddedResource Remove="Resources\**" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin7.fsproj" />
+	  <ProjectReference Include="..\FsEye.PropertyGrid.Plugin\FsEye.PropertyGrid.Plugin7.fsproj" />
+	  <ProjectReference Include="..\FsEye.TreeView.Plugin\FsEye.TreeView.Plugin7.fsproj" />
+	  <ProjectReference Include="..\FsEye\FsEye7.fsproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Script1.fsx" />
+		<None Include="packages.config" />
+		<Compile Include="WatchModelTests.fs" />
+		<Compile Include="PluginManagerTests.fs" />
+		<Compile Include="WatchTreeViewTests.fs" />
+		<Compile Include="WatchTreeViewLabelCalculatorTests.fs" />
+		<Compile Include="DataGridViewPluginTests.fs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="FSharp.Interop.Dynamic" Version="5.0.1.268" />
+	  <PackageReference Include="Unquote" Version="6.1.0" />
+	  <PackageReference Include="xunit" Version="2.6.1" />
+	</ItemGroup>
+</Project>

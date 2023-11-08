@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+	  <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Forms\**" />
+    <EmbeddedResource Remove="Fsi\**" />
+    <EmbeddedResource Remove="Resources\**" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="AssemblyInfo.fs" />
+		<Compile Include="Program.fs" />
+		<None Include="App.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\FsEye\FsEye7.fsproj" />
+	</ItemGroup>
+
+</Project>
