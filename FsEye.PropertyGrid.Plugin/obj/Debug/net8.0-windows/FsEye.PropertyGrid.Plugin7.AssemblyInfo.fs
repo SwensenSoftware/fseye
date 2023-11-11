@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("FsEye.PropertyGrid.Plugin7")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+554bdeb5f382570e3ba6bc1f7fa53eaa4fd207db")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("FsEye.PropertyGrid.Plugin7")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("FsEye.PropertyGrid.Plugin7")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

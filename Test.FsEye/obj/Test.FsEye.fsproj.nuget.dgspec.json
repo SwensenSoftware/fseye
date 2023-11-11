@@ -4,12 +4,12 @@
     "G:\\coldfar_py\\fseye\\Test.FsEye\\Test.FsEye.fsproj": {}
   },
   "projects": {
-    "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj": {
+    "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj",
-        "projectName": "FsEye.DataGridView.Plugin",
-        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj",
+        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj",
+        "projectName": "FsEye.DataGridView.Plugin7",
+        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj",
         "packagesPath": "C:\\Users\\anibal\\.nuget\\packages\\",
         "outputPath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\obj\\",
         "projectStyle": "PackageReference",
@@ -23,46 +23,68 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net48"
+          "net8.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
         "frameworks": {
-          "net48": {
-            "targetAlias": "net48",
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj"
               }
             }
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
-        "net48": {
-          "targetAlias": "net48",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "dependencies": {
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
               "target": "Package",
-              "version": "[4.7.0, )",
+              "version": "[8.0.100-beta.23475.2, )",
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj": {
+    "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin7.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj",
-        "projectName": "FsEye.PropertyGrid.Plugin",
-        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj",
+        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin7.fsproj",
+        "projectName": "FsEye.PropertyGrid.Plugin7",
+        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin7.fsproj",
         "packagesPath": "C:\\Users\\anibal\\.nuget\\packages\\",
         "outputPath": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\obj\\",
         "projectStyle": "PackageReference",
@@ -76,46 +98,68 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net48"
+          "net8.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
         "frameworks": {
-          "net48": {
-            "targetAlias": "net48",
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj"
               }
             }
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
-        "net48": {
-          "targetAlias": "net48",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "dependencies": {
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
               "target": "Package",
-              "version": "[4.7.0, )",
+              "version": "[8.0.100-beta.23475.2, )",
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj": {
+    "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj",
-        "projectName": "FsEye.TreeView.Plugin",
-        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj",
+        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj",
+        "projectName": "FsEye.TreeView.Plugin7",
+        "projectPath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj",
         "packagesPath": "C:\\Users\\anibal\\.nuget\\packages\\",
         "outputPath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\obj\\",
         "projectStyle": "PackageReference",
@@ -129,46 +173,68 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net48"
+          "net8.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
         "frameworks": {
-          "net48": {
-            "targetAlias": "net48",
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
             "projectReferences": {
-              "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj"
               }
             }
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
-        "net48": {
-          "targetAlias": "net48",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "dependencies": {
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
               "target": "Package",
-              "version": "[4.7.0, )",
+              "version": "[8.0.100-beta.23475.2, )",
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj": {
+    "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj",
-        "projectName": "FsEye",
-        "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj",
+        "projectUniqueName": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj",
+        "projectName": "FsEye7",
+        "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj",
         "packagesPath": "C:\\Users\\anibal\\.nuget\\packages\\",
         "outputPath": "G:\\coldfar_py\\fseye\\FsEye\\obj\\",
         "projectStyle": "PackageReference",
@@ -182,37 +248,64 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net48"
+          "net8.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
         "frameworks": {
-          "net48": {
-            "targetAlias": "net48",
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
             "projectReferences": {
               "G:\\coldfar_py\\fseye\\Utils\\Utils.fsproj": {
                 "projectPath": "G:\\coldfar_py\\fseye\\Utils\\Utils.fsproj"
               }
             }
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
-        "net48": {
-          "targetAlias": "net48",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "dependencies": {
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
               "target": "Package",
-              "version": "[4.7.0, )",
+              "version": "[8.0.100-beta.23475.2, )",
+              "generatePathProperty": true
+            },
+            "Microsoft.Extensions.FileProviders.Embedded": {
+              "target": "Package",
+              "version": "[8.0.0-rc.2.23480.2, )",
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
@@ -239,7 +332,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
@@ -247,23 +340,26 @@
           "net48": {
             "targetAlias": "net48",
             "projectReferences": {
-              "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.DataGridView.Plugin\\FsEye.DataGridView.Plugin7.fsproj"
               },
-              "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.PropertyGrid.Plugin\\FsEye.PropertyGrid.Plugin7.fsproj"
               },
-              "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye.TreeView.Plugin\\FsEye.TreeView.Plugin7.fsproj"
               },
-              "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj": {
-                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye.fsproj"
+              "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj": {
+                "projectPath": "G:\\coldfar_py\\fseye\\FsEye\\FsEye7.fsproj"
               },
               "G:\\coldfar_py\\fseye\\Utils\\Utils.fsproj": {
                 "projectPath": "G:\\coldfar_py\\fseye\\Utils\\Utils.fsproj"
               }
             }
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
@@ -302,7 +398,7 @@
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -329,7 +425,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
@@ -338,6 +434,9 @@
             "targetAlias": "netstandard2.0",
             "projectReferences": {}
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
         }
       },
       "frameworks": {
@@ -347,7 +446,7 @@
             "FSharp.Core": {
               "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
               "target": "Package",
-              "version": "[4.7.0, )",
+              "version": "[8.0.100-beta.23475.2, )",
               "generatePathProperty": true
             },
             "NETStandard.Library": {
@@ -369,7 +468,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\RuntimeIdentifierGraph.json"
         }
       }
     }

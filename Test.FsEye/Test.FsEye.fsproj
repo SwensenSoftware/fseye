@@ -36,10 +36,10 @@
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin.fsproj" />
-    <ProjectReference Include="..\FsEye.PropertyGrid.Plugin\FsEye.PropertyGrid.Plugin.fsproj" />
-    <ProjectReference Include="..\FsEye.TreeView.Plugin\FsEye.TreeView.Plugin.fsproj" />
-    <ProjectReference Include="..\FsEye\FsEye.fsproj" />
+    <ProjectReference Include="..\FsEye.DataGridView.Plugin\FsEye.DataGridView.Plugin7.fsproj" />
+    <ProjectReference Include="..\FsEye.PropertyGrid.Plugin\FsEye.PropertyGrid.Plugin7.fsproj" />
+    <ProjectReference Include="..\FsEye.TreeView.Plugin\FsEye.TreeView.Plugin7.fsproj" />
+    <ProjectReference Include="..\FsEye\FsEye7.fsproj" />
     <ProjectReference Include="..\Utils\Utils.fsproj" />
   </ItemGroup>
   <ItemGroup>

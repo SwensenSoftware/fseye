@@ -27,7 +27,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
         },
@@ -40,9 +40,6 @@
               }
             }
           }
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "default"
         }
       },
       "frameworks": {
@@ -56,7 +53,7 @@
               "generatePathProperty": true
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     },
