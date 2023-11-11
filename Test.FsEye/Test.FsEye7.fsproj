@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
 	  <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
@@ -31,5 +31,8 @@
 	  <PackageReference Include="FSharp.Interop.Dynamic" Version="5.0.1.268" />
 	  <PackageReference Include="Unquote" Version="6.1.0" />
 	  <PackageReference Include="xunit" Version="2.6.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Update="FSharp.Core" Version="8.0.100-beta.23475.2" />
 	</ItemGroup>
 </Project>

@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "1RmGvbI9ZKFGaMk5Vm5qHrVCpRRfsKntlrr57pcH2GfQJDCHcpCt/qF1XaqRk13ba5QN8UXKW3oW+nVavBZRiA==",
+  "dgSpecHash": "iHONfSh1ZfWhk1xSzzy2qmL60AugW9LlCNEF2SnXlUMv6QqSeqVOcM7xW2yK8nn3UddsmzHIr5z3ZxmtDF1UJA==",
   "success": true,
   "projectFilePath": "G:\\coldfar_py\\fseye\\ConsoleApp1\\ConsoleApp1.fsproj",
   "expectedPackageFiles": [
-    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\7.0.401\\fsharp.core.7.0.401.nupkg.sha512"
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\8.0.100-beta.23475.2\\fsharp.core.8.0.100-beta.23475.2.nupkg.sha512"
   ],
   "logs": []
 }

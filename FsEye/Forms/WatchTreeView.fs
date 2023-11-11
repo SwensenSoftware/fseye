@@ -95,75 +95,77 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
                         sprintf "%s%s%s" (loop cur.Parent) separator ei.Expression
         loop tn
 
-    let createNodeContextMenu (tn:TreeNode) : TreeNode = 
-        //new ContextMenu [|
-        //    match tn with
-        //    | Watch(Root(_)) ->
-        //        let mi = new MenuItem("Refresh") 
-        //        mi.Click.Add(fun args -> refresh tn) 
-        //        yield mi
-        //    | _ -> ()
+    let createNodeContextMenu (tn:TreeNode) = 
+        let cms = new ContextMenuStrip()
+        match tn with
+        | Watch(Root(_)) ->
+            let mi = new ToolStripMenuItem("Refresh") 
+            mi.Click.Add(fun args -> refresh tn) 
+            cms.Items.Add mi |> ignore
+        | _ -> ()
 
-        //    match tn with
-        //    | Watch(Root(_)) | Archive ->
-        //        let mi = new MenuItem("Remove")
-        //        mi.Click.Add(fun args -> this.Nodes.Remove(tn))
-        //        yield mi
-        //    | _ -> ()
+        match tn with
+        | Watch(Root(_)) | Archive ->
+            let mi = new ToolStripMenuItem("Remove")
+            mi.Click.Add(fun args -> this.Nodes.Remove(tn))
+            cms.Items.Add mi |> ignore
+        | _ -> ()
 
-        //    match tn with
-        //    | Watch(Organizer _ ) -> ()
-        //    | Watch(w) ->
-        //        match w with
-        //        | Root _ ->
-        //            yield new MenuItem("-") //n.b. for root watches, ValueInfo is always Some
-        //        | _ -> ()
+        match tn with
+        | Watch(Organizer _ ) -> ()
+        | Watch(w) ->
+            match w with
+            | Root _ ->
+                let mi = new ToolStripMenuItem("-") //n.b. for root watches, ValueInfo is always Some
+                cms.Items.Add mi |> ignore
+            | _ -> ()
 
-        //        let mi = new MenuItem("Copy Value")
-        //        match w.ValueInfo with
-        //        | Some({Text=vtext}) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
-        //        | None -> mi.Enabled <- false
-        //        yield mi 
+            let mi = new ToolStripMenuItem("Copy Value")
+            match w.ValueInfo with
+            | Some({Text=vtext}) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
+            | None -> mi.Enabled <- false
+            cms.Items.Add mi |> ignore 
 
-        //        match pluginManager with
-        //        | Some(pluginManager) ->
-        //            //issues 25 and 26 (plugin architecture and view property grid)
-        //            let miSendTo = new MenuItem("Send To")
-        //            match w.ValueInfo with
-        //            | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
-        //                let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
-        //                miSendTo.MenuItems.AddRange [|
-        //                    let managedPlugins = 
-        //                        pluginManager.ManagedPlugins 
-        //                        |> Seq.map (fun mp -> mp.Plugin.IsWatchable(vi.Value, vi.Type), mp)
+            match pluginManager with
+            | Some(pluginManager) ->
+                //issues 25 and 26 (plugin architecture and view property grid)
+                let miSendTo = new ToolStripMenuItem("Send To")
+                match w.ValueInfo with
+                | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
+                    let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
+                    miSendTo.DropDownItems.AddRange (seq [|
+                        let managedPlugins = 
+                            pluginManager.ManagedPlugins 
+                            |> Seq.map (fun mp -> mp.Plugin.IsWatchable(vi.Value, vi.Type), mp)
 
-        //                    //send to a new watch                                
-        //                    for (enabled, managedPlugin) in managedPlugins do
-        //                        let miWatchViewer = new MenuItem(managedPlugin.Plugin.Name + " (new)")
-        //                        miWatchViewer.Enabled <- enabled
-        //                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
-        //                        yield miWatchViewer
-                            
-        //                    //send to an existing watch                                
-        //                    let managedWatchViewers = [|
-        //                        for (enabled, managedPlugin) in managedPlugins do
-        //                            if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
-        //                                for managedWatchViewer in managedPlugin.ManagedWatchViewers do
-        //                                    let miWatchViewer = new MenuItem(managedWatchViewer.ID)
-        //                                    miWatchViewer.Enabled <- enabled
-        //                                    miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
-        //                                    yield miWatchViewer
-        //                    |]
-        //                    if managedWatchViewers |> Seq.length > 0 then
-        //                        yield new MenuItem("-")
-        //                        yield! managedWatchViewers
-        //                |]
-        //            | _ -> 
-        //                miSendTo.Enabled <- false
-        //            yield miSendTo
-        //        | None -> ()
-        //    | _ -> () |]
-        failwith "not supported"
+                        //send to a new watch                                
+                        for (enabled, managedPlugin) in managedPlugins do
+                            //let miWatchViewer = new ToolStripMenuItem(managedPlugin.Plugin.Name + " (new)")
+                            let miWatchViewer = new ToolStripMenuItem(managedPlugin.Plugin.Name + " (new)")
+                            miWatchViewer.Enabled <- enabled
+                            miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
+                            yield miWatchViewer :> ToolStripItem
+                      
+                        //send to an existing watch                                
+                        let managedWatchViewers = [|
+                            for (enabled, managedPlugin) in managedPlugins do
+                                if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
+                                    for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                        let miWatchViewer = new ToolStripMenuItem(managedWatchViewer.ID)
+                                        miWatchViewer.Enabled <- enabled
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
+                                        yield miWatchViewer :> ToolStripItem
+                        |]
+                        if managedWatchViewers |> Seq.length > 0 then
+                            yield new ToolStripMenuItem("-") :> ToolStripItem
+                            yield! managedWatchViewers
+                    |] |> Seq.toArray)
+                | _ -> 
+                    miSendTo.Enabled <- false
+                cms.Items.Add miSendTo |> ignore  
+            | None -> ()
+        | _ -> ()
+        
     
     let mutable archiveCounter = 0
 
@@ -289,7 +291,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
             il
 
-        this.Font <- Font (this.Font.FontFamily, this.Font.Size, this.Font.Style)
+        this.Font <- new Font (this.Font.FontFamily, this.Font.Size, this.Font.Style)
 
         this.MouseWheel
         |> Event.filter (fun args -> 
@@ -300,7 +302,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             let newSize = 
                 let s = oldFont.Size + fontSizeDelta
                 if s <= 0.0f then 1.0f else s
-            let newFont = Font (oldFont.FontFamily, newSize, oldFont.Style)
+            let newFont = new Font (oldFont.FontFamily, newSize, oldFont.Style)
             this.Font <- newFont
             oldFont.Dispose ())
     with

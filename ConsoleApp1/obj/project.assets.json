@@ -1,8 +1,8 @@
 {
   "version": 3,
   "targets": {
-    "net7.0-windows7.0": {
-      "FSharp.Core/7.0.401": {
+    "net8.0-windows7.0": {
+      "FSharp.Core/8.0.100-beta.23475.2": {
         "type": "package",
         "compile": {
           "lib/netstandard2.1/FSharp.Core.dll": {
@@ -59,15 +59,15 @@
     }
   },
   "libraries": {
-    "FSharp.Core/7.0.401": {
-      "sha512": "ZL16YHLJnkosMooVXjvJH0vGf7O4RSNtCpA/qw6OAHYxPCYSZRc5pKFTpDeDLdSWpOJDaZlveKcn42F0UDo77A==",
+    "FSharp.Core/8.0.100-beta.23475.2": {
+      "sha512": "EEYKMpieataf/B7mcoHTDPGw8cnREa1AKwyFgHtiGwTOEJlzY7XIRMyOQvN4P9aMFh55ILZN6NKgPQrktcnQNg==",
       "type": "package",
-      "path": "fsharp.core/7.0.401",
+      "path": "fsharp.core/8.0.100-beta.23475.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "fsharp.core.7.0.401.nupkg.sha512",
+        "fsharp.core.8.0.100-beta.23475.2.nupkg.sha512",
         "fsharp.core.nuspec",
         "lib/netstandard2.0/FSharp.Core.dll",
         "lib/netstandard2.0/FSharp.Core.xml",
@@ -103,8 +103,8 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net7.0-windows7.0": [
-      "FSharp.Core >= 7.0.401"
+    "net8.0-windows7.0": [
+      "FSharp.Core >= 8.0.100-beta.23475.2"
     ]
   },
   "packageFolders": {
@@ -130,29 +130,32 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net7.0-windows"
+        "net8.0-windows"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\sdk\\7.0.403\\FSharp\\library-packs": {},
+        "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {},
         "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
       },
       "frameworks": {
-        "net7.0-windows7.0": {
-          "targetAlias": "net7.0-windows",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "projectReferences": {}
         }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "default"
       }
     },
     "frameworks": {
-      "net7.0-windows7.0": {
-        "targetAlias": "net7.0-windows",
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
         "dependencies": {
           "FSharp.Core": {
             "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
             "target": "Package",
-            "version": "[7.0.401, )",
+            "version": "[8.0.100-beta.23475.2, )",
             "generatePathProperty": true
           }
         },
@@ -175,7 +178,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

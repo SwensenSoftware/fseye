@@ -15,6 +15,6 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgNETStandard_Library Condition=" '$(PkgNETStandard_Library)' == '' ">C:\Users\anibal\.nuget\packages\netstandard.library\2.0.3</PkgNETStandard_Library>
-    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\4.7.0</PkgFSharp_Core>
+    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\8.0.100-beta.23475.2</PkgFSharp_Core>
   </PropertyGroup>
 </Project>

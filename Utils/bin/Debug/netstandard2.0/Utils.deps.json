@@ -9,18 +9,18 @@
     ".NETStandard,Version=v2.0/": {
       "Utils/1.0.0": {
         "dependencies": {
-          "FSharp.Core": "4.7.0",
+          "FSharp.Core": "8.0.100-beta.23475.2",
           "NETStandard.Library": "2.0.3"
         },
         "runtime": {
           "Utils.dll": {}
         }
       },
-      "FSharp.Core/4.7.0": {
+      "FSharp.Core/8.0.100-beta.23475.2": {
         "runtime": {
           "lib/netstandard2.0/FSharp.Core.dll": {
-            "assemblyVersion": "4.7.0.0",
-            "fileVersion": "4.700.19.40208"
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.1.23.47502"
           }
         },
         "resources": {
@@ -79,12 +79,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "FSharp.Core/4.7.0": {
+    "FSharp.Core/8.0.100-beta.23475.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6Bf2qzSCaJoP6tTfO+a5muUS7QbyJANqSut73zQvwQ9It5P0ITz9VKseeia2ofco30c55EQ0jA2wf2+A2gpGnw==",
-      "path": "fsharp.core/4.7.0",
-      "hashPath": "fsharp.core.4.7.0.nupkg.sha512"
+      "sha512": "sha512-EEYKMpieataf/B7mcoHTDPGw8cnREa1AKwyFgHtiGwTOEJlzY7XIRMyOQvN4P9aMFh55ILZN6NKgPQrktcnQNg==",
+      "path": "fsharp.core/8.0.100-beta.23475.2",
+      "hashPath": "fsharp.core.8.0.100-beta.23475.2.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "type": "package",

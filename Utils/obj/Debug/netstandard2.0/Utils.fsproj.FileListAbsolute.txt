@@ -15,3 +15,4 @@ G:\coldfar_py\fseye\Utils\obj\Debug\netstandard2.0\Utils.AssemblyInfo.fs
 G:\coldfar_py\fseye\Utils\obj\Debug\netstandard2.0\Utils.fsproj.CoreCompileInputs.cache
 G:\coldfar_py\fseye\Utils\obj\Debug\netstandard2.0\Utils.dll
 G:\coldfar_py\fseye\Utils\obj\Debug\netstandard2.0\Utils.pdb
+G:\coldfar_py\fseye\Utils\obj\Debug\netstandard2.0\Utils.sourcelink.json

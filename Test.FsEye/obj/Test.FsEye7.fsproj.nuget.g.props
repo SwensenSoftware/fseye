@@ -19,7 +19,7 @@
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Pkgxunit_analyzers Condition=" '$(Pkgxunit_analyzers)' == '' ">C:\Users\anibal\.nuget\packages\xunit.analyzers\1.4.0</Pkgxunit_analyzers>
     <Pkgxunit Condition=" '$(Pkgxunit)' == '' ">C:\Users\anibal\.nuget\packages\xunit\2.6.1</Pkgxunit>
-    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\7.0.401</PkgFSharp_Core>
+    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\8.0.100-beta.23475.2</PkgFSharp_Core>
     <PkgUnquote Condition=" '$(PkgUnquote)' == '' ">C:\Users\anibal\.nuget\packages\unquote\6.1.0</PkgUnquote>
     <PkgFSharp_Interop_Dynamic Condition=" '$(PkgFSharp_Interop_Dynamic)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.interop.dynamic\5.0.1.268</PkgFSharp_Interop_Dynamic>
   </PropertyGroup>

@@ -86,7 +86,7 @@ and PluginManager(?scanForPlugins:bool) as this =
                     else executingAsm.Location
                 let executingDir = Path.GetDirectoryName(executingAsmLocation)
                 let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
-                let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
+                let assemblyExclude = ["FsEye7.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
 
                 let pluginSeqAss =
                     [pluginDir; executingDir]
@@ -98,7 +98,14 @@ and PluginManager(?scanForPlugins:bool) as this =
                             assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
                         //Issue 36: need to use Assembly.UnsafeLoadFrom to avoid plugin loading errors
                         |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile)))
-                    |> Seq.filter (fun a -> regex.IsMatch a.FullName)
+                    |> Seq.filter (fun a -> 
+                        let ifMatched = regex.IsMatch a.FullName
+                        if ifMatched then
+                            printfn $"matched: {a.FullName}"
+                        else
+                            printfn $"not matched: {a.FullName}"
+                        ifMatched
+                        )
                 
                 let pluginSeq =
                     pluginSeqAss

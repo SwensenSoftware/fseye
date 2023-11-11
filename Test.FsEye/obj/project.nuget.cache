@@ -1,13 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "kF7Jv6vihkKz++9tovLc41VwVWeSpA8s+/F/NksE9sSK4mFmL2Ul+0lWwFW+ce/uKtR0FMW+SsAWWF5EIu/Thw==",
+  "dgSpecHash": "QLAo9UDtLBE8k2NSEVedNchzFNlIzPwkiiH/ScApT88aY2OZ01FgRoAZRjh1F5XP8jsySazR6NORo8dVmSYOWQ==",
   "success": true,
   "projectFilePath": "G:\\coldfar_py\\fseye\\Test.FsEye\\Test.FsEye7.fsproj",
   "expectedPackageFiles": [
     "C:\\Users\\anibal\\.nuget\\packages\\dynamitey\\2.0.10.189\\dynamitey.2.0.10.189.nupkg.sha512",
-    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\7.0.401\\fsharp.core.7.0.401.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\8.0.100-beta.23475.2\\fsharp.core.8.0.100-beta.23475.2.nupkg.sha512",
     "C:\\Users\\anibal\\.nuget\\packages\\fsharp.interop.dynamic\\5.0.1.268\\fsharp.interop.dynamic.5.0.1.268.nupkg.sha512",
     "C:\\Users\\anibal\\.nuget\\packages\\microsoft.csharp\\4.6.0\\microsoft.csharp.4.6.0.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0-rc.2.23479.6\\microsoft.extensions.fileproviders.abstractions.8.0.0-rc.2.23479.6.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.fileproviders.embedded\\8.0.0-rc.2.23480.2\\microsoft.extensions.fileproviders.embedded.8.0.0-rc.2.23480.2.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0-rc.2.23479.6\\microsoft.extensions.primitives.8.0.0-rc.2.23479.6.nupkg.sha512",
     "C:\\Users\\anibal\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\anibal\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "C:\\Users\\anibal\\.nuget\\packages\\microsoft.win32.primitives\\4.3.0\\microsoft.win32.primitives.4.3.0.nupkg.sha512",

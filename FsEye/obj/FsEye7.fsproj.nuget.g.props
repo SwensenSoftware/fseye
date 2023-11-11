@@ -13,7 +13,11 @@
     <SourceRoot Include="C:\Users\anibal\.nuget\packages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
   </ItemGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)microsoft.extensions.fileproviders.embedded\8.0.0-rc.2.23480.2\build\netstandard2.0\Microsoft.Extensions.FileProviders.Embedded.props" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.fileproviders.embedded\8.0.0-rc.2.23480.2\build\netstandard2.0\Microsoft.Extensions.FileProviders.Embedded.props')" />
+  </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\7.0.401</PkgFSharp_Core>
+    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">C:\Users\anibal\.nuget\packages\fsharp.core\8.0.100-beta.23475.2</PkgFSharp_Core>
+    <PkgMicrosoft_Extensions_FileProviders_Embedded Condition=" '$(PkgMicrosoft_Extensions_FileProviders_Embedded)' == '' ">C:\Users\anibal\.nuget\packages\microsoft.extensions.fileproviders.embedded\8.0.0-rc.2.23480.2</PkgMicrosoft_Extensions_FileProviders_Embedded>
   </PropertyGroup>
 </Project>

@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "cNk8HGMtCXVk4BVEnUixenUcwLIXWlGra5a7/USoAvL78HU5dgL9jsjgTt67NboExuBABQkQhwa51P2d5DrgTQ==",
+  "dgSpecHash": "DAkVub7OhE3qbc5ZeVZ6ZJHSWhmKgrLEzSVA8KsRz0LEDySvOa+wwYkvf/ootXGbAxovZdP18WWq1XPGjD7VPw==",
   "success": true,
   "projectFilePath": "G:\\coldfar_py\\fseye\\WinFormsApp1\\WinFormsApp1.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.12\\microsoft.windowsdesktop.app.ref.7.0.12.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.12\\microsoft.netcore.app.ref.7.0.12.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.12\\microsoft.aspnetcore.app.ref.7.0.12.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\7.0.12\\microsoft.netcore.app.host.win-x64.7.0.12.nupkg.sha512"
+  ],
   "logs": []
 }
