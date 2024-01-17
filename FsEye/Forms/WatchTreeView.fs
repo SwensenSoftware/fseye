@@ -96,73 +96,76 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
         loop tn
 
     let createNodeContextMenu (tn:TreeNode) = 
-        new ContextMenu [|
-            match tn with
-            | Watch(Root(_)) ->
-                let mi = new MenuItem("Refresh") 
-                mi.Click.Add(fun args -> refresh tn) 
-                yield mi
+        let cms = new ContextMenuStrip()
+        match tn with
+        | Watch(Root(_)) ->
+            let mi = new ToolStripMenuItem("Refresh") 
+            mi.Click.Add(fun args -> refresh tn) 
+            cms.Items.Add mi |> ignore
+        | _ -> ()
+
+        match tn with
+        | Watch(Root(_)) | Archive ->
+            let mi = new ToolStripMenuItem("Remove")
+            mi.Click.Add(fun args -> this.Nodes.Remove(tn))
+            cms.Items.Add mi |> ignore
+        | _ -> ()
+
+        match tn with
+        | Watch(Organizer _ ) -> ()
+        | Watch(w) ->
+            match w with
+            | Root _ ->
+                let mi = new ToolStripMenuItem("-") //n.b. for root watches, ValueInfo is always Some
+                cms.Items.Add mi |> ignore
             | _ -> ()
 
-            match tn with
-            | Watch(Root(_)) | Archive ->
-                let mi = new MenuItem("Remove")
-                mi.Click.Add(fun args -> this.Nodes.Remove(tn))
-                yield mi
-            | _ -> ()
+            let mi = new ToolStripMenuItem("Copy Value")
+            match w.ValueInfo with
+            | Some({Text=vtext}) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
+            | None -> mi.Enabled <- false
+            cms.Items.Add mi |> ignore 
 
-            match tn with
-            | Watch(Organizer _ ) -> ()
-            | Watch(w) ->
-                match w with
-                | Root _ ->
-                    yield new MenuItem("-") //n.b. for root watches, ValueInfo is always Some
-                | _ -> ()
-
-                let mi = new MenuItem("Copy Value")
+            match pluginManager with
+            | Some(pluginManager) ->
+                //issues 25 and 26 (plugin architecture and view property grid)
+                let miSendTo = new ToolStripMenuItem("Send To")
                 match w.ValueInfo with
-                | Some({Text=vtext}) -> mi.Click.Add(fun _ -> Clipboard.SetText(vtext))
-                | None -> mi.Enabled <- false
-                yield mi 
+                | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
+                    let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
+                    miSendTo.DropDownItems.AddRange (seq [|
+                        let managedPlugins = 
+                            pluginManager.ManagedPlugins 
+                            |> Seq.map (fun mp -> mp.Plugin.IsWatchable(vi.Value, vi.Type), mp)
 
-                match pluginManager with
-                | Some(pluginManager) ->
-                    //issues 25 and 26 (plugin architecture and view property grid)
-                    let miSendTo = new MenuItem("Send To")
-                    match w.ValueInfo with
-                    | Some(vi) when pluginManager.ManagedPlugins |> Seq.length > 0 ->
-                        let label = lazy(calcNodeLabel tn) //lazy since we need it 0 to x times depending on Plugin.IsWatchable
-                        miSendTo.MenuItems.AddRange [|
-                            let managedPlugins = 
-                                pluginManager.ManagedPlugins 
-                                |> Seq.map (fun mp -> mp.Plugin.IsWatchable(vi.Value, vi.Type), mp)
-
-                            //send to a new watch                                
+                        //send to a new watch                                
+                        for (enabled, managedPlugin) in managedPlugins do
+                            //let miWatchViewer = new ToolStripMenuItem(managedPlugin.Plugin.Name + " (new)")
+                            let miWatchViewer = new ToolStripMenuItem(managedPlugin.Plugin.Name + " (new)")
+                            miWatchViewer.Enabled <- enabled
+                            miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
+                            yield miWatchViewer :> ToolStripItem
+                      
+                        //send to an existing watch                                
+                        let managedWatchViewers = [|
                             for (enabled, managedPlugin) in managedPlugins do
-                                let miWatchViewer = new MenuItem(managedPlugin.Plugin.Name + " (new)")
-                                miWatchViewer.Enabled <- enabled
-                                miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedPlugin, label.Force(), vi.Value, vi.Type) |> ignore)
-                                yield miWatchViewer
-                            
-                            //send to an existing watch                                
-                            let managedWatchViewers = [|
-                                for (enabled, managedPlugin) in managedPlugins do
-                                    if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
-                                        for managedWatchViewer in managedPlugin.ManagedWatchViewers do
-                                            let miWatchViewer = new MenuItem(managedWatchViewer.ID)
-                                            miWatchViewer.Enabled <- enabled
-                                            miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
-                                            yield miWatchViewer
-                            |]
-                            if managedWatchViewers |> Seq.length > 0 then
-                                yield new MenuItem("-")
-                                yield! managedWatchViewers
+                                if managedPlugin.ManagedWatchViewers |> Seq.length > 0 then
+                                    for managedWatchViewer in managedPlugin.ManagedWatchViewers do
+                                        let miWatchViewer = new ToolStripMenuItem(managedWatchViewer.ID)
+                                        miWatchViewer.Enabled <- enabled
+                                        miWatchViewer.Click.Add(fun _ -> pluginManager.SendTo(managedWatchViewer, label.Force(), vi.Value, vi.Type))
+                                        yield miWatchViewer :> ToolStripItem
                         |]
-                    | _ -> 
-                        miSendTo.Enabled <- false
-                    yield miSendTo
-                | None -> ()
-            | _ -> () |]
+                        if managedWatchViewers |> Seq.length > 0 then
+                            yield new ToolStripMenuItem("-") :> ToolStripItem
+                            yield! managedWatchViewers
+                    |] |> Seq.toArray)
+                | _ -> 
+                    miSendTo.Enabled <- false
+                cms.Items.Add miSendTo |> ignore  
+            | None -> ()
+        | _ -> ()
+        
     
     let mutable archiveCounter = 0
 
@@ -271,8 +274,9 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             if args.Button = MouseButtons.Right then
                 this.SelectedNode <- args.Node //right click causing node to become selected is std. windows behavior
                 let nodeContextMenu = createNodeContextMenu args.Node
-                if nodeContextMenu.MenuItems.Count > 0 then
-                    nodeContextMenu.Show(this, args.Location)
+                //if nodeContextMenu.MenuItems.Count > 0 then
+                //    nodeContextMenu.Show(this, args.Location)
+                ()
             else ()
 
         this.AfterSelect.Add (fun args -> afterSelect args.Node)
@@ -287,7 +291,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
 
             il
 
-        this.Font <- Font (this.Font.FontFamily, this.Font.Size, this.Font.Style)
+        this.Font <- new Font (this.Font.FontFamily, this.Font.Size, this.Font.Style)
 
         this.MouseWheel
         |> Event.filter (fun args -> 
@@ -298,7 +302,7 @@ type WatchTreeView(pluginManager: PluginManager option) as this =
             let newSize = 
                 let s = oldFont.Size + fontSizeDelta
                 if s <= 0.0f then 1.0f else s
-            let newFont = Font (oldFont.FontFamily, newSize, oldFont.Style)
+            let newFont = new Font (oldFont.FontFamily, newSize, oldFont.Style)
             this.Font <- newFont
             oldFont.Dispose ())
     with

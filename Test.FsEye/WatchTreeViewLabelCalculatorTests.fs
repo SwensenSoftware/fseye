@@ -12,14 +12,15 @@ open System.Windows.Forms
 
 open System
 open System.Reflection
-open ImpromptuInterface.FSharp
+//open ImpromptuInterface.FSharp
+open FSharp.Interop.Dynamic
 
 ///Parses the path to find a tree node in the Tree, expanding nodes as needed. Path has form:
 ///root/child1/child2/child3 where t%he root and each child is a text starts with match
 let findTreeNode (tree:TreeView) (path:string) =
     let parts = path.Split('/') |> Seq.toList
 
-    let tryFind (nodes:TreeNodeCollection) p = nodes |> Seq.cast<TreeNode> |> Seq.tryFind (fun x -> x.Text.StartsWith(p))
+    let tryFind (nodes:TreeNodeCollection) (p:string) = nodes |> Seq.cast<TreeNode> |> Seq.tryFind (fun x -> x.Text.StartsWith(p))
 
     let rec loop tn parts =
         match parts with

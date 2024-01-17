@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "MX+2CX0NM2lramioBx48yeMGHGz3Xa0rBu77cI/wb7haSd7c+Ys32LRJMlqzV60jtSRJHkYnZSZH8iDCsELyvw==",
+  "success": true,
+  "projectFilePath": "G:\\coldfar_py\\fseye\\Debug.FsEye\\Debug.FsEye7.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anibal\\.nuget\\packages\\fsharp.core\\8.0.100-beta.23475.2\\fsharp.core.8.0.100-beta.23475.2.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0-rc.2.23479.6\\microsoft.extensions.fileproviders.abstractions.8.0.0-rc.2.23479.6.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.fileproviders.embedded\\8.0.0-rc.2.23480.2\\microsoft.extensions.fileproviders.embedded.8.0.0-rc.2.23480.2.nupkg.sha512",
+    "C:\\Users\\anibal\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0-rc.2.23479.6\\microsoft.extensions.primitives.8.0.0-rc.2.23479.6.nupkg.sha512"
+  ],
+  "logs": []
+}

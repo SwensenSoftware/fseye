@@ -202,7 +202,8 @@ let ``new Watch initially adds dummy child node for lazy loading`` () =
     test <@ tree.Nodes.[0].Nodes.Count = 1 @>
     test <@ tree.Nodes.[0].Nodes.[0].Text = dummyNodeText @>
 
-open ImpromptuInterface.FSharp
+//open ImpromptuInterface.FSharp
+open FSharp.Interop.Dynamic
 
 [<Fact>]
 let ``after expanded, dummy watch child replaced with real children`` () =

@@ -1,0 +1,79 @@
+{
+  "format": 1,
+  "restore": {
+    "G:\\coldfar_py\\fseye\\ConsoleApp1\\ConsoleApp1.fsproj": {}
+  },
+  "projects": {
+    "G:\\coldfar_py\\fseye\\ConsoleApp1\\ConsoleApp1.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "G:\\coldfar_py\\fseye\\ConsoleApp1\\ConsoleApp1.fsproj",
+        "projectName": "ConsoleApp1",
+        "projectPath": "G:\\coldfar_py\\fseye\\ConsoleApp1\\ConsoleApp1.fsproj",
+        "packagesPath": "C:\\Users\\anibal\\.nuget\\packages\\",
+        "outputPath": "G:\\coldfar_py\\fseye\\ConsoleApp1\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "G:\\coldfar_py\\fseye\\.nuget\\NuGet.Config",
+          "C:\\Users\\anibal\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2\\FSharp\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/dotnet-websharper/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "default"
+        }
+      },
+      "frameworks": {
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "dependencies": {
+            "FSharp.Core": {
+              "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[8.0.100-beta.23475.2, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.2.23502.2/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

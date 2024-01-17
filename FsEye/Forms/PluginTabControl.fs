@@ -76,20 +76,39 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
     )
         
     let createTabContextMenu (tab:TabPage) =
-        new ContextMenu [|
-            let mi = new MenuItem("Close Tab") 
-            mi.Click.Add(fun _ -> closeTab tab) 
-            yield mi
+        //new ContextMenu [|
+        //    let mi = new MenuItem("Close Tab") 
+        //    mi.Click.Add(fun _ -> closeTab tab) 
+        //    yield mi
 
-            let mi = new MenuItem("Close Other Tabs")
-            if this.TabCount > 1 then mi.Click.Add(fun _ -> closeOtherTabs tab)
-            else mi.Enabled <- false
-            yield mi
+        //    let mi = new MenuItem("Close Other Tabs")
+        //    if this.TabCount > 1 then mi.Click.Add(fun _ -> closeOtherTabs tab)
+        //    else mi.Enabled <- false
+        //    yield mi
 
-            let mi = new MenuItem("Close All Tabs") 
-            mi.Click.Add(fun _ -> closeAllTabs ()) 
-            yield mi
-        |]
+        //    let mi = new MenuItem("Close All Tabs") 
+        //    mi.Click.Add(fun _ -> closeAllTabs ()) 
+        //    yield mi
+        //|]
+
+        let cms = new ContextMenuStrip ()
+        let ct = new ToolStripMenuItem("Close Tab") 
+        ct.Click.Add(fun _ -> closeTab tab) 
+        cms.Items.Add ct |> ignore
+
+        let cot = new ToolStripMenuItem("Close Other Tabs")
+        if this.TabCount > 1 then cot.Click.Add(fun _ -> closeOtherTabs tab)
+        else cot.Enabled <- false
+        cms.Items.Add cot |> ignore
+            
+
+        let cat = new ToolStripMenuItem("Close All Tabs") 
+        cat.Click.Add(fun _ -> closeAllTabs ()) 
+        cms.Items.Add cat |> ignore
+        
+        cms
+
+        //failwith "createTabContextMenu not supported"
         
     //show the context menu on right-click
     do this.MouseClick.Add (fun e -> 
@@ -100,7 +119,8 @@ type internal PluginTabControl(pluginManager:PluginManager) as this =
                 |> Seq.mapi (fun i tab -> (i,tab)) 
                 |> Seq.find (fun (i,tab) -> this.GetTabRect(i).Contains(e.Location))
                 |> snd
-            (createTabContextMenu clickedTab).Show(this, e.Location)
+            //(createTabContextMenu clickedTab).Show(this, e.Location)
+            (createTabContextMenu clickedTab).Show()
     )
 
     [<CLIEvent>]

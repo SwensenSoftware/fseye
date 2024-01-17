@@ -1,20 +1,25 @@
 ﻿namespace Swensen.FsEye
 open System
 open System.Reflection
+open Microsoft.Extensions.FileProviders
 
 ///Image resource used to identify tree view node member classifications and provide FsEye form icon.
 type ImageResource (name:string) =
     let loadImageResource =
         let assm = Assembly.GetExecutingAssembly()
-        fun name -> System.Drawing.Image.FromStream(assm.GetManifestResourceStream(name))
-
+        let embeddedFileProvider = new EmbeddedFileProvider(assm, "FsEye7")
+        fun name -> 
+            //System.Drawing.Image.FromStream(assm.GetManifestResourceStream(@"FsEye.Resources." + name))
+            let certificateFileInfo = embeddedFileProvider.GetFileInfo(@"Resources\" + name)
+            let resc = certificateFileInfo.CreateReadStream()
+            System.Drawing.Image.FromStream resc
     let image = loadImageResource name
 
     member __.Name = name
     member __.Image = image
 
 //F# doesn't allow public static fields so we save our selves a lot of boiler-plate using a module pretending to be the static part of the class
-[<RequireQualifiedAccess>]
+//[<RequireQualifiedAccess>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>] 
 ///Image resource used to identify tree view node member classifications and provide FsEye form icon.
 module ImageResource =

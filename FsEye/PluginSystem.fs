@@ -74,6 +74,8 @@ and PluginManager(?scanForPlugins:bool) as this =
 
     let showPluginErrorDialog text = showErrorDialog text "FsEye Plugin Loading Error"
     
+    let regex = new System.Text.RegularExpressions.Regex ("FsEye")
+
     let managedPlugins = 
         if scanForPlugins then
             try
@@ -84,18 +86,30 @@ and PluginManager(?scanForPlugins:bool) as this =
                     else executingAsm.Location
                 let executingDir = Path.GetDirectoryName(executingAsmLocation)
                 let pluginDir = sprintf "%s%cplugins" executingDir Path.DirectorySeparatorChar
-                let assemblyExclude = ["FsEye.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
+                let assemblyExclude = ["FsEye7.dll"] //maybe exclude all of executingAsm.GetReferencedAssemblies() as well.
 
-                let pluginSeq =
+                let pluginSeqAss =
                     [pluginDir; executingDir]
+                    |> Seq.distinct
                     |> Seq.filter Directory.Exists
                     |> Seq.collect (fun pluginDir ->
                         Directory.GetFiles(pluginDir)
                         |> Seq.filter(fun assemblyFile -> 
                             assemblyFile.EndsWith(".dll") && assemblyExclude |> List.exists (fun exclude -> assemblyFile.EndsWith(exclude)) |> not)
                         //Issue 36: need to use Assembly.UnsafeLoadFrom to avoid plugin loading errors
-                        |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile))
-                        |> Seq.collect (fun assembly -> 
+                        |> Seq.map (fun assemblyFile -> Assembly.UnsafeLoadFrom(assemblyFile)))
+                    |> Seq.filter (fun a -> 
+                        let ifMatched = regex.IsMatch a.FullName
+                        if ifMatched then
+                            printfn $"matched: {a.FullName}"
+                        else
+                            printfn $"not matched: {a.FullName}"
+                        ifMatched
+                        )
+                
+                let pluginSeq =
+                    pluginSeqAss
+                    |> Seq.collect (fun assembly -> 
                             try
                                 assembly.GetTypes()    
                             with
@@ -108,7 +122,7 @@ and PluginManager(?scanForPlugins:bool) as this =
                         |> Seq.filter (fun ty -> typeof<IPlugin>.IsAssignableFrom(ty))
                         |> Seq.map (fun pluginTy -> 
                             let plugin = Activator.CreateInstance(pluginTy) :?> IPlugin
-                            {Plugin=plugin; PluginManager=this}))
+                            {Plugin=plugin; PluginManager=this})
                 ResizeArray(pluginSeq)
             with
             | x ->

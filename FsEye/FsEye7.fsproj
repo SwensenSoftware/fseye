@@ -1,0 +1,208 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+	  <UseWindowsForms>true</UseWindowsForms>
+	  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <EmbeddedResource Include="Resources\FsEye.ico" />
+    <EmbeddedResource Include="Resources\VSObject_Field.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Friend.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Private.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Protected.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Field_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Method_Sealed.bmp" />
+    <EmbeddedResource Include="Resources\VSObject_Properties_Sealed.bmp" />
+    <Compile Include="IconResource.fs" />
+    <Compile Include="ImageResource.fs" />
+    <Compile Include="Settings.fs" />
+    <Compile Include="WatchModel.fs" />
+    <Compile Include="PluginSystem.fs" />
+    <Compile Include="Win32.fs" />
+    <Compile Include="Forms\WatchTreeView.fs" />
+    <Compile Include="Forms\PluginTabControl.fs" />
+    <None Include="Forms\WatchTreeView_bck.fs" />
+    <Compile Include="Forms\EyeSplitContainer.fs" />
+    <Compile Include="Forms\EyePanel.fs" />
+    <Compile Include="Forms\EyeForm.fs" />
+    <Compile Include="Fsi\SessionQueries.fs" />
+    <Compile Include="Fsi\Eye.fs" />
+    <None Include="FsEye.NuGet.fsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Script.fsx" />
+    <Content Include="todo.txt" />
+    <None Include="FsEye.fsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.0-rc.2.23480.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Utils\Utils.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="8.0.100-beta.23475.2" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+	  <Reference Include="Accessibility.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\Accessibility.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.VisualBasic.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\Microsoft.VisualBasic.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.VisualBasic.Forms.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\Microsoft.VisualBasic.Forms.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.Win32.Registry.AccessControl.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\Microsoft.Win32.Registry.AccessControl.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Microsoft.Win32.SystemEvents.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\Microsoft.Win32.SystemEvents.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationCore.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.Aero.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.Aero.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.Aero2.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.Aero2.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.AeroLite.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.AeroLite.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.Classic.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.Classic.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.Luna.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.Luna.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationFramework.Royale.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationFramework.Royale.dll</HintPath>
+	  </Reference>
+	  <Reference Include="PresentationUI.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\PresentationUI.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ReachFramework.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\ReachFramework.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.CodeDom.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.CodeDom.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Configuration.ConfigurationManager.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Configuration.ConfigurationManager.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Design.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Design.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Diagnostics.EventLog.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Diagnostics.EventLog.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Diagnostics.PerformanceCounter.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Diagnostics.PerformanceCounter.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.DirectoryServices.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.DirectoryServices.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Drawing.Common.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Drawing.Common.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Drawing.Design.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Drawing.Design.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Drawing.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Drawing.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.IO.Packaging.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.IO.Packaging.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Printing.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Printing.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Resources.Extensions.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Resources.Extensions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Security.Cryptography.Pkcs.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Security.Cryptography.Pkcs.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Security.Cryptography.ProtectedData.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Security.Cryptography.ProtectedData.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Security.Cryptography.Xml.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Security.Cryptography.Xml.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Security.Permissions.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Security.Permissions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Threading.AccessControl.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Threading.AccessControl.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Controls.Ribbon.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Controls.Ribbon.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Extensions.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Extensions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Forms.Design.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Forms.Design.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Forms.Design.Editors.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Forms.Design.Editors.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Forms.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Forms.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Forms.Primitives.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Forms.Primitives.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Input.Manipulations.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Input.Manipulations.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Windows.Presentation.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Windows.Presentation.dll</HintPath>
+	  </Reference>
+	  <Reference Include="System.Xaml.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\System.Xaml.dll</HintPath>
+	  </Reference>
+	  <Reference Include="UIAutomationClient.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\UIAutomationClient.dll</HintPath>
+	  </Reference>
+	  <Reference Include="UIAutomationClientSideProviders.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\UIAutomationClientSideProviders.dll</HintPath>
+	  </Reference>
+	  <Reference Include="UIAutomationProvider.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\UIAutomationProvider.dll</HintPath>
+	  </Reference>
+	  <Reference Include="UIAutomationTypes.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\UIAutomationTypes.dll</HintPath>
+	  </Reference>
+	  <Reference Include="WindowsBase.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\WindowsBase.dll</HintPath>
+	  </Reference>
+	  <Reference Include="WindowsFormsIntegration.dll">
+		  <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.13\ref\net7.0\WindowsFormsIntegration.dll</HintPath>
+	  </Reference>
+  </ItemGroup>-->
+
+</Project>

@@ -142,7 +142,7 @@ let private sprintValue (value:obj) (ty:Type) =
     | null -> "null"
     | _ -> 
         if typeof<System.Type>.IsAssignableFrom(ty) then
-            sprintf "typeof<%s>" (value :?> Type).FSharpName
+            sprintf "typeof<%s>" (value :?> Type).Name //.FSharpName
         else
             sprintf "%A" value |> cleanString
 
@@ -194,6 +194,7 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
             let nonRedundantMembers =
                 validMemberTypes
+                //|> Seq.distinctByResolve
                 |> Seq.distinctByResolve
                     (fun mi -> mi.Name.ToLower())
                     (fun mi1 mi2 -> 
@@ -215,7 +216,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 let ty = if value =& null then typeof<obj> else value.GetType()
                 let valueText = sprintValue value ty
                 let expression = sprintf "[%i]" index
-                let text = sprintf "%s : %s = %s" expression ty.FSharpName valueText
+                //let text = sprintf "%s : %s = %s" expression ty.FSharpName valueText
+                let text = sprintf "%s : %s = %s" expression ty.Name valueText
                 let children = createChildren value ty
                 EnumeratorElement { Text=text
                                     Children=children
@@ -240,14 +242,16 @@ let rec createChildren ownerValue (ownerTy:Type) =
         //if member is inherited from base type or explicit interface, fully qualify
         let getMemberName (mi:Reflection.MemberInfo) =
             if mi.ReflectedType <> ownerTy then
-                mi.ReflectedType.FSharpName + "." + mi.Name
+                //mi.ReflectedType.FSharpName + "." + mi.Name
+                mi.ReflectedType.Name + "." + mi.Name
             else
                 mi.Name
 
         let getMemberExpressionInfo (mi:Reflection.MemberInfo) =
             let explicitInterfaceName =
                 if mi.ReflectedType.IsInterface then
-                    Some(mi.ReflectedType.FSharpName)
+                    //Some(mi.ReflectedType.FSharpName)
+                    Some(mi.ReflectedType.Name)
                 else
                     None
 
@@ -268,12 +272,14 @@ let rec createChildren ownerValue (ownerTy:Type) =
 
         let makeMemberValue (value:obj) valueTy pretext =
             if typeof<System.Collections.IEnumerator>.IsAssignableFrom(valueTy) then
-                { MemberValue.LoadedText=pretext valueTy.FSharpName ""
+                //{ MemberValue.LoadedText=pretext valueTy.FSharpName ""
+                { MemberValue.LoadedText=pretext valueTy.Name ""
                   Children=(createResultWatches (value :?> System.Collections.IEnumerator))
                   ValueInfo=None }
             else
                 let valueText = sprintValue value valueTy
-                { LoadedText=pretext valueTy.FSharpName (" = " + valueText)
+                //{ LoadedText=pretext valueTy.FSharpName (" = " + valueText)
+                { LoadedText=pretext valueTy.Name (" = " + valueText)
                   Children=(createChildren value valueTy)
                   ValueInfo=Some({Text=valueText; Value=value; Type=valueTy}) }
 
@@ -303,7 +309,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateProperty
 
-            DataMember { LoadingText=(pretext pi.PropertyType.FSharpName loadingText)
+            //DataMember { LoadingText=(pretext pi.PropertyType.FSharpName loadingText)
+            DataMember { LoadingText=(pretext pi.PropertyType.Name loadingText)
                          LazyMemberValue=delayed
                          Image=image
                          MemberInfo=pi 
@@ -328,7 +335,8 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateField
 
-            DataMember { LoadingText=pretext fi.FieldType.FSharpName loadingText
+            //DataMember { LoadingText=pretext fi.FieldType.FSharpName loadingText
+            DataMember { LoadingText=pretext fi.FieldType.Name loadingText
                          LazyMemberValue=delayed
                          Image=image
                          MemberInfo=fi 
@@ -356,8 +364,10 @@ let rec createChildren ownerValue (ownerTy:Type) =
                 else //assume private
                     ImageResource.PrivateMethod
 
-            CallMember { InitialText=pretext mi.ReturnType.FSharpName ""
-                         LoadingText=pretext mi.ReturnType.FSharpName loadingText
+            CallMember { InitialText=pretext mi.ReturnType.Name ""
+            //CallMember { InitialText=pretext mi.ReturnType.FSharpName ""
+                         LoadingText=pretext mi.ReturnType.Name loadingText
+                         //LoadingText=pretext mi.ReturnType.FSharpName loadingText
                          LazyMemberValue=delayed
                          Image=image
                          MemberInfo=mi 
@@ -390,7 +400,8 @@ let createRootWatch (name:string) (value:obj) (ty:Type) =
         else typeof<obj>
 
     let valueText = sprintValue value ty
-    let text = sprintf "%s : %s = %s" name ty.FSharpName valueText
+    //let text = sprintf "%s : %s = %s" name ty.FSharpName valueText
+    let text = sprintf "%s : %s = %s" name ty.Name valueText
     let children = createChildren value ty
     Root { Text=text
            Children=children
